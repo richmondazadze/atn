@@ -1,0 +1,215 @@
+import { useState } from 'react';
+import { useParams } from 'react-router';
+import { Button } from '../../components/ui/button';
+import { Card } from '../../components/ui/card';
+import { Badge } from '../../components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
+import { Calendar } from '../../components/ui/calendar';
+import { Alert, AlertDescription } from '../../components/ui/alert';
+import { Clock, DollarSign, MapPin, CheckCircle2, Calendar as CalendarIcon, Info } from 'lucide-react';
+import { listings, reviews } from '../../data/mockData';
+import { getListingImage } from '../../data/images';
+import { RatingStars } from '../../components/RatingStars';
+import { toast } from 'sonner';
+
+const TIME_SLOTS = ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00'];
+
+export default function ListingDetail() {
+  const { id } = useParams<{ id: string }>();
+  const listing = listings.find(l => l.id === id) ?? listings[0];
+  const listingReviews = reviews.filter(r => r.listingId === listing.id).slice(0, 3);
+
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [selectedTime, setSelectedTime] = useState('');
+
+  function handleConfirmBooking() {
+    if (!selectedTime) {
+      toast.error('Please select a time slot');
+      return;
+    }
+    setShowBookingModal(false);
+    toast.success('Booking confirmed! Check your bookings for details.');
+  }
+
+  return (
+    <div className="min-h-screen bg-secondary px-4 lg:px-[72px]">
+      <div className="py-6 lg:py-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+          {/* Main Content */}
+          <div className="lg:col-span-2">
+            <div className="h-56 sm:h-80 lg:h-96 rounded overflow-hidden bg-gradient-to-br from-primary/20 to-primary/10 mb-6 lg:mb-8">
+              {listing.images[0] && getListingImage(listing.images[0]) && (
+                <img src={getListingImage(listing.images[0])} alt={listing.title} className="w-full h-full object-cover" />
+              )}
+            </div>
+
+            <div className="mb-6 lg:mb-8">
+              <div className="flex items-start justify-between mb-3 gap-3">
+                <div>
+                  <h1 className="text-2xl lg:text-[32px] font-semibold mb-1.5">{listing.title}</h1>
+                  <span className="text-primary text-sm font-medium">{listing.providerName}</span>
+                </div>
+                {listing.featured && <Badge className="bg-primary/10 text-primary border-0 shrink-0">Featured</Badge>}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-4 text-sm">
+                <div className="flex items-center gap-1.5">
+                  <RatingStars rating={listing.rating} size={15} />
+                  <span className="font-medium">{listing.rating}</span>
+                  <span className="text-muted">({listing.reviewCount} reviews)</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-muted">
+                  <MapPin size={14} />
+                  <span>Jonesboro, AR</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Description */}
+            <Card className="border-border p-5 mb-4">
+              <h2 className="text-lg font-medium mb-3">About this service</h2>
+              <p className="text-sm leading-relaxed">{listing.description}</p>
+            </Card>
+
+            {/* Amenities */}
+            {listing.amenities && listing.amenities.length > 0 && (
+              <Card className="border-border p-5 mb-4">
+                <h2 className="text-lg font-medium mb-3">What's included</h2>
+                <div className="space-y-2">
+                  {listing.amenities.map((amenity, i) => (
+                    <div key={i} className="flex items-center gap-2 text-sm">
+                      <CheckCircle2 size={14} className="text-primary shrink-0" />
+                      <span>{amenity}</span>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
+
+            {/* Reviews */}
+            <Card className="border-border p-5">
+              <h2 className="text-lg font-medium mb-5">Reviews</h2>
+              {listingReviews.length === 0 ? (
+                <p className="text-sm text-muted">No reviews yet.</p>
+              ) : (
+                <div className="space-y-5">
+                  {listingReviews.map(review => (
+                    <div key={review.id} className="pb-5 border-b border-border last:border-0 last:pb-0">
+                      <div className="flex items-start justify-between mb-2 gap-3">
+                        <div>
+                          <p className="font-medium text-sm">{review.customerName}</p>
+                          <p className="text-xs text-muted">
+                            {new Date(review.date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                          </p>
+                        </div>
+                        <RatingStars rating={review.rating} size={13} />
+                      </div>
+                      <p className="text-sm">{review.text}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </div>
+
+          {/* Booking Card */}
+          <div className="lg:col-span-1 order-first lg:order-last">
+            <Card className="border-border p-5 lg:p-6 lg:sticky lg:top-8">
+              <div className="flex items-baseline gap-2 mb-4">
+                <span className="text-3xl font-semibold">${listing.price}</span>
+                <span className="text-muted text-sm">/session</span>
+              </div>
+
+              <div className="space-y-2 text-sm text-muted mb-5">
+                <div className="flex items-center gap-2">
+                  <Clock size={14} />
+                  <span>{listing.duration} minutes</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CalendarIcon size={14} />
+                  <span>Next: {new Date(listing.nextAvailable).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</span>
+                </div>
+              </div>
+
+              <Button
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                onClick={() => setShowBookingModal(true)}
+              >
+                Book Now
+              </Button>
+
+              <p className="text-xs text-muted mt-3 text-center">Free cancellation up to 24 hours before</p>
+            </Card>
+          </div>
+        </div>
+      </div>
+
+      {/* Booking Modal */}
+      <Dialog open={showBookingModal} onOpenChange={setShowBookingModal}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Book {listing.title}</DialogTitle>
+          </DialogHeader>
+
+          <Alert className="border-primary/20 bg-primary/5">
+            <Info size={15} className="text-foreground" />
+            <AlertDescription>Your booking is held for 10 minutes. Complete payment to confirm.</AlertDescription>
+          </Alert>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <h3 className="font-medium text-sm mb-3">Select date</h3>
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                className="rounded border border-border"
+                disabled={date => date < new Date()}
+              />
+            </div>
+            <div>
+              <h3 className="font-medium text-sm mb-3">Select time</h3>
+              <div className="grid grid-cols-2 gap-2">
+                {TIME_SLOTS.map(slot => (
+                  <Button
+                    key={slot}
+                    variant={selectedTime === slot ? 'default' : 'outline'}
+                    className={selectedTime === slot ? 'bg-primary text-primary-foreground' : 'border-border'}
+                    onClick={() => setSelectedTime(slot)}
+                  >
+                    {slot}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-border pt-5">
+            <div className="space-y-2 text-sm mb-5">
+              <div className="flex justify-between">
+                <span>Service fee</span>
+                <span>${listing.price}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Platform fee</span>
+                <span>$2.50</span>
+              </div>
+              <div className="flex justify-between font-semibold border-t border-border pt-2">
+                <span>Total</span>
+                <span>${(listing.price + 2.5).toFixed(2)}</span>
+              </div>
+            </div>
+
+            <Button
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+              onClick={handleConfirmBooking}
+            >
+              Continue to payment
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
