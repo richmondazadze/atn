@@ -180,7 +180,22 @@ export default function CategoriesManager() {
                         <Button variant="ghost" size="sm" onClick={() => setEditingCat({ id: category.id, name: category.name, icon: category.icon })}>
                           <Edit size={14} className="mr-1" /> Edit
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-destructive" onClick={() => toast.error('Delete coming soon')}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive"
+                          disabled={category.listingCount > 0}
+                          onClick={async () => {
+                            if (category.listingCount > 0) {
+                              toast.error('Cannot delete category with existing listings. Reassign or remove listings first.');
+                              return;
+                            }
+                            const { error } = await supabase.from('categories').delete().eq('id', category.id);
+                            if (error) { toast.error('Failed to delete category'); return; }
+                            setCategories(prev => prev.filter(c => c.id !== category.id));
+                            toast.success('Category deleted');
+                          }}
+                        >
                           <Trash2 size={14} />
                         </Button>
                       </div>

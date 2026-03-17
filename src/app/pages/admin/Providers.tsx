@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
@@ -10,6 +11,7 @@ import { Search, CheckCircle, XCircle, Eye } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../../components/ui/dropdown-menu';
 import { MoreVertical } from 'lucide-react';
 import { useProviders } from '../../../hooks/useProviders';
+import { useProviderStats } from '../../../hooks/useProviderStats';
 import { supabase } from '../../../lib/supabase';
 import { toast } from 'sonner';
 
@@ -18,13 +20,16 @@ export default function ProvidersTable() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
+  const providerIds = useMemo(() => providers.map(p => p.id), [providers]);
+  const { stats: providerStats } = useProviderStats(providerIds);
+
   const extendedProviders = useMemo(() =>
-    providers.map((p, i) => ({
+    providers.map(p => ({
       ...p,
-      status: i % 3 === 1 ? 'pending' : 'active',
-      totalEarnings: (i + 1) * 2300 + 1000,
-      completedBookings: (i + 1) * 22 + 10,
-    })), [providers]);
+      status: p.verified ? 'active' : 'pending',
+      totalEarnings: providerStats[p.id]?.earnings ?? 0,
+      completedBookings: providerStats[p.id]?.completedBookings ?? 0,
+    })), [providers, providerStats]);
 
   const filteredProviders = useMemo(() =>
     extendedProviders.filter(p => {
@@ -33,6 +38,10 @@ export default function ProvidersTable() {
       const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
       return matchesSearch && matchesStatus;
     }), [extendedProviders, searchQuery, statusFilter]);
+
+  const avgRating = providers.length > 0
+    ? (providers.reduce((s, p) => s + p.rating, 0) / providers.length).toFixed(1)
+    : '—';
 
   if (loading) return (
     <div className="flex min-h-[60vh] items-center justify-center">
@@ -54,7 +63,7 @@ export default function ProvidersTable() {
             { label: 'Total Providers', value: providers.length, color: '' },
             { label: 'Active', value: extendedProviders.filter(p => p.status === 'active').length, color: 'text-primary' },
             { label: 'Pending Review', value: extendedProviders.filter(p => p.status === 'pending').length, color: 'text-amber-500' },
-            { label: 'Avg Rating', value: '4.8', color: '' },
+            { label: 'Avg Rating', value: avgRating, color: '' },
           ].map(s => (
             <Card key={s.label} className="border-border p-4">
               <p className="text-xs text-muted mb-1">{s.label}</p>
@@ -167,8 +176,10 @@ export default function ProvidersTable() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => toast.info('Profile view coming soon')}>
-                            <Eye size={14} className="mr-2" /> View Profile
+                          <DropdownMenuItem asChild>
+                            <Link to={`/provider/${provider.id}`}>
+                              <Eye size={14} className="mr-2" /> View Profile
+                            </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => toast.info('Coming soon')}>Edit Details</DropdownMenuItem>
                           <DropdownMenuItem onClick={() => toast.info('Coming soon')}>View Bookings</DropdownMenuItem>

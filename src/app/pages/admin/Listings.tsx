@@ -5,6 +5,7 @@ import { Input } from '../../components/ui/input';
 import { Badge } from '../../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import { Link } from 'react-router';
 import { Search, Flag, CheckCircle, XCircle, Eye } from 'lucide-react';
 import { useListings } from '../../../hooks/useListings';
 import { useCategories } from '../../../hooks/useCategories';
@@ -12,7 +13,7 @@ import { supabase } from '../../../lib/supabase';
 import { toast } from 'sonner';
 
 export default function ListingsModeration() {
-  const { listings, loading: listingsLoading, setListings } = useListings();
+  const { listings, loading: listingsLoading, setListings } = useListings({ status: 'all' });
   const { categories, loading: categoriesLoading } = useCategories();
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
@@ -34,19 +35,17 @@ export default function ListingsModeration() {
 
   const loading = listingsLoading || categoriesLoading;
 
-  const extendedListings = useMemo(() =>
-    listings.map((l, i) => ({
-      ...l,
-      moderationStatus: i % 4 === 0 ? 'flagged' : 'approved',
-    })), [listings]);
-
   const filteredListings = useMemo(() =>
-    extendedListings.filter(l => {
+    listings.filter(l => {
       const matchesSearch = l.title.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = categoryFilter === 'all' || l.category_slug === categoryFilter;
-      const matchesStatus = statusFilter === 'all' || l.moderationStatus === statusFilter;
+      const matchesStatus =
+        statusFilter === 'all' ||
+        (statusFilter === 'approved' && l.status === 'active') ||
+        (statusFilter === 'flagged' && l.status === 'suspended') ||
+        (statusFilter === 'draft' && l.status === 'draft');
       return matchesSearch && matchesCategory && matchesStatus;
-    }), [extendedListings, searchQuery, categoryFilter, statusFilter]);
+    }), [listings, searchQuery, categoryFilter, statusFilter]);
 
   if (loading) return (
     <div className="flex min-h-[60vh] items-center justify-center">
@@ -66,8 +65,8 @@ export default function ListingsModeration() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
           {[
             { label: 'Total Listings', value: listings.length, color: '' },
-            { label: 'Approved', value: extendedListings.filter(l => l.moderationStatus === 'approved').length, color: 'text-primary' },
-            { label: 'Flagged', value: extendedListings.filter(l => l.moderationStatus === 'flagged').length, color: 'text-destructive' },
+            { label: 'Active', value: listings.filter(l => l.status === 'active').length, color: 'text-primary' },
+            { label: 'Suspended', value: listings.filter(l => l.status === 'suspended').length, color: 'text-destructive' },
             { label: 'Featured', value: listings.filter(l => l.featured).length, color: '' },
           ].map(s => (
             <Card key={s.label} className="border-border p-4">
@@ -106,8 +105,9 @@ export default function ListingsModeration() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="approved">Approved</SelectItem>
-                <SelectItem value="flagged">Flagged</SelectItem>
+                <SelectItem value="approved">Active</SelectItem>
+                <SelectItem value="flagged">Suspended</SelectItem>
+                <SelectItem value="draft">Draft</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -143,15 +143,18 @@ export default function ListingsModeration() {
                     </TableCell>
                     <TableCell className="font-medium text-sm">${listing.price}</TableCell>
                     <TableCell>
-                      {listing.moderationStatus === 'approved' && (
+                      {listing.status === 'active' && (
                         <Badge className="bg-primary/10 text-primary border-0 text-xs">
-                          <CheckCircle size={11} className="mr-1" /> Approved
+                          <CheckCircle size={11} className="mr-1" /> Active
                         </Badge>
                       )}
-                      {listing.moderationStatus === 'flagged' && (
+                      {listing.status === 'suspended' && (
                         <Badge variant="destructive" className="text-xs">
-                          <Flag size={11} className="mr-1" /> Flagged
+                          <Flag size={11} className="mr-1" /> Suspended
                         </Badge>
+                      )}
+                      {listing.status === 'draft' && (
+                        <Badge variant="secondary" className="text-xs">Draft</Badge>
                       )}
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
@@ -160,10 +163,10 @@ export default function ListingsModeration() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1 flex-wrap">
-                        <Button variant="ghost" size="sm" onClick={() => toast.info('Preview coming soon')}>
-                          <Eye size={14} className="mr-1" /> Review
-                        </Button>
-                        {listing.moderationStatus === 'flagged' && (
+                        <Link to={`/listing/${listing.id}`} target="_blank" rel="noreferrer">
+                          <Button variant="ghost" size="sm"><Eye size={14} className="mr-1" /> Preview</Button>
+                        </Link>
+                        {listing.status === 'suspended' && (
                           <>
                             <Button size="sm" className="bg-primary text-primary-foreground text-xs" onClick={() => handleApprove(listing.id)}>
                               <CheckCircle size={13} className="mr-1" /> Approve

@@ -449,6 +449,66 @@ export type Database = {
         }
         Relationships: []
       }
+      resources: {
+        Row: {
+          id: string
+          title: string
+          slug: string
+          type: 'guide' | 'tutorial' | 'article' | 'faq'
+          category: 'provider' | 'customer' | 'both'
+          content: string
+          status: 'draft' | 'published'
+          views: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          slug: string
+          type?: 'guide' | 'tutorial' | 'article' | 'faq'
+          category?: 'provider' | 'customer' | 'both'
+          content?: string
+          status?: 'draft' | 'published'
+          views?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          slug?: string
+          type?: 'guide' | 'tutorial' | 'article' | 'faq'
+          category?: 'provider' | 'customer' | 'both'
+          content?: string
+          status?: 'draft' | 'published'
+          views?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      platform_settings: {
+        Row: {
+          id: string
+          key: string
+          value: Json
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          key: string
+          value?: Json
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          key?: string
+          value?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

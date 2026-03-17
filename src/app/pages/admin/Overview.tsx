@@ -4,31 +4,7 @@ import { Card } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { Users, FileText, DollarSign, AlertCircle, TrendingUp, TrendingDown, Activity } from 'lucide-react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { toast } from 'sonner';
-
-const revenueData = [
-  { month: 'Oct', revenue: 12400 },
-  { month: 'Nov', revenue: 15200 },
-  { month: 'Dec', revenue: 18900 },
-  { month: 'Jan', revenue: 21300 },
-  { month: 'Feb', revenue: 24100 },
-  { month: 'Mar', revenue: 28500 },
-];
-
-const categoryData = [
-  { name: 'Cleaning', bookings: 234 },
-  { name: 'Hair & Braiding', bookings: 189 },
-  { name: 'Tutoring', bookings: 156 },
-  { name: 'Nails & Beauty', bookings: 142 },
-  { name: 'Home Repair', bookings: 98 },
-];
-
-const recentActivity = [
-  { id: 1, message: 'New provider application: Sarah Williams', time: '5 min ago', status: 'pending' },
-  { id: 2, message: 'Dispute #D-1043 requires review', time: '12 min ago', status: 'urgent' },
-  { id: 3, message: 'Listing flagged for review: Deep House Cleaning', time: '28 min ago', status: 'review' },
-  { id: 4, message: 'Monica Hayes updated profile', time: '1 hour ago', status: 'complete' },
-];
+import { useAdminStats } from '../../../hooks/useAdminStats';
 
 function statusBadge(status: string) {
   if (status === 'pending') return <Badge className="bg-primary/20 text-primary border-0">Pending</Badge>;
@@ -38,6 +14,23 @@ function statusBadge(status: string) {
 }
 
 export default function AdminOverview() {
+  const { stats, activity, revenueTrend, categoryBreakdown, loading } = useAdminStats();
+
+  if (loading)
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+
+  const s = stats!;
+  const metrics = [
+    { icon: Users, label: 'Active Providers', value: String(s.providerCount), trend: `${s.providerCountPending} pending review`, up: s.providerCountPending === 0 },
+    { icon: FileText, label: 'Total Bookings', value: s.bookingCount.toLocaleString(), trend: 'All time', up: true },
+    { icon: DollarSign, label: 'Revenue (MTD)', value: `$${s.revenueMtd.toLocaleString()}`, trend: 'This month', up: true },
+    { icon: AlertCircle, label: 'Active Disputes', value: String(s.disputeCountOpen), trend: `${s.disputeCountUrgent} require attention`, up: s.disputeCountUrgent === 0 },
+  ];
+
   return (
     <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-7xl mx-auto">
@@ -52,14 +45,8 @@ export default function AdminOverview() {
           </Badge>
         </div>
 
-        {/* Key Metrics */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
-          {[
-            { icon: Users, label: 'Active Providers', value: '142', trend: '+12 this month', up: true },
-            { icon: FileText, label: 'Total Bookings', value: '3,287', trend: '+18% vs last month', up: true },
-            { icon: DollarSign, label: 'Revenue (MTD)', value: '$28,540', trend: '+24% vs last month', up: true },
-            { icon: AlertCircle, label: 'Active Disputes', value: '7', trend: '2 require attention', up: false },
-          ].map(({ icon: Icon, label, value, trend, up }) => (
+          {metrics.map(({ icon: Icon, label, value, trend, up }) => (
             <Card key={label} className="border-border p-5 lg:p-6">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
@@ -74,12 +61,11 @@ export default function AdminOverview() {
           ))}
         </div>
 
-        {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mb-6 lg:mb-8">
           <Card className="border-border p-5 lg:p-6">
             <h2 className="text-lg font-medium mb-5">Revenue Trend</h2>
             <ResponsiveContainer width="100%" height={220}>
-              <LineChart data={revenueData}>
+              <LineChart data={revenueTrend.length > 0 ? revenueTrend : [{ month: '-', revenue: 0 }]}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                 <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} />
@@ -92,7 +78,7 @@ export default function AdminOverview() {
           <Card className="border-border p-5 lg:p-6">
             <h2 className="text-lg font-medium mb-5">Bookings by Category</h2>
             <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={categoryData}>
+              <BarChart data={categoryBreakdown.length > 0 ? categoryBreakdown : [{ name: '-', bookings: 0 }]}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                 <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                 <YAxis tick={{ fontSize: 12 }} />
@@ -103,7 +89,6 @@ export default function AdminOverview() {
           </Card>
         </div>
 
-        {/* Recent Activity */}
         <Card className="border-border p-5 lg:p-6 mb-6 lg:mb-8">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-lg font-medium">Recent Activity</h2>
@@ -112,44 +97,47 @@ export default function AdminOverview() {
             </Link>
           </div>
           <div className="space-y-3">
-            {recentActivity.map(activity => (
-              <div key={activity.id} className="flex items-center justify-between p-3 bg-background rounded gap-3">
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm truncate">{activity.message}</p>
-                  <p className="text-xs text-muted">{activity.time}</p>
+            {activity.length === 0 ? (
+              <p className="text-sm text-muted py-4 text-center">No recent activity</p>
+            ) : (
+              activity.map(a => (
+                <div key={a.id} className="flex items-center justify-between p-3 bg-background rounded gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">{a.message}</p>
+                    <p className="text-xs text-muted">{a.time}</p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {statusBadge(a.status)}
+                    <Link to={a.link ?? '#'}>
+                      <Button variant="outline" size="sm" className="border-border text-xs">View</Button>
+                    </Link>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  {statusBadge(activity.status)}
-                  <Button variant="outline" size="sm" className="border-border text-xs" onClick={() => toast.info('Coming soon')}>
-                    View
-                  </Button>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </Card>
 
-        {/* Quick Actions */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6">
           <Link to="/admin/providers">
             <Card className="border-border p-5 lg:p-6 hover:border-primary transition-colors cursor-pointer">
               <Users size={22} className="text-primary mb-3" />
               <h3 className="font-medium mb-1">Review Providers</h3>
-              <p className="text-sm text-muted">3 pending applications</p>
+              <p className="text-sm text-muted">{s.providerCountPending} pending application{s.providerCountPending !== 1 ? 's' : ''}</p>
             </Card>
           </Link>
           <Link to="/admin/disputes">
             <Card className="border-border p-5 lg:p-6 hover:border-destructive transition-colors cursor-pointer">
               <AlertCircle size={22} className="text-destructive mb-3" />
               <h3 className="font-medium mb-1">Handle Disputes</h3>
-              <p className="text-sm text-muted">2 urgent cases require attention</p>
+              <p className="text-sm text-muted">{s.disputeCountUrgent} urgent case{s.disputeCountUrgent !== 1 ? 's' : ''} require attention</p>
             </Card>
           </Link>
           <Link to="/admin/listings">
             <Card className="border-border p-5 lg:p-6 hover:border-primary transition-colors cursor-pointer">
               <FileText size={22} className="text-primary mb-3" />
               <h3 className="font-medium mb-1">Moderate Listings</h3>
-              <p className="text-sm text-muted">5 flagged listings to review</p>
+              <p className="text-sm text-muted">{s.listingCountFlagged} suspended listing{s.listingCountFlagged !== 1 ? 's' : ''} to review</p>
             </Card>
           </Link>
         </div>

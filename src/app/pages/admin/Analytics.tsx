@@ -1,47 +1,37 @@
+import { useState } from 'react';
 import { Card } from '../../components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { TrendingUp, Users, DollarSign, Calendar, Star } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-
-const revenueData = [
-  { month: 'Sep', revenue: 10200, bookings: 187 },
-  { month: 'Oct', revenue: 12400, bookings: 221 },
-  { month: 'Nov', revenue: 15200, bookings: 268 },
-  { month: 'Dec', revenue: 18900, bookings: 312 },
-  { month: 'Jan', revenue: 21300, bookings: 351 },
-  { month: 'Feb', revenue: 24100, bookings: 398 },
-  { month: 'Mar', revenue: 28500, bookings: 441 },
-];
-
-const categoryBreakdown = [
-  { name: 'Cleaning', value: 234, color: '#7BC950' },
-  { name: 'Hair & Braiding', value: 189, color: '#A0CCDA' },
-  { name: 'Tutoring', value: 156, color: '#9CFFD9' },
-  { name: 'Nails & Beauty', value: 142, color: '#B6EFD4' },
-  { name: 'Home Repair', value: 98, color: '#7CE577' },
-  { name: 'Other', value: 62, color: '#ccc' },
-];
-
-const userGrowth = [
-  { month: 'Sep', providers: 98, customers: 542 },
-  { month: 'Oct', providers: 107, customers: 634 },
-  { month: 'Nov', providers: 118, customers: 721 },
-  { month: 'Dec', providers: 126, customers: 809 },
-  { month: 'Jan', providers: 134, customers: 923 },
-  { month: 'Feb', providers: 139, customers: 1038 },
-  { month: 'Mar', providers: 142, customers: 1156 },
-];
-
-const TOP_PROVIDERS = [
-  { name: 'Tasha Miles', category: 'Hair & Braiding', bookings: 89, revenue: '$14,240', rating: 5.0 },
-  { name: 'Alana Brooks', category: 'Tutoring', bookings: 103, revenue: '$3,605', rating: 5.0 },
-  { name: 'Monica Hayes', category: 'Wellness', bookings: 71, revenue: '$3,550', rating: 4.9 },
-  { name: 'Deja Johnson', category: 'Cleaning', bookings: 47, revenue: '$3,525', rating: 4.9 },
-];
+import { useAnalytics } from '../../../hooks/useAnalytics';
 
 const TOOLTIP_STYLE = { borderRadius: '4px', border: '1px solid var(--border)', fontSize: '12px' };
+const PERIOD_DAYS: Record<string, number> = { '7': 7, '30': 30, '90': 90, '365': 365 };
 
 export default function Analytics() {
+  const [periodKey, setPeriodKey] = useState('30');
+  const periodDays = PERIOD_DAYS[periodKey] ?? 30;
+  const { data, loading } = useAnalytics(periodDays);
+
+  if (loading)
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+
+  const d = data!;
+  const metrics = [
+    { icon: DollarSign, label: 'Total Revenue', value: `$${d.totalRevenue.toLocaleString()}`, trend: 'Period' },
+    { icon: Calendar, label: 'Total Bookings', value: d.totalBookings.toLocaleString(), trend: 'Completed' },
+    { icon: Users, label: 'Active Users', value: d.activeUsers.toLocaleString(), trend: 'In period' },
+    { icon: Star, label: 'Avg Rating', value: d.avgRating, trend: 'All reviews' },
+  ];
+  const revenueData = d.revenueData.length > 0 ? d.revenueData : [{ month: '-', revenue: 0, bookings: 0 }];
+  const categoryBreakdown = d.categoryBreakdown.length > 0 ? d.categoryBreakdown : [{ name: 'No data', value: 1, color: '#ccc' }];
+  const userGrowth = d.userGrowth.length > 0 ? d.userGrowth : [{ month: '-', providers: 0, customers: 0 }];
+  const topProviders = d.topProviders;
+
   return (
     <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-7xl mx-auto">
@@ -50,7 +40,7 @@ export default function Analytics() {
             <h1 className="text-2xl lg:text-[32px] font-semibold mb-1">Analytics</h1>
             <p className="text-sm text-muted">Platform performance and insights</p>
           </div>
-          <Select defaultValue="30">
+          <Select value={periodKey} onValueChange={setPeriodKey}>
             <SelectTrigger className="w-full sm:w-44">
               <SelectValue />
             </SelectTrigger>
@@ -65,12 +55,7 @@ export default function Analytics() {
 
         {/* Key Metrics */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6 lg:mb-8">
-          {[
-            { icon: DollarSign, label: 'Total Revenue', value: '$130.5K', trend: '+24.3%' },
-            { icon: Calendar, label: 'Total Bookings', value: '2,068', trend: '+18.7%' },
-            { icon: Users, label: 'Active Users', value: '1,298', trend: '+12.4%' },
-            { icon: Star, label: 'Avg Rating', value: '4.82', trend: '+0.08' },
-          ].map(({ icon: Icon, label, value, trend }) => (
+          {metrics.map(({ icon: Icon, label, value, trend }) => (
             <Card key={label} className="border-border p-5">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1.5">
@@ -147,7 +132,7 @@ export default function Analytics() {
         <Card className="border-border p-5 lg:p-6">
           <h2 className="text-lg font-medium mb-5">Top Performing Providers</h2>
           <div className="space-y-3">
-            {TOP_PROVIDERS.map((provider, i) => (
+            {topProviders.map((provider, i) => (
               <div key={i} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 bg-background rounded">
                 <div className="flex items-center gap-3">
                   <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-semibold shrink-0">

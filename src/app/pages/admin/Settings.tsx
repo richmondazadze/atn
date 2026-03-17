@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
@@ -8,22 +7,30 @@ import { Switch } from '../../components/ui/switch';
 import { Separator } from '../../components/ui/separator';
 import { Settings as SettingsIcon, DollarSign, Shield, Bell } from 'lucide-react';
 import { toast } from 'sonner';
+import { usePlatformSettings } from '../../../hooks/usePlatformSettings';
 
 export default function AdminSettings() {
-  const [settings, setSettings] = useState({
-    platformFee: '8',
-    minBooking: '25',
-    maxBooking: '500',
-    requireBackgroundCheck: true,
-    autoApproveProviders: false,
-    emailNotifications: true,
-    smsNotifications: true,
-    maintenanceMode: false,
-  });
+  const { settings, loading, saveSettings } = usePlatformSettings();
 
-  function update<K extends keyof typeof settings>(key: K, value: typeof settings[K]) {
-    setSettings(prev => ({ ...prev, [key]: value }));
+  function update<K extends keyof typeof settings>(key: K, value: (typeof settings)[K]) {
+    saveSettings({ [key]: value }).catch(() => toast.error('Failed to save'));
   }
+
+  async function handleSaveAll() {
+    try {
+      await saveSettings(settings);
+      toast.success('Settings saved');
+    } catch {
+      toast.error('Failed to save settings');
+    }
+  }
+
+  if (loading)
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
@@ -152,6 +159,8 @@ export default function AdminSettings() {
               <Label htmlFor="as-emails">Admin Email Addresses</Label>
               <Textarea
                 id="as-emails"
+                value={settings.adminEmails ?? ''}
+                onChange={e => update('adminEmails', e.target.value)}
                 placeholder={`admin@atn.com\nsupport@atn.com`}
                 className="mt-1 min-h-[80px]"
               />
@@ -193,6 +202,8 @@ export default function AdminSettings() {
               <Label htmlFor="as-maintenance-msg">Maintenance Message</Label>
               <Textarea
                 id="as-maintenance-msg"
+                value={settings.maintenanceMessage ?? ''}
+                onChange={e => update('maintenanceMessage', e.target.value)}
                 placeholder="We're currently performing scheduled maintenance. We'll be back soon!"
                 className="mt-1 min-h-[80px]"
               />
@@ -205,7 +216,7 @@ export default function AdminSettings() {
         <div className="flex items-center justify-end pt-4 border-t border-border">
           <Button
             className="bg-primary hover:bg-primary/90 text-primary-foreground"
-            onClick={() => toast.success('Settings saved')}
+            onClick={handleSaveAll}
           >
             Save All Settings
           </Button>
