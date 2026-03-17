@@ -65,37 +65,45 @@ export default function AICoach() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  function generateResponse(userMessage: string, tool: string): string {
-    const lowerMsg = userMessage.toLowerCase();
-
-    switch (tool) {
-      case 'pricing':
-        if (lowerMsg.includes('cleaning') || lowerMsg.includes('house')) {
-          return 'Based on Jonesboro market rates, I recommend:\n\n• Standard deep cleaning (2-3 hours): $75-95\n• Move-out cleaning (3-4 hours): $120-150\n• Light cleaning (1-2 hours): $50-65\n\nYour 3 years of experience justifies pricing in the middle-to-upper range. Consider offering a first-time customer discount of 10-15% to build your client base.';
-        }
-        return 'To give you accurate pricing guidance, could you tell me more about:\n\n1. What specific service you offer\n2. How long it typically takes\n3. Your experience level\n4. Any special qualifications or certifications\n\nThis will help me suggest competitive rates for the Jonesboro market.';
-
-      case 'description':
-        return 'Here\'s a compelling service description:\n\n"Transform your home with professional deep cleaning that goes beyond surface-level tidying. I bring eco-friendly supplies and 5 years of experience to every job.\n\n✓ Kitchens: Appliances, counters, cabinets, floors\n✓ Bathrooms: Deep sanitize tubs, showers, sinks, toilets\n✓ Living spaces: Dust, vacuum, mop, detail work\n✓ Bedrooms: Under-bed cleaning, closet organization\n\nBackground-checked, insured, and committed to your satisfaction. Book today and come home to sparkling clean!"\n\nThis highlights your strengths, builds trust with credentials, and uses clear formatting for easy reading.';
-
-      case 'promo':
-        return 'Here are some effective promotion ideas:\n\n🌸 Spring Refresh Special\n"Spring Cleaning Package" - 20% off deep cleans booked in March/April. Market as "Clear the winter clutter, welcome spring freshness."\n\n👥 Referral Program\n"Give $20, Get $20" - Both referrer and new customer get $20 off next booking.\n\n📅 Loyalty Discount\n"Frequent Cleaner Program" - 10% off for customers who book 3+ times within 6 months.\n\n🎁 First-Time Offer\n"New Customer Special" - $25 off first deep clean to reduce trial barrier.\n\nWhich one fits your business model best?';
-
-      case 'hours':
-        return 'Based on service provider patterns in Jonesboro, here are the most profitable time slots:\n\n🔥 Peak Demand (highest booking rates):\n• Saturday mornings (8am-12pm)\n• Sunday afternoons (1pm-5pm)\n• Weekday evenings (5pm-8pm)\n\n💰 Premium Pricing Opportunities:\n• Weekend slots can command 15-20% higher rates\n• Same-day/urgent bookings: add $25-40 rush fee\n• Early morning (7-9am) appeals to working professionals\n\n📊 Gap-Filling Strategy:\nOffer a "Midweek Special" (Tue-Thu 10am-2pm) at 10% off to build consistent weekday volume between peak times.';
-
-      case 'review-reply':
-        if (lowerMsg.includes('late') || lowerMsg.includes('mix')) {
-          return 'Here\'s a professional reply for a mixed review:\n\n"Thank you so much for the kind words about the cleaning quality! I sincerely apologize for running behind schedule—I should have communicated better about the delay. Punctuality is important to me, and I\'m implementing better time buffers between appointments. I truly appreciate your understanding and would love the opportunity to serve you again with on-time service. Please reach out directly for priority scheduling on your next booking!"\n\nThis acknowledges the positive, owns the mistake, explains the fix, and invites future business.';
-        }
-        return 'Here\'s a warm reply for a positive review:\n\n"Thank you so much for this wonderful review! It was a pleasure cleaning your home, and I\'m thrilled you loved the results. Clients like you make this work so rewarding. I\'ve noted your preferences for next time and look forward to serving you again soon. Thanks for being part of the ATN community! 🌟"\n\nThis is personal, specific, and builds ongoing relationship.';
-
-      default:
-        return 'I\'m here to help with your business! Could you share more details about what you need assistance with?';
+  async function fetchAIResponse(userMessage: string): Promise<string> {
+    const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
+    if (!apiKey) {
+      return 'AI Coach is not configured. Add VITE_OPENROUTER_API_KEY to your environment. Get a key at openrouter.ai';
     }
+
+    const toolDesc = TOOLS.find(t => t.id === selectedTool)?.name ?? 'business';
+    const systemPrompt = `You are an AI Business Coach for ATN (Access Terrain Network), a local service marketplace in Jonesboro, AR. You help service providers grow their business. The user is currently using the "${toolDesc}" tool. Give practical, actionable advice. Be concise and friendly. Focus on Jonesboro/local market when relevant. This is guidance only—not legal, financial, or tax advice.`;
+
+    const apiMessages = [
+      { role: 'system' as const, content: systemPrompt },
+      ...messages.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
+      { role: 'user' as const, content: userMessage },
+    ];
+
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'z-ai/glm-4.5-air:free',
+        messages: apiMessages,
+        max_tokens: 1024,
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(err || `API error: ${res.status}`);
+    }
+
+    const data = await res.json();
+    const text = data.choices?.[0]?.message?.content;
+    return text?.trim() || 'Sorry, I could not generate a response. Please try again.';
   }
 
-  function handleSend() {
+  async function handleSend() {
     if (!input.trim()) return;
 
     const userMessage = input.trim();
@@ -106,14 +114,20 @@ export default function AICoach() {
     setInput('');
     setIsTyping(true);
 
-    setTimeout(() => {
-      const response = generateResponse(userMessage, selectedTool);
+    try {
+      const response = await fetchAIResponse(userMessage);
       setMessages(prev => [
         ...prev,
         { role: 'assistant', content: response, timestamp: new Date() },
       ]);
+    } catch (err) {
+      setMessages(prev => [
+        ...prev,
+        { role: 'assistant', content: `Error: ${err instanceof Error ? err.message : 'Failed to get AI response'}. Please check your API key and try again.`, timestamp: new Date() },
+      ]);
+    } finally {
       setIsTyping(false);
-    }, 800 + Math.random() * 600);
+    }
   }
 
   const currentTool = TOOLS.find(t => t.id === selectedTool);

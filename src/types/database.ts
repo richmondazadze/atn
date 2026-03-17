@@ -79,6 +79,36 @@ export type Database = {
           },
         ]
       }
+      booking_messages: {
+        Row: {
+          id: string
+          booking_id: string
+          sender_id: string
+          sender_role: 'provider' | 'customer'
+          body: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          booking_id: string
+          sender_id: string
+          sender_role: 'provider' | 'customer'
+          body: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          booking_id?: string
+          sender_id?: string
+          sender_role?: 'provider' | 'customer'
+          body?: string
+          created_at?: string
+        }
+        Relationships: [
+          { foreignKeyName: "booking_messages_booking_id_fkey", columns: ["booking_id"], isOneToOne: false, referencedRelation: "bookings", referencedColumns: ["id"] },
+          { foreignKeyName: "booking_messages_sender_id_fkey", columns: ["sender_id"], isOneToOne: false, referencedRelation: "profiles", referencedColumns: ["id"] },
+        ]
+      }
       categories: {
         Row: {
           active: boolean

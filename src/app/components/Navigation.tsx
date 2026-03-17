@@ -30,6 +30,7 @@ const navItems: Record<NavType, NavItem[]> = {
     { label: 'Search', path: '/customer/search', icon: <Search size={20} /> },
     { label: 'Bookings', path: '/customer/bookings', icon: <Calendar size={20} /> },
     { label: 'Favorites', path: '/customer/favorites', icon: <Heart size={20} /> },
+    { label: 'Help', path: '/customer/help', icon: <BookOpen size={20} /> },
     { label: 'Settings', path: '/customer/settings', icon: <Settings size={20} /> },
   ],
   provider: [
@@ -40,6 +41,7 @@ const navItems: Record<NavType, NavItem[]> = {
     { label: 'Reviews', path: '/provider/reviews', icon: <Star size={20} /> },
     { label: 'AI Coach', path: '/provider/ai-coach', icon: <Bot size={20} /> },
     { label: 'Payouts', path: '/provider/payouts', icon: <DollarSign size={20} /> },
+    { label: 'Help', path: '/provider/help', icon: <BookOpen size={20} /> },
     { label: 'Settings', path: '/provider/settings', icon: <Settings size={20} /> },
   ],
   admin: [

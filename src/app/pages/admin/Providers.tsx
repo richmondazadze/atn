@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
@@ -7,7 +8,7 @@ import { Badge } from '../../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Avatar, AvatarFallback } from '../../components/ui/avatar';
-import { Search, CheckCircle, XCircle, Eye } from 'lucide-react';
+import { Search, CheckCircle, XCircle, Eye, Download, Calendar, Mail } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../../components/ui/dropdown-menu';
 import { MoreVertical } from 'lucide-react';
 import { useProviders } from '../../../hooks/useProviders';
@@ -19,6 +20,8 @@ export default function ProvidersTable() {
   const { providers, loading, setProviders } = useProviders();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [bookingsProvider, setBookingsProvider] = useState<{ id: string; name: string } | null>(null);
+  const [providerBookings, setProviderBookings] = useState<{ id: string; title: string; date: string; time: string; status: string; price: number }[]>([]);
 
   const providerIds = useMemo(() => providers.map(p => p.id), [providers]);
   const { stats: providerStats } = useProviderStats(providerIds);
@@ -42,6 +45,35 @@ export default function ProvidersTable() {
   const avgRating = providers.length > 0
     ? (providers.reduce((s, p) => s + p.rating, 0) / providers.length).toFixed(1)
     : '—';
+
+  useEffect(() => {
+    if (!bookingsProvider) { setProviderBookings([]); return; }
+    supabase.from('bookings').select('id, title, date, time, status, price').eq('provider_id', bookingsProvider.id).order('date', { ascending: false }).then(({ data }) => {
+      setProviderBookings(data ?? []);
+    });
+  }, [bookingsProvider]);
+
+  function handleExportCSV() {
+    const headers = ['Name', 'Email', 'Status', 'Categories', 'Rating', 'Bookings', 'Earnings', 'Joined'];
+    const rows = filteredProviders.map(p => [
+      p.name,
+      p.email ?? '',
+      p.status,
+      p.categories.join('; '),
+      String(p.rating),
+      String(p.completedBookings),
+      String(p.totalEarnings),
+      new Date(p.joined_date).toLocaleDateString(),
+    ]);
+    const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `providers-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast.success('Export downloaded');
+  }
 
   if (loading) return (
     <div className="flex min-h-[60vh] items-center justify-center">
@@ -96,8 +128,28 @@ export default function ProvidersTable() {
                 <SelectItem value="suspended">Suspended</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" className="border-border w-full sm:w-auto" onClick={() => toast.info('Export coming soon')}>
-              Export CSV
+            <Button variant="outline" className="border-border w-full sm:w-auto" onClick={() => {
+              const headers = ['Name', 'Email', 'Status', 'Categories', 'Rating', 'Bookings', 'Earnings', 'Joined'];
+              const rows = filteredProviders.map(p => [
+                p.name,
+                p.email ?? '',
+                p.status,
+                p.categories.join('; '),
+                p.rating,
+                p.completedBookings,
+                p.totalEarnings,
+                new Date(p.joined_date).toLocaleDateString('en-US'),
+              ]);
+              const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(','))].join('\n');
+              const blob = new Blob([csv], { type: 'text/csv' });
+              const a = document.createElement('a');
+              a.href = URL.createObjectURL(blob);
+              a.download = `providers-${new Date().toISOString().slice(0, 10)}.csv`;
+              a.click();
+              URL.revokeObjectURL(a.href);
+              toast.success('Export downloaded');
+            }}>
+              <Download size={14} className="mr-1.5" /> Export CSV
             </Button>
           </div>
         </Card>
@@ -181,9 +233,14 @@ export default function ProvidersTable() {
                               <Eye size={14} className="mr-2" /> View Profile
                             </Link>
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => toast.info('Coming soon')}>Edit Details</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => toast.info('Coming soon')}>View Bookings</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => toast.info('Coming soon')}>Contact Provider</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setBookingsProvider({ id: provider.id, name: provider.name })}>
+                            <Calendar size={14} className="mr-2" /> View Bookings
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <a href={provider.email ? `mailto:${provider.email}` : '#'}>
+                              <Mail size={14} className="mr-2" /> Contact Provider
+                            </a>
+                          </DropdownMenuItem>
                           <DropdownMenuItem className="text-destructive" onClick={async () => {
                             const { error } = await supabase.from('providers').update({ verified: false }).eq('id', provider.id);
                             if (error) { toast.error('Failed to suspend provider'); return; }
@@ -204,6 +261,30 @@ export default function ProvidersTable() {
             <p className="text-center text-muted py-10 text-sm">No providers found matching your filters</p>
           )}
         </Card>
+
+        {/* View Bookings dialog */}
+        <Dialog open={!!bookingsProvider} onOpenChange={() => setBookingsProvider(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Bookings — {bookingsProvider?.name}</DialogTitle>
+            </DialogHeader>
+            {providerBookings.length === 0 ? (
+              <p className="text-muted text-sm py-4">No bookings found.</p>
+            ) : (
+              <div className="max-h-64 overflow-y-auto space-y-2">
+                {providerBookings.map(b => (
+                  <div key={b.id} className="flex justify-between items-center text-sm py-2 border-b border-border last:border-0">
+                    <div>
+                      <p className="font-medium">{b.title}</p>
+                      <p className="text-xs text-muted">{new Date(b.date).toLocaleDateString()} • {b.time} • {b.status}</p>
+                    </div>
+                    <span className="font-medium">${b.price}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

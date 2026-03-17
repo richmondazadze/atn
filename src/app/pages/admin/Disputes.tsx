@@ -159,9 +159,18 @@ export default function DisputesPage() {
                           </Select>
                         </div>
                         <div className="flex justify-end gap-3 pt-2">
-                          <Button variant="outline" className="border-border" onClick={() => toast.info('Messaging coming soon')}>
-                            <MessageSquare size={14} className="mr-1.5" /> Contact Parties
-                          </Button>
+                          <div className="flex gap-2">
+                            {dispute.customer_email && (
+                              <Button variant="outline" size="sm" className="border-border" asChild>
+                                <a href={`mailto:${dispute.customer_email}`}><MessageSquare size={14} className="mr-1.5" /> Email Customer</a>
+                              </Button>
+                            )}
+                            {dispute.provider_email && (
+                              <Button variant="outline" size="sm" className="border-border" asChild>
+                                <a href={`mailto:${dispute.provider_email}`}><MessageSquare size={14} className="mr-1.5" /> Email Provider</a>
+                              </Button>
+                            )}
+                          </div>
                           <Button className="bg-primary text-primary-foreground" onClick={() => handleResolve(dispute.id)}>
                             Submit Resolution
                           </Button>

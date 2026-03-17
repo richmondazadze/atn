@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
@@ -7,10 +7,12 @@ import { Label } from '../../components/ui/label';
 import { Textarea } from '../../components/ui/textarea';
 import { Checkbox } from '../../components/ui/checkbox';
 import { Separator } from '../../components/ui/separator';
+import { Avatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar';
 import { CheckCircle2, Upload, ArrowRight, ArrowLeft, ShieldCheck } from 'lucide-react';
 import { useCategories } from '../../../hooks/useCategories';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../../lib/supabase';
+import { uploadAvatar } from '../../../lib/storage';
 import { toast } from 'sonner';
 
 export default function ProviderOnboarding() {
@@ -27,6 +29,9 @@ export default function ProviderOnboarding() {
     agreeTOS: false,
     agreeBackgroundCheck: false,
   });
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(user.avatar_url ?? null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const steps = [
     { number: 1, title: 'Profile', description: 'Tell customers about yourself' },
@@ -39,11 +44,16 @@ export default function ProviderOnboarding() {
     if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
     } else {
+      await supabase.from('profiles').update({ bio: formData.bio || null }).eq('id', user.id);
       const { error } = await supabase.from('providers').insert({
         id: user.id,
         verified: false,
         categories: formData.selectedCategories,
         zip_codes: formData.zipCodes.filter(z => z.trim().length === 5),
+        social_links: {
+          instagram: formData.socialInstagram || null,
+          facebook: formData.socialFacebook || null,
+        },
       });
       if (error) { toast.error('Failed to complete setup'); return; }
       toast.success('Profile setup complete! Welcome to ATN.');
@@ -68,6 +78,21 @@ export default function ProviderOnboarding() {
 
   const removeZipCode = (index: number) =>
     setFormData(prev => ({ ...prev, zipCodes: prev.zipCodes.filter((_, i) => i !== index) }));
+
+  async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingAvatar(true);
+    const url = await uploadAvatar(user.id, file);
+    if (url) {
+      await supabase.from('profiles').update({ avatar_url: url }).eq('id', user.id);
+      setAvatarUrl(url);
+      toast.success('Photo uploaded');
+    } else {
+      toast.error('Upload failed');
+    }
+    setUploadingAvatar(false);
+  }
 
   const updateZipCode = (index: number, value: string) => {
     const next = [...formData.zipCodes];
@@ -182,12 +207,27 @@ export default function ProviderOnboarding() {
 
               <div>
                 <Label>Profile Photo</Label>
+                <input type="file" ref={avatarInputRef} accept="image/*" className="hidden" onChange={handleAvatarUpload} />
                 <div className="mt-1 border-2 border-dashed border-border rounded p-8 text-center">
-                  <Upload size={30} className="mx-auto mb-3 text-muted" aria-hidden="true" />
-                  <p className="text-sm text-muted mb-3">Upload a professional, friendly photo</p>
-                  <Button type="button" variant="outline" className="border-border" onClick={() => toast.info('Photo upload coming soon')}>
-                    Choose photo
-                  </Button>
+                  {avatarUrl ? (
+                    <div className="flex flex-col items-center gap-3">
+                      <Avatar className="h-20 w-20">
+                        <AvatarImage src={avatarUrl} alt="Profile" />
+                        <AvatarFallback>{user.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                      <Button type="button" variant="outline" className="border-border" disabled={uploadingAvatar} onClick={() => avatarInputRef.current?.click()}>
+                        {uploadingAvatar ? 'Uploading…' : 'Change photo'}
+                      </Button>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload size={30} className="mx-auto mb-3 text-muted" aria-hidden="true" />
+                      <p className="text-sm text-muted mb-3">Upload a professional, friendly photo</p>
+                      <Button type="button" variant="outline" className="border-border" disabled={uploadingAvatar} onClick={() => avatarInputRef.current?.click()}>
+                        {uploadingAvatar ? 'Uploading…' : 'Choose photo'}
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

@@ -46,8 +46,12 @@ export default function SignUp() {
       return;
     }
 
-    navigate('/verify-email');
-    toast.success('Account created! Check your email to verify.');
+    if (role === 'provider') {
+      navigate('/provider/onboarding');
+    } else {
+      navigate('/customer');
+    }
+    toast.success('Account created! Welcome to ATN.');
   }
 
   return (

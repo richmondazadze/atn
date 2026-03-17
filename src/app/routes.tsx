@@ -6,8 +6,6 @@ import Browse from "./pages/public/Browse";
 import ListingDetailPublic from "./pages/public/ListingDetail";
 import ProviderProfile from "./pages/public/ProviderProfile";
 import SignUp from "./pages/auth/SignUp";
-import VerifyEmail from "./pages/auth/VerifyEmail";
-import PhoneOTP from "./pages/auth/PhoneOTP";
 import Login from "./pages/auth/Login";
 import ResetPassword from "./pages/auth/ResetPassword";
 import Privacy from "./pages/public/Privacy";
@@ -20,6 +18,7 @@ import Search from "./pages/customer/Search";
 import ListingDetail from "./pages/customer/ListingDetail";
 import MyBookings from "./pages/customer/MyBookings";
 import Favorites from "./pages/customer/Favorites";
+import CustomerHelp from "./pages/customer/Help";
 import CustomerSettings from "./pages/customer/Settings";
 
 // Provider pages
@@ -35,6 +34,7 @@ import AICoach from "./pages/provider/AICoach";
 import Payouts from "./pages/provider/Payouts";
 import ProviderSettings from "./pages/provider/Settings";
 import ProviderOnboarding from "./pages/provider/Onboarding";
+import ProviderHelp from "./pages/provider/Help";
 
 // Admin pages
 import AdminOverview from "./pages/admin/Overview";
@@ -83,8 +83,6 @@ export const router = createBrowserRouter([
   
   // Auth routes
   { path: "/signup", element: <SignUp /> },
-  { path: "/verify-email", element: <VerifyEmail /> },
-  { path: "/phone-otp", element: <PhoneOTP /> },
   { path: "/login", element: <Login /> },
   { path: "/reset-password", element: <ResetPassword /> },
   
@@ -98,6 +96,7 @@ export const router = createBrowserRouter([
       { path: "listing/:id", element: <ListingDetail /> },
       { path: "bookings", element: <MyBookings /> },
       { path: "favorites", element: <Favorites /> },
+      { path: "help", element: <CustomerHelp /> },
       { path: "settings", element: <CustomerSettings /> },
     ],
   },
@@ -118,6 +117,7 @@ export const router = createBrowserRouter([
       { path: "reviews", element: <ReviewsReceived /> },
       { path: "ai-coach", element: <AICoach /> },
       { path: "payouts", element: <Payouts /> },
+      { path: "help", element: <ProviderHelp /> },
       { path: "settings", element: <ProviderSettings /> },
     ],
   },

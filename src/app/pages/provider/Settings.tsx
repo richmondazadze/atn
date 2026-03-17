@@ -331,9 +331,9 @@ export default function ProviderSettings() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium">Two-factor authentication</p>
-                <p className="text-xs text-muted">Add an extra layer of security</p>
+                <p className="text-xs text-muted">Coming in a future update</p>
               </div>
-              <Button variant="outline" size="sm" className="border-border" onClick={() => toast.info('2FA setup coming soon')}>Enable</Button>
+              <Button variant="outline" size="sm" className="border-border" disabled>Enable</Button>
             </div>
           </div>
         </Card>

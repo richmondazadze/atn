@@ -3,11 +3,12 @@ import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Badge } from '../../components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../components/ui/dialog';
 import { Textarea } from '../../components/ui/textarea';
 import { Label } from '../../components/ui/label';
-import { Clock, MapPin, MessageSquare, Calendar } from 'lucide-react';
+import { Clock, MapPin, MessageSquare, Calendar, AlertCircle } from 'lucide-react';
 import { useBookings, type Booking } from '../../../hooks/useBookings';
+import { useBookingMessages } from '../../../hooks/useBookingMessages';
 import { useAuth } from '../../context/AuthContext';
 import { useReviews } from '../../../hooks/useReviews';
 import { EmptyState } from '../../components/EmptyState';
@@ -119,10 +120,16 @@ export default function MyBookings() {
   const { bookings, loading, refetch } = useBookings();
   const { reviews, refetch: refetchReviews } = useReviews({ customerId: user.id });
   const [detailsBooking, setDetailsBooking] = useState<Booking | null>(null);
+  const { messages, sendMessage } = useBookingMessages(detailsBooking?.id ?? null);
   const [reviewBooking, setReviewBooking] = useState<Booking | null>(null);
   const [reviewText, setReviewText] = useState('');
   const [reviewRating, setReviewRating] = useState(5);
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [showMsg, setShowMsg] = useState(false);
+  const [msgText, setMsgText] = useState('');
+  const [showDispute, setShowDispute] = useState(false);
+  const [disputeIssue, setDisputeIssue] = useState('Service quality');
+  const [disputeDesc, setDisputeDesc] = useState('');
 
   const now = new Date();
 
@@ -155,6 +162,27 @@ export default function MyBookings() {
     }
     toast.success('Booking cancelled');
     refetch();
+  }
+
+  async function handleOpenDispute() {
+    if (!detailsBooking || !disputeDesc.trim()) return;
+    const { error } = await supabase.from('disputes').insert({
+      customer_id: user.id,
+      provider_id: detailsBooking.provider_id,
+      booking_id: detailsBooking.id,
+      listing_title: detailsBooking.title,
+      issue: disputeIssue,
+      description: disputeDesc.trim(),
+      priority: 'medium',
+    });
+    if (error) {
+      toast.error('Failed to open dispute. Please try again.');
+      return;
+    }
+    toast.success('Dispute submitted. Our team will review it shortly.');
+    setShowDispute(false);
+    setDisputeDesc('');
+    setDetailsBooking(null);
   }
 
   async function handleSubmitReview() {
@@ -273,8 +301,96 @@ export default function MyBookings() {
               {detailsBooking.address && (
                 <div><span className="text-xs text-muted">Address</span><p className="font-medium">{detailsBooking.address}</p></div>
               )}
+              {messages.length > 0 && (
+                <div className="border-t border-border pt-3">
+                  <p className="text-xs font-medium text-muted mb-2">Messages</p>
+                  <div className="space-y-2 max-h-32 overflow-y-auto text-sm">
+                    {messages.map(m => (
+                      <div key={m.id} className={`p-2 rounded ${m.sender_role === 'customer' ? 'bg-primary/10 ml-4' : 'bg-secondary mr-4'}`}>
+                        <p className="text-xs text-muted mb-0.5">{m.sender_role === 'customer' ? 'You' : 'Provider'}</p>
+                        <p className="text-foreground">{m.body}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
+          {detailsBooking && detailsBooking.status !== 'cancelled' && (
+            <DialogFooter className="gap-2 flex-wrap border-t border-border pt-4">
+              <Button variant="outline" size="sm" onClick={() => setShowMsg(true)}>
+                <MessageSquare size={14} className="mr-1.5" /> Message provider
+              </Button>
+              <Button variant="outline" size="sm" className="border-destructive text-destructive" onClick={() => setShowDispute(true)}>
+                <AlertCircle size={14} className="mr-1.5" /> Report issue
+              </Button>
+            </DialogFooter>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Message dialog */}
+      <Dialog open={showMsg} onOpenChange={(open) => { setShowMsg(open); if (!open) setMsgText(''); }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Message Provider</DialogTitle></DialogHeader>
+          <div>
+            <Label className="mb-2 block text-sm">Your message</Label>
+            <Textarea placeholder="Type your message…" value={msgText} onChange={e => setMsgText(e.target.value)} rows={5} className="resize-none" />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowMsg(false)}>Cancel</Button>
+            <Button className="bg-primary text-primary-foreground" disabled={!msgText.trim()} onClick={async () => {
+              if (!detailsBooking || !msgText.trim()) return;
+              try {
+                await sendMessage(user.id, 'customer', msgText.trim());
+                setMsgText('');
+                setShowMsg(false);
+                toast.success('Message sent');
+              } catch { toast.error('Failed to send'); }
+            }}>Send</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Open dispute dialog */}
+      <Dialog open={showDispute} onOpenChange={(open) => { if (!open) { setShowDispute(false); setDisputeDesc(''); } setShowDispute(open); }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Report an Issue</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="mb-2 block">Issue type</Label>
+              <select value={disputeIssue} onChange={e => setDisputeIssue(e.target.value)} className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm">
+                <option value="Service quality">Service quality</option>
+                <option value="No-show">Provider no-show</option>
+                <option value="Payment">Payment / refund</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div>
+              <Label className="mb-2 block">Describe the issue</Label>
+              <Textarea value={disputeDesc} onChange={e => setDisputeDesc(e.target.value)} placeholder="Please describe what happened..." rows={4} className="resize-none" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setShowDispute(false); setDisputeDesc(''); }}>Cancel</Button>
+            <Button className="bg-primary text-primary-foreground" disabled={!disputeDesc.trim()} onClick={async () => {
+              if (!detailsBooking || !disputeDesc.trim()) return;
+              const { error } = await supabase.from('disputes').insert({
+                booking_id: detailsBooking.id,
+                customer_id: user.id,
+                provider_id: detailsBooking.provider_id,
+                listing_title: detailsBooking.title,
+                issue: disputeIssue,
+                description: disputeDesc.trim(),
+                priority: 'medium',
+              });
+              if (error) { toast.error('Failed to submit'); return; }
+              toast.success('Issue reported. We will review it shortly.');
+              setShowDispute(false);
+              setDisputeDesc('');
+              setDetailsBooking(null);
+            }}>Submit</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

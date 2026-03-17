@@ -8,6 +8,7 @@ import { Textarea } from '../../components/ui/textarea';
 import { Label } from '../../components/ui/label';
 import { Calendar, Clock, MapPin, User, MessageCircle, Check, X } from 'lucide-react';
 import { useBookings, type Booking } from '../../../hooks/useBookings';
+import { useBookingMessages } from '../../../hooks/useBookingMessages';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../../lib/supabase';
 import { EmptyState } from '../../components/EmptyState';
@@ -23,6 +24,7 @@ export default function BookingInbox() {
   const { user } = useAuth();
   const { bookings, loading, refetch } = useBookings();
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const { messages, sendMessage } = useBookingMessages(selectedBooking?.id ?? null);
   const [showMsg, setShowMsg] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -165,16 +167,42 @@ export default function BookingInbox() {
       )}
 
       {/* Message dialog */}
-      <Dialog open={showMsg} onOpenChange={setShowMsg}>
+      <Dialog open={showMsg} onOpenChange={(open) => { setShowMsg(open); if (!open) setMessage(''); }}>
         <DialogContent>
           <DialogHeader><DialogTitle>Message Customer</DialogTitle></DialogHeader>
-          <div>
-            <Label className="mb-2 block text-sm">To: {selectedBooking?.customer_name || 'Customer'}</Label>
-            <Textarea placeholder="Type your message…" value={message} onChange={e => setMessage(e.target.value)} rows={5} className="resize-none" />
+          <div className="space-y-4">
+            <div>
+              <Label className="mb-2 block text-sm">To: {selectedBooking?.customer_name || 'Customer'}</Label>
+              <Textarea placeholder="Type your message…" value={message} onChange={e => setMessage(e.target.value)} rows={5} className="resize-none" />
+            </div>
+            {messages.length > 0 && (
+              <div className="border-t border-border pt-3">
+                <p className="text-xs font-medium text-muted mb-2">Recent messages</p>
+                <div className="space-y-2 max-h-32 overflow-y-auto text-sm">
+                  {messages.map(m => (
+                    <div key={m.id} className={`p-2 rounded ${m.sender_role === 'provider' ? 'bg-primary/10 ml-4' : 'bg-secondary mr-4'}`}>
+                      <p className="text-xs text-muted mb-0.5">{m.sender_role === 'provider' ? 'You' : 'Customer'}</p>
+                      <p className="text-foreground">{m.body}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowMsg(false)}>Cancel</Button>
-            <Button className="bg-primary text-primary-foreground" onClick={() => { setShowMsg(false); setMessage(''); toast.success('Message sent'); }}>
+            <Button className="bg-primary text-primary-foreground" disabled={!message.trim()} onClick={async () => {
+              if (!selectedBooking || !message.trim()) return;
+              try {
+                await sendMessage(user.id, 'provider', message.trim());
+              } catch {
+                toast.error('Failed to send message');
+                return;
+              }
+              setMessage('');
+              setShowMsg(false);
+              toast.success('Message sent');
+            }}>
               Send Message
             </Button>
           </DialogFooter>
