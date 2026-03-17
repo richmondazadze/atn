@@ -6,8 +6,10 @@ import { Textarea } from '../../components/ui/textarea';
 import { Label } from '../../components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../components/ui/dialog';
 import { Star, MessageCircle, TrendingUp, Award } from 'lucide-react';
-import { reviews, listings } from '../../data/mockData';
+import { useReviews, type Review } from '../../../hooks/useReviews';
+import { useListings } from '../../../hooks/useListings';
 import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../../lib/supabase';
 import { EmptyState } from '../../components/EmptyState';
 import { RatingStars } from '../../components/RatingStars';
 import { toast } from 'sonner';
@@ -24,24 +26,35 @@ function StarRow({ rating }: { rating: number }) {
 
 export default function ReviewsReceived() {
   const { user } = useAuth();
-  const [selectedReview, setSelectedReview] = useState<typeof reviews[0] | null>(null);
+  const { reviews, loading: reviewsLoading } = useReviews({ providerId: user.id });
+  const { listings, loading: listingsLoading } = useListings({ providerId: user.id });
+  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [reply, setReply] = useState('');
 
-  const myReviews = reviews.filter(r => r.providerId === user.id);
+  const loading = reviewsLoading || listingsLoading;
 
   const stats = useMemo(() => {
-    const total = myReviews.length;
-    const avg = total > 0 ? (myReviews.reduce((s, r) => s + r.rating, 0) / total).toFixed(1) : '0.0';
-    const dist = [5, 4, 3, 2, 1].map(n => ({ n, count: myReviews.filter(r => r.rating === n).length }));
-    const fiveStarCount = myReviews.filter(r => r.rating === 5).length;
+    const total = reviews.length;
+    const avg = total > 0 ? (reviews.reduce((s, r) => s + r.rating, 0) / total).toFixed(1) : '0.0';
+    const dist = [5, 4, 3, 2, 1].map(n => ({ n, count: reviews.filter(r => r.rating === n).length }));
+    const fiveStarCount = reviews.filter(r => r.rating === 5).length;
     return { total, avg, dist, fiveStarCount };
-  }, [myReviews]);
+  }, [reviews]);
 
-  function postReply() {
+  async function postReply() {
+    if (!selectedReview) return;
+    const { error } = await supabase.from('reviews').update({ reply: reply }).eq('id', selectedReview.id);
+    if (error) { toast.error('Failed to post reply'); return; }
     toast.success('Reply posted');
     setSelectedReview(null);
     setReply('');
   }
+
+  if (loading) return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
@@ -73,7 +86,7 @@ export default function ReviewsReceived() {
           </Card>
         </div>
 
-        {myReviews.length === 0 ? (
+        {reviews.length === 0 ? (
           <EmptyState icon={<Star size={40} />} title="No reviews yet" description="Customer reviews will appear here after completed bookings." />
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
@@ -98,8 +111,8 @@ export default function ReviewsReceived() {
 
             {/* Reviews list */}
             <div className="lg:col-span-2 space-y-4">
-              {myReviews.map(review => {
-                const listing = listings.find(l => l.id === review.listingId);
+              {reviews.map(review => {
+                const listing = listings.find(l => l.id === review.listing_id);
                 return (
                   <Card key={review.id} className="border-border p-5 lg:p-6">
                     <div className="flex items-start justify-between mb-3">
@@ -109,9 +122,9 @@ export default function ReviewsReceived() {
                           {listing && <Badge variant="secondary" className="text-xs">{listing.title}</Badge>}
                         </div>
                         <div className="flex items-center gap-2 text-sm">
-                          <span className="font-medium">{review.customerName}</span>
+                          <span className="font-medium">{review.customer_name}</span>
                           <span className="text-muted">•</span>
-                          <span className="text-muted">{new Date(review.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                          <span className="text-muted">{new Date(review.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
                         </div>
                       </div>
                     </div>
@@ -139,7 +152,7 @@ export default function ReviewsReceived() {
               <Card className="border-border bg-secondary p-4">
                 <div className="flex items-center gap-3 mb-2">
                   <StarRow rating={selectedReview.rating} />
-                  <span className="text-sm font-medium">{selectedReview.customerName}</span>
+                  <span className="text-sm font-medium">{selectedReview.customer_name}</span>
                 </div>
                 <p className="text-sm text-muted">{selectedReview.text}</p>
               </Card>

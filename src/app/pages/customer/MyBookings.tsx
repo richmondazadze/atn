@@ -3,12 +3,13 @@ import { Card } from '../../components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Badge } from '../../components/ui/badge';
 import { Clock, MapPin, MessageSquare, Calendar } from 'lucide-react';
-import { bookings } from '../../data/mockData';
+import { useBookings, type Booking } from '../../../hooks/useBookings';
 import { EmptyState } from '../../components/EmptyState';
 import { Link } from 'react-router';
 import { toast } from 'sonner';
+import { supabase } from '../../../lib/supabase';
 
-function BookingCard({ booking, variant }: { booking: typeof bookings[0]; variant: 'upcoming' | 'past' | 'cancelled' }) {
+function BookingCard({ booking, variant, onCancel }: { booking: Booking; variant: 'upcoming' | 'past' | 'cancelled'; onCancel?: (id: string) => void }) {
   return (
     <Card className="border-border bg-white p-5 lg:p-6">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
@@ -16,7 +17,6 @@ function BookingCard({ booking, variant }: { booking: typeof bookings[0]; varian
           <div className="flex items-start justify-between mb-3">
             <div className="min-w-0">
               <h3 className="font-medium truncate">{booking.title}</h3>
-              <p className="text-sm text-muted">{booking.providerName}</p>
             </div>
             {variant === 'upcoming' && <Badge className="bg-primary text-primary-foreground border-0 shrink-0 ml-3">Confirmed</Badge>}
             {variant === 'past' && <Badge variant="outline" className="border-border text-muted shrink-0 ml-3">Completed</Badge>}
@@ -44,7 +44,7 @@ function BookingCard({ booking, variant }: { booking: typeof bookings[0]; varian
             {variant === 'upcoming' && (
               <>
                 <Button variant="outline" className="border-border text-sm">View details</Button>
-                <Button variant="ghost" className="text-destructive text-sm" onClick={() => toast.success('Booking cancelled')}>Cancel booking</Button>
+                <Button variant="ghost" className="text-destructive text-sm" onClick={() => onCancel?.(booking.id)}>Cancel booking</Button>
               </>
             )}
             {variant === 'past' && (
@@ -52,7 +52,7 @@ function BookingCard({ booking, variant }: { booking: typeof bookings[0]; varian
                 <Button className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm">
                   <MessageSquare size={14} className="mr-1.5" /> Leave review
                 </Button>
-                <Link to={`/customer/listing/${booking.listingId}`}>
+                <Link to={`/customer/listing/${booking.listing_id}`}>
                   <Button variant="outline" className="border-border text-sm">Book again</Button>
                 </Link>
               </>
@@ -70,6 +70,31 @@ function BookingCard({ booking, variant }: { booking: typeof bookings[0]; varian
 }
 
 export default function MyBookings() {
+  const { bookings, loading, refetch } = useBookings();
+
+  async function handleCancel(bookingId: string) {
+    const { error } = await supabase
+      .from('bookings')
+      .update({ status: 'cancelled' })
+      .eq('id', bookingId);
+
+    if (error) {
+      toast.error('Failed to cancel booking. Please try again.');
+      return;
+    }
+
+    toast.success('Booking cancelled');
+    refetch();
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-secondary flex items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
   const upcoming = bookings.filter(b => b.status === 'confirmed');
   const past = bookings.filter(b => b.status === 'completed');
   const cancelled = bookings.filter(b => b.status === 'cancelled');
@@ -96,7 +121,7 @@ export default function MyBookings() {
               />
             ) : (
               <div className="space-y-4">
-                {upcoming.map(b => <BookingCard key={b.id} booking={b} variant="upcoming" />)}
+                {upcoming.map(b => <BookingCard key={b.id} booking={b} variant="upcoming" onCancel={handleCancel} />)}
               </div>
             )}
           </TabsContent>

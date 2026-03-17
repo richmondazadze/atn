@@ -9,20 +9,22 @@ import { Avatar, AvatarFallback } from '../../components/ui/avatar';
 import { Search, CheckCircle, XCircle, Eye } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../../components/ui/dropdown-menu';
 import { MoreVertical } from 'lucide-react';
-import { providers } from '../../data/mockData';
+import { useProviders } from '../../../hooks/useProviders';
+import { supabase } from '../../../lib/supabase';
 import { toast } from 'sonner';
 
-// Stable per-item data so values don't change on re-render
-const extendedProviders = providers.map((p, i) => ({
-  ...p,
-  status: i % 3 === 1 ? 'pending' : 'active',
-  totalEarnings: (i + 1) * 2300 + 1000,
-  completedBookings: (i + 1) * 22 + 10,
-}));
-
 export default function ProvidersTable() {
+  const { providers, loading, setProviders } = useProviders();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+
+  const extendedProviders = useMemo(() =>
+    providers.map((p, i) => ({
+      ...p,
+      status: i % 3 === 1 ? 'pending' : 'active',
+      totalEarnings: (i + 1) * 2300 + 1000,
+      completedBookings: (i + 1) * 22 + 10,
+    })), [providers]);
 
   const filteredProviders = useMemo(() =>
     extendedProviders.filter(p => {
@@ -30,7 +32,13 @@ export default function ProvidersTable() {
         p.email?.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
       return matchesSearch && matchesStatus;
-    }), [searchQuery, statusFilter]);
+    }), [extendedProviders, searchQuery, statusFilter]);
+
+  if (loading) return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
@@ -108,12 +116,12 @@ export default function ProvidersTable() {
                       <div className="flex items-center gap-3">
                         <Avatar className="w-9 h-9 shrink-0">
                           <AvatarFallback className="bg-primary/20 text-sm font-medium">
-                            {provider.avatar}
+                            {provider.name.split(' ').map(n => n[0]).join('')}
                           </AvatarFallback>
                         </Avatar>
                         <div>
                           <p className="font-medium text-sm">{provider.name}</p>
-                          <p className="text-xs text-muted">{provider.zipCodes?.slice(0,2).join(', ')}</p>
+                          <p className="text-xs text-muted">{provider.zip_codes?.slice(0,2).join(', ')}</p>
                         </div>
                       </div>
                     </TableCell>
@@ -144,12 +152,12 @@ export default function ProvidersTable() {
                     </TableCell>
                     <TableCell>
                       <span className="font-medium text-sm">{provider.rating}</span>
-                      <span className="text-xs text-muted ml-1">({provider.reviewCount})</span>
+                      <span className="text-xs text-muted ml-1">({provider.review_count})</span>
                     </TableCell>
                     <TableCell className="hidden sm:table-cell text-sm">{provider.completedBookings}</TableCell>
                     <TableCell className="hidden sm:table-cell font-medium text-sm">${provider.totalEarnings.toLocaleString()}</TableCell>
                     <TableCell className="hidden lg:table-cell text-sm text-muted">
-                      {new Date(provider.joinedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      {new Date(provider.joined_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
@@ -165,7 +173,12 @@ export default function ProvidersTable() {
                           <DropdownMenuItem onClick={() => toast.info('Coming soon')}>Edit Details</DropdownMenuItem>
                           <DropdownMenuItem onClick={() => toast.info('Coming soon')}>View Bookings</DropdownMenuItem>
                           <DropdownMenuItem onClick={() => toast.info('Coming soon')}>Contact Provider</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive" onClick={() => toast.error('Suspend action coming soon')}>
+                          <DropdownMenuItem className="text-destructive" onClick={async () => {
+                            const { error } = await supabase.from('providers').update({ verified: false }).eq('id', provider.id);
+                            if (error) { toast.error('Failed to suspend provider'); return; }
+                            setProviders(prev => prev.map(p => p.id === provider.id ? { ...p, verified: false } : p));
+                            toast.success('Provider account suspended');
+                          }}>
                             Suspend Account
                           </DropdownMenuItem>
                         </DropdownMenuContent>

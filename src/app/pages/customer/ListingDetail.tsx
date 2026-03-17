@@ -7,30 +7,78 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../componen
 import { Calendar } from '../../components/ui/calendar';
 import { Alert, AlertDescription } from '../../components/ui/alert';
 import { Clock, DollarSign, MapPin, CheckCircle2, Calendar as CalendarIcon, Info } from 'lucide-react';
-import { listings, reviews } from '../../data/mockData';
-import { getListingImage } from '../../data/images';
+import { useListing } from '../../../hooks/useListings';
+import { useReviews } from '../../../hooks/useReviews';
 import { RatingStars } from '../../components/RatingStars';
 import { toast } from 'sonner';
+import { supabase } from '../../../lib/supabase';
+import { useAuth } from '../../context/AuthContext';
 
 const TIME_SLOTS = ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00'];
 
 export default function ListingDetail() {
   const { id } = useParams<{ id: string }>();
-  const listing = listings.find(l => l.id === id) ?? listings[0];
-  const listingReviews = reviews.filter(r => r.listingId === listing.id).slice(0, 3);
+  const { user } = useAuth();
+  const { listing, loading: listingLoading } = useListing(id);
+  const { reviews, loading: reviewsLoading } = useReviews({ listingId: id });
 
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTime, setSelectedTime] = useState('');
+  const [booking, setBooking] = useState(false);
 
-  function handleConfirmBooking() {
+  const loading = listingLoading || reviewsLoading;
+
+  async function handleConfirmBooking() {
     if (!selectedDate || !selectedTime) {
       toast.error('Please select both a date and time');
       return;
     }
+    if (!listing || !user.id) return;
+
+    setBooking(true);
+    const { error } = await supabase.from('bookings').insert({
+      listing_id: listing.id,
+      customer_id: user.id,
+      provider_id: listing.provider_id,
+      title: listing.title,
+      date: selectedDate.toISOString().split('T')[0],
+      time: selectedTime,
+      duration: listing.duration,
+      price: listing.price,
+      status: 'pending',
+      address: '',
+    });
+    setBooking(false);
+
+    if (error) {
+      toast.error('Failed to book. Please try again.');
+      return;
+    }
+
     setShowBookingModal(false);
+    setSelectedDate(undefined);
+    setSelectedTime('');
     toast.success('Booking confirmed! Check your bookings for details.');
   }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-secondary flex items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (!listing) {
+    return (
+      <div className="min-h-screen bg-secondary flex items-center justify-center">
+        <p className="text-muted">Listing not found.</p>
+      </div>
+    );
+  }
+
+  const listingReviews = reviews.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-secondary px-4 lg:px-[72px]">
@@ -39,8 +87,8 @@ export default function ListingDetail() {
           {/* Main Content */}
           <div className="lg:col-span-2">
             <div className="h-56 sm:h-80 lg:h-96 rounded overflow-hidden bg-gradient-to-br from-primary/20 to-primary/10 mb-6 lg:mb-8">
-              {listing.images[0] && getListingImage(listing.images[0]) && (
-                <img src={getListingImage(listing.images[0])} alt={listing.title} className="w-full h-full object-cover" />
+              {listing.images[0] && (
+                <img src={listing.images[0]} alt={listing.title} className="w-full h-full object-cover" />
               )}
             </div>
 
@@ -48,7 +96,7 @@ export default function ListingDetail() {
               <div className="flex items-start justify-between mb-3 gap-3">
                 <div>
                   <h1 className="text-2xl lg:text-[32px] font-semibold mb-1.5">{listing.title}</h1>
-                  <span className="text-primary text-sm font-medium">{listing.providerName}</span>
+                  <span className="text-primary text-sm font-medium">{listing.provider_name}</span>
                 </div>
                 {listing.featured && <Badge className="bg-primary/10 text-primary border-0 shrink-0">Featured</Badge>}
               </div>
@@ -57,7 +105,7 @@ export default function ListingDetail() {
                 <div className="flex items-center gap-1.5">
                   <RatingStars rating={listing.rating} size={15} />
                   <span className="font-medium">{listing.rating}</span>
-                  <span className="text-muted">({listing.reviewCount} reviews)</span>
+                  <span className="text-muted">({listing.review_count} reviews)</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-muted">
                   <MapPin size={14} />
@@ -98,9 +146,9 @@ export default function ListingDetail() {
                     <div key={review.id} className="pb-5 border-b border-border last:border-0 last:pb-0">
                       <div className="flex items-start justify-between mb-2 gap-3">
                         <div>
-                          <p className="font-medium text-sm">{review.customerName}</p>
+                          <p className="font-medium text-sm">{review.customer_name}</p>
                           <p className="text-xs text-muted">
-                            {new Date(review.date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                            {new Date(review.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                           </p>
                         </div>
                         <RatingStars rating={review.rating} size={13} />
@@ -126,10 +174,12 @@ export default function ListingDetail() {
                   <Clock size={14} />
                   <span>{listing.duration} minutes</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <CalendarIcon size={14} />
-                  <span>Next: {new Date(listing.nextAvailable).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</span>
-                </div>
+                {listing.next_available && (
+                  <div className="flex items-center gap-2">
+                    <CalendarIcon size={14} />
+                    <span>Next: {new Date(listing.next_available).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</span>
+                  </div>
+                )}
               </div>
 
               <Button
@@ -157,7 +207,7 @@ export default function ListingDetail() {
             <AlertDescription>Your booking is held for 10 minutes. Complete payment to confirm.</AlertDescription>
           </Alert>
 
-          {/* Date picker — full width, always on top */}
+          {/* Date picker */}
           <div className="mb-5">
             <h3 className="font-medium text-sm mb-3">Select date</h3>
             <div className="rounded-xl border border-border bg-background p-1 sm:p-2">
@@ -177,7 +227,7 @@ export default function ListingDetail() {
             </div>
           </div>
 
-          {/* Time picker — full width grid, responsive columns */}
+          {/* Time picker */}
           <div className="mb-5">
             <h3 className="font-medium text-sm mb-3">Select time</h3>
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -217,7 +267,7 @@ export default function ListingDetail() {
             </div>
           )}
 
-          {/* Pricing + CTA — sticky on mobile so it's always reachable */}
+          {/* Pricing + CTA */}
           <div className="border-t border-border pt-4 mt-auto sticky bottom-0 bg-background pb-[env(safe-area-inset-bottom)]">
             <div className="space-y-2 text-sm mb-4">
               <div className="flex justify-between">
@@ -236,10 +286,10 @@ export default function ListingDetail() {
 
             <Button
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-12 text-base"
-              disabled={!selectedDate || !selectedTime}
+              disabled={!selectedDate || !selectedTime || booking}
               onClick={handleConfirmBooking}
             >
-              Continue to payment
+              {booking ? 'Booking…' : 'Continue to payment'}
             </Button>
           </div>
         </DialogContent>

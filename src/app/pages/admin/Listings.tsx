@@ -6,27 +6,53 @@ import { Badge } from '../../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Search, Flag, CheckCircle, XCircle, Eye } from 'lucide-react';
-import { listings, categories } from '../../data/mockData';
+import { useListings } from '../../../hooks/useListings';
+import { useCategories } from '../../../hooks/useCategories';
+import { supabase } from '../../../lib/supabase';
 import { toast } from 'sonner';
 
-// Stable moderation status
-const extendedListings = listings.map((l, i) => ({
-  ...l,
-  moderationStatus: i % 4 === 0 ? 'flagged' : 'approved',
-}));
-
 export default function ListingsModeration() {
+  const { listings, loading: listingsLoading, setListings } = useListings();
+  const { categories, loading: categoriesLoading } = useCategories();
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
 
+  async function handleApprove(id: string) {
+    const { error } = await supabase.from('listings').update({ status: 'active' }).eq('id', id);
+    if (error) { toast.error('Failed to approve listing'); return; }
+    setListings(prev => prev.map(l => l.id === id ? { ...l, status: 'active' } : l));
+    toast.success('Listing approved');
+  }
+
+  async function handleSuspend(id: string) {
+    const { error } = await supabase.from('listings').update({ status: 'suspended' }).eq('id', id);
+    if (error) { toast.error('Failed to remove listing'); return; }
+    setListings(prev => prev.filter(l => l.id !== id));
+    toast.success('Listing removed');
+  }
+
+  const loading = listingsLoading || categoriesLoading;
+
+  const extendedListings = useMemo(() =>
+    listings.map((l, i) => ({
+      ...l,
+      moderationStatus: i % 4 === 0 ? 'flagged' : 'approved',
+    })), [listings]);
+
   const filteredListings = useMemo(() =>
     extendedListings.filter(l => {
       const matchesSearch = l.title.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = categoryFilter === 'all' || l.category === categoryFilter;
+      const matchesCategory = categoryFilter === 'all' || l.category_slug === categoryFilter;
       const matchesStatus = statusFilter === 'all' || l.moderationStatus === statusFilter;
       return matchesSearch && matchesCategory && matchesStatus;
-    }), [searchQuery, categoryFilter, statusFilter]);
+    }), [extendedListings, searchQuery, categoryFilter, statusFilter]);
+
+  if (loading) return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
@@ -70,7 +96,7 @@ export default function ListingsModeration() {
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
                 {categories.map(cat => (
-                  <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                  <SelectItem key={cat.id} value={cat.slug}>{cat.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -109,10 +135,10 @@ export default function ListingsModeration() {
                       <p className="font-medium text-sm">{listing.title}</p>
                       <p className="text-xs text-muted line-clamp-1 hidden sm:block">{listing.description}</p>
                     </TableCell>
-                    <TableCell className="hidden sm:table-cell text-sm">{listing.providerName}</TableCell>
+                    <TableCell className="hidden sm:table-cell text-sm">{listing.provider_name}</TableCell>
                     <TableCell className="hidden md:table-cell">
                       <Badge variant="outline" className="border-border text-xs">
-                        {categories.find(c => c.id === listing.category)?.name || listing.category}
+                        {categories.find(c => c.slug === listing.category_slug)?.name || listing.category_slug}
                       </Badge>
                     </TableCell>
                     <TableCell className="font-medium text-sm">${listing.price}</TableCell>
@@ -130,7 +156,7 @@ export default function ListingsModeration() {
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
                       <span className="font-medium text-sm">{listing.rating}</span>
-                      <span className="text-xs text-muted ml-1">({listing.reviewCount})</span>
+                      <span className="text-xs text-muted ml-1">({listing.review_count})</span>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1 flex-wrap">
@@ -139,10 +165,10 @@ export default function ListingsModeration() {
                         </Button>
                         {listing.moderationStatus === 'flagged' && (
                           <>
-                            <Button size="sm" className="bg-primary text-primary-foreground text-xs" onClick={() => toast.success('Listing approved')}>
+                            <Button size="sm" className="bg-primary text-primary-foreground text-xs" onClick={() => handleApprove(listing.id)}>
                               <CheckCircle size={13} className="mr-1" /> Approve
                             </Button>
-                            <Button size="sm" variant="outline" className="border-destructive text-destructive text-xs" onClick={() => toast.success('Listing removed')}>
+                            <Button size="sm" variant="outline" className="border-destructive text-destructive text-xs" onClick={() => handleSuspend(listing.id)}>
                               <XCircle size={13} className="mr-1" /> Remove
                             </Button>
                           </>

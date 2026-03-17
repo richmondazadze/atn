@@ -28,22 +28,26 @@ export default function Login() {
   });
 
   async function onSubmit(data: FormData) {
-    const role = await login(data.email, data.password);
+    try {
+      const role = await login(data.email, data.password);
 
-    if (!role) {
-      toast.error('Invalid email or password');
-      return;
+      if (!role) {
+        toast.error('Invalid email or password');
+        return;
+      }
+
+      if (role === 'admin') {
+        navigate('/admin');
+      } else if (role === 'provider') {
+        navigate('/provider');
+      } else {
+        navigate('/customer');
+      }
+
+      toast.success('Logged in successfully');
+    } catch {
+      toast.error('Something went wrong. Please try again.');
     }
-
-    if (role === 'admin') {
-      navigate('/admin');
-    } else if (role === 'provider') {
-      navigate('/provider');
-    } else {
-      navigate('/customer');
-    }
-
-    toast.success('Logged in successfully');
   }
 
   return (

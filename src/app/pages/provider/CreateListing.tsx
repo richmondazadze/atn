@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -10,7 +10,10 @@ import { Label } from '../../components/ui/label';
 import { Textarea } from '../../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { ArrowLeft, Upload, X } from 'lucide-react';
-import { categories } from '../../data/mockData';
+import { useCategories } from '../../../hooks/useCategories';
+import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../../lib/supabase';
+import { uploadListingImage } from '../../../lib/storage';
 import { toast } from 'sonner';
 
 const DRAFT_KEY = 'atn_create_listing_draft';
@@ -31,6 +34,12 @@ function loadDraft(): Partial<FormData> | null {
 
 export default function CreateListing() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { categories, loading } = useCategories();
+  const [saving, setSaving] = useState(false);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const draft = loadDraft();
 
   const { register, handleSubmit, control, setValue, watch, formState: { errors } } = useForm<FormData>({
@@ -49,15 +58,55 @@ export default function CreateListing() {
     return () => sub.unsubscribe();
   }, [watch]);
 
-  function onSubmit(_data: FormData) {
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
+    setUploadingImages(true);
+    for (const file of files) {
+      const url = await uploadListingImage(user.id, file);
+      if (url) {
+        setImageUrls(prev => [...prev, url]);
+      } else {
+        toast.error(`Failed to upload ${file.name}`);
+      }
+    }
+    setUploadingImages(false);
+    if (imageInputRef.current) imageInputRef.current.value = '';
+  }
+
+  function removeImage(index: number) {
+    setImageUrls(prev => prev.filter((_, i) => i !== index));
+  }
+
+  async function onSubmit(data: FormData, isDraft = false) {
+    setSaving(true);
+    const { error } = await supabase.from('listings').insert({
+      provider_id: user.id,
+      title: data.title,
+      category_slug: data.category,
+      description: data.description,
+      price: data.price,
+      duration: data.duration,
+      images: imageUrls,
+      amenities: data.amenities.map(a => a.value).filter(Boolean),
+      status: isDraft ? 'draft' : 'active',
+    });
+    setSaving(false);
+    if (error) { toast.error('Failed to create listing'); return; }
     localStorage.removeItem(DRAFT_KEY);
-    toast.success('Listing published!');
+    toast.success(isDraft ? 'Draft saved' : 'Listing published!');
     navigate('/provider/listings');
   }
 
   function saveDraft() {
-    toast.success('Draft saved');
+    handleSubmit(data => onSubmit(data, true))();
   }
+
+  if (loading) return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
@@ -72,7 +121,7 @@ export default function CreateListing() {
           {draft && <p className="text-xs text-primary mt-1">Draft restored</p>}
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <form onSubmit={handleSubmit(data => onSubmit(data))} noValidate>
           <Card className="border-border p-5 lg:p-8 mb-6">
             <h2 className="text-lg font-medium mb-5">Basic Information</h2>
             <div className="space-y-5">
@@ -90,7 +139,7 @@ export default function CreateListing() {
                     <SelectValue placeholder="Choose category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map(cat => <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>)}
+                    {categories.map(cat => <SelectItem key={cat.slug} value={cat.slug}>{cat.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 {errors.category && <p className="text-xs text-destructive mt-1">{errors.category.message}</p>}
@@ -141,11 +190,57 @@ export default function CreateListing() {
 
           <Card className="border-border p-5 lg:p-8 mb-6">
             <h2 className="text-lg font-medium mb-5">Photos</h2>
-            <div className="border-2 border-dashed border-border rounded p-8 lg:p-12 text-center">
-              <Upload size={36} className="mx-auto mb-3 text-muted" aria-hidden="true" />
-              <p className="text-sm mb-1">Drag photos here or click to browse</p>
-              <p className="text-xs text-muted">PNG, JPG up to 5MB each. First photo will be the cover image.</p>
-              <Button type="button" variant="outline" className="mt-4">Choose files</Button>
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/png,image/jpeg"
+              multiple
+              className="hidden"
+              onChange={handleImageUpload}
+            />
+
+            {imageUrls.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+                {imageUrls.map((url, i) => (
+                  <div key={url} className="relative group aspect-[16/10] rounded overflow-hidden border border-border">
+                    <img src={url} alt={`Upload ${i + 1}`} className="w-full h-full object-cover" />
+                    {i === 0 && (
+                      <span className="absolute top-1.5 left-1.5 bg-primary text-primary-foreground text-[10px] px-1.5 py-0.5 rounded font-medium">
+                        Cover
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => removeImage(i)}
+                      className="absolute top-1.5 right-1.5 bg-black/60 hover:bg-black/80 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      aria-label={`Remove image ${i + 1}`}
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div
+              className="border-2 border-dashed border-border rounded p-8 lg:p-12 text-center cursor-pointer hover:border-primary transition-colors"
+              onClick={() => imageInputRef.current?.click()}
+            >
+              {uploadingImages ? (
+                <div className="flex flex-col items-center gap-2">
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                  <p className="text-sm text-muted">Uploading…</p>
+                </div>
+              ) : (
+                <>
+                  <Upload size={36} className="mx-auto mb-3 text-muted" aria-hidden="true" />
+                  <p className="text-sm mb-1">Drag photos here or click to browse</p>
+                  <p className="text-xs text-muted">PNG, JPG up to 5MB each. First photo will be the cover image.</p>
+                  <Button type="button" variant="outline" className="mt-4" onClick={(e) => { e.stopPropagation(); imageInputRef.current?.click(); }}>
+                    Choose files
+                  </Button>
+                </>
+              )}
             </div>
             <p className="text-xs text-muted mt-3">Good photos increase bookings by 3×. Show your work, setup, or process.</p>
           </Card>
@@ -155,11 +250,11 @@ export default function CreateListing() {
               Cancel
             </Button>
             <div className="flex gap-3 w-full sm:w-auto">
-              <Button type="button" variant="outline" className="flex-1 sm:flex-none" onClick={saveDraft}>
+              <Button type="button" variant="outline" className="flex-1 sm:flex-none" onClick={saveDraft} disabled={saving}>
                 Save as draft
               </Button>
-              <Button type="submit" className="bg-primary hover:bg-primary/90 text-primary-foreground flex-1 sm:flex-none">
-                Publish listing
+              <Button type="submit" className="bg-primary hover:bg-primary/90 text-primary-foreground flex-1 sm:flex-none" disabled={saving}>
+                {saving ? 'Publishing…' : 'Publish listing'}
               </Button>
             </div>
           </div>

@@ -4,13 +4,26 @@ import { Card } from '../../components/ui/card';
 import { ListingCard } from '../../components/ListingCard';
 import { RatingStars } from '../../components/RatingStars';
 import { Clock, MapPin } from 'lucide-react';
-import { listings, bookings } from '../../data/mockData';
-import { getListingImage } from '../../data/images';
+import { useListings } from '../../../hooks/useListings';
+import { useBookings } from '../../../hooks/useBookings';
 import { useAuth } from '../../context/AuthContext';
 
 export default function CustomerHome() {
   const { user } = useAuth();
+  const { listings, loading: listingsLoading } = useListings();
+  const { bookings, loading: bookingsLoading } = useBookings();
+
   const firstName = user.name.split(' ')[0];
+  const loading = listingsLoading || bookingsLoading;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-secondary flex items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
   const featured = listings.filter(l => l.featured).slice(0, 3);
   const upcoming = bookings.filter(b => b.status === 'confirmed').slice(0, 2);
   const previousListings = listings.slice(0, 3);
@@ -39,7 +52,6 @@ export default function CustomerHome() {
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <h3 className="font-medium mb-0.5">{booking.title}</h3>
-                      <p className="text-sm text-muted">{booking.providerName}</p>
                     </div>
                     <div className="text-right shrink-0 ml-4">
                       <div className="font-semibold">${booking.price}</div>
@@ -51,10 +63,12 @@ export default function CustomerHome() {
                       <Clock size={13} />
                       <span>{new Date(booking.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} at {booking.time}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-muted">
-                      <MapPin size={13} />
-                      <span className="truncate">{booking.address}</span>
-                    </div>
+                    {booking.address && (
+                      <div className="flex items-center gap-2 text-sm text-muted">
+                        <MapPin size={13} />
+                        <span className="truncate">{booking.address}</span>
+                      </div>
+                    )}
                   </div>
                   <div className="flex gap-2">
                     <Button variant="outline" className="flex-1 border-border text-sm min-h-10">View details</Button>
@@ -80,15 +94,15 @@ export default function CustomerHome() {
                 key={listing.id}
                 id={listing.id}
                 title={listing.title}
-                providerName={listing.providerName}
+                providerName={listing.provider_name ?? ''}
                 price={listing.price}
                 duration={listing.duration}
                 rating={listing.rating}
-                reviewCount={listing.reviewCount}
-                nextAvailable={listing.nextAvailable}
+                reviewCount={listing.review_count}
+                nextAvailable={listing.next_available ?? ''}
                 featured={listing.featured}
-                category={listing.category}
-                image={listing.images[0] ? getListingImage(listing.images[0]) : undefined}
+                category={listing.category_slug}
+                image={listing.images[0]}
                 linkPrefix="/customer"
               />
             ))}
@@ -103,11 +117,11 @@ export default function CustomerHome() {
               <Card key={listing.id} className="border-border bg-white p-5 hover:border-primary transition-colors">
                 <div className="flex items-start gap-3 mb-4">
                   <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium shrink-0" aria-hidden="true">
-                    {listing.providerName.split(' ').map(n => n[0]).join('')}
+                    {(listing.provider_name ?? '').split(' ').map(n => n[0]).join('')}
                   </div>
                   <div className="min-w-0">
                     <h3 className="font-medium text-sm truncate">{listing.title}</h3>
-                    <p className="text-xs text-muted mt-0.5 truncate">{listing.providerName}</p>
+                    <p className="text-xs text-muted mt-0.5 truncate">{listing.provider_name}</p>
                     <RatingStars rating={listing.rating} showCount={false} size={12} />
                   </div>
                 </div>

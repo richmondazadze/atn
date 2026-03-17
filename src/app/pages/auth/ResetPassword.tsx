@@ -7,6 +7,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { toast } from 'sonner';
+import { supabase } from '../../../lib/supabase';
 
 const schema = z.object({
   email: z.string().min(1, 'Email is required').email('Enter a valid email'),
@@ -19,7 +20,14 @@ export default function ResetPassword() {
     defaultValues: { email: '' },
   });
 
-  function onSubmit(_data: FormData) {
+  async function onSubmit(data: FormData) {
+    const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
+      redirectTo: `${window.location.origin}/login`,
+    });
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success('Reset link sent — check your email');
   }
 

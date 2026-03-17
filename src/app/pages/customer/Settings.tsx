@@ -9,6 +9,7 @@ import { Switch } from '../../components/ui/switch';
 import { Separator } from '../../components/ui/separator';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
+import { supabase } from '../../../lib/supabase';
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -28,7 +29,7 @@ const passwordSchema = z.object({
 type PasswordData = z.infer<typeof passwordSchema>;
 
 export default function CustomerSettings() {
-  const { user } = useAuth();
+  const { user, refreshProfile } = useAuth();
 
   const profileForm = useForm<ProfileData>({
     resolver: zodResolver(profileSchema),
@@ -39,11 +40,31 @@ export default function CustomerSettings() {
     resolver: zodResolver(passwordSchema),
   });
 
-  function onProfileSave(_data: ProfileData) {
+  async function onProfileSave(data: ProfileData) {
+    const { error } = await supabase
+      .from('profiles')
+      .update({ name: data.name, phone: data.phone })
+      .eq('id', user.id);
+
+    if (error) {
+      toast.error('Failed to save profile. Please try again.');
+      return;
+    }
+
     toast.success('Profile updated');
+    await refreshProfile();
   }
 
-  function onPasswordUpdate(_data: PasswordData) {
+  async function onPasswordUpdate(data: PasswordData) {
+    const { error } = await supabase.auth.updateUser({
+      password: data.newPassword,
+    });
+
+    if (error) {
+      toast.error(error.message || 'Failed to update password');
+      return;
+    }
+
     toast.success('Password updated');
     passwordForm.reset();
   }

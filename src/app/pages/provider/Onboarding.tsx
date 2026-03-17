@@ -8,11 +8,15 @@ import { Textarea } from '../../components/ui/textarea';
 import { Checkbox } from '../../components/ui/checkbox';
 import { Separator } from '../../components/ui/separator';
 import { CheckCircle2, Upload, ArrowRight, ArrowLeft, ShieldCheck } from 'lucide-react';
-import { categories } from '../../data/mockData';
+import { useCategories } from '../../../hooks/useCategories';
+import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../../lib/supabase';
 import { toast } from 'sonner';
 
 export default function ProviderOnboarding() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { categories, loading } = useCategories();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     bio: '',
@@ -31,10 +35,17 @@ export default function ProviderOnboarding() {
     { number: 4, title: 'Verification', description: 'Complete your profile' },
   ];
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
     } else {
+      const { error } = await supabase.from('providers').insert({
+        id: user.id,
+        verified: false,
+        categories: formData.selectedCategories,
+        zip_codes: formData.zipCodes.filter(z => z.trim().length === 5),
+      });
+      if (error) { toast.error('Failed to complete setup'); return; }
       toast.success('Profile setup complete! Welcome to ATN.');
       navigate('/provider');
     }
@@ -63,6 +74,12 @@ export default function ProviderOnboarding() {
     next[index] = value;
     setFormData(prev => ({ ...prev, zipCodes: next }));
   };
+
+  if (loading) return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
@@ -184,12 +201,12 @@ export default function ProviderOnboarding() {
             <p className="text-sm text-muted mb-5">Select all that apply. You can add specific listings later.</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {categories.map(category => {
-                const isSelected = formData.selectedCategories.includes(category.id);
+                const isSelected = formData.selectedCategories.includes(category.slug);
                 return (
                   <button
-                    key={category.id}
+                    key={category.slug}
                     type="button"
-                    onClick={() => toggleCategory(category.id)}
+                    onClick={() => toggleCategory(category.slug)}
                     aria-pressed={isSelected}
                     className={`p-4 border rounded text-left transition-colors ${
                       isSelected ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'

@@ -7,37 +7,43 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../../components/ui/dialog';
 import { Label } from '../../components/ui/label';
 import { AlertCircle, Clock, CheckCircle, MessageSquare } from 'lucide-react';
+import { useDisputes, type Dispute } from '../../../hooks/useDisputes';
+import { supabase } from '../../../lib/supabase';
 import { toast } from 'sonner';
-
-type Dispute = {
-  id: string;
-  customer: string;
-  provider: string;
-  listing: string;
-  reason: string;
-  status: 'open' | 'in-review' | 'resolved';
-  priority: 'high' | 'medium' | 'low';
-  amount: string;
-  date: string;
-  description: string;
-};
-
-const DISPUTES: Dispute[] = [
-  { id: 'D-1043', customer: 'Sarah Martinez', provider: 'Deja Johnson', listing: 'Deep House Cleaning', reason: 'Service not completed as described', status: 'open', priority: 'high', amount: '$75', date: '2026-03-10', description: 'Customer reports that bathrooms were not cleaned thoroughly despite being listed in the service description.' },
-  { id: 'D-1042', customer: 'Jessica Brown', provider: 'Tasha Miles', listing: 'Knotless Box Braids', reason: 'Appointment cancellation dispute', status: 'in-review', priority: 'medium', amount: '$160', date: '2026-03-09', description: 'Provider cancelled 2 hours before appointment. Customer requesting full refund.' },
-  { id: 'D-1041', customer: 'Amanda Wilson', provider: 'Renee Carter', listing: 'Gel Manicure', reason: 'Payment issue', status: 'resolved', priority: 'low', amount: '$45', date: '2026-03-08', description: 'Double charge resolved - refund issued.' },
-  { id: 'D-1040', customer: 'Lisa Johnson', provider: 'Kimora Reed', listing: 'Ceiling Fan Installation', reason: 'Quality of work', status: 'open', priority: 'high', amount: '$90', date: '2026-03-07', description: 'Fan is making noise and customer concerned about installation safety.' },
-];
 
 function statusBadge(status: Dispute['status']) {
   if (status === 'open') return <Badge variant="destructive" className="text-xs"><AlertCircle size={11} className="mr-1" />Open</Badge>;
-  if (status === 'in-review') return <Badge variant="secondary" className="text-xs"><Clock size={11} className="mr-1" />In Review</Badge>;
-  return <Badge className="bg-primary/10 text-primary border-0 text-xs"><CheckCircle size={11} className="mr-1" />Resolved</Badge>;
+  if (status === 'in-progress') return <Badge variant="secondary" className="text-xs"><Clock size={11} className="mr-1" />In Review</Badge>;
+  if (status === 'resolved' || status === 'closed') return <Badge className="bg-primary/10 text-primary border-0 text-xs"><CheckCircle size={11} className="mr-1" />Resolved</Badge>;
+  return null;
 }
 
 export default function DisputesPage() {
+  const { disputes, loading, setDisputes } = useDisputes();
   const [statusFilter, setStatusFilter] = useState('all');
-  const filteredDisputes = statusFilter === 'all' ? DISPUTES : DISPUTES.filter(d => d.status === statusFilter);
+  const [resolutionText, setResolutionText] = useState('');
+  const [resolutionAction, setResolutionAction] = useState('');
+
+  const filteredDisputes = statusFilter === 'all' ? disputes : disputes.filter(d => d.status === statusFilter);
+
+  async function handleResolve(id: string) {
+    if (!resolutionText.trim()) { toast.error('Please enter resolution notes'); return; }
+    const { error } = await supabase
+      .from('disputes')
+      .update({ status: 'resolved', resolution: resolutionText.trim() })
+      .eq('id', id);
+    if (error) { toast.error('Failed to submit resolution'); return; }
+    setDisputes(prev => prev.map(d => d.id === id ? { ...d, status: 'resolved' as const, resolution: resolutionText.trim() } : d));
+    setResolutionText('');
+    setResolutionAction('');
+    toast.success('Resolution submitted');
+  }
+
+  if (loading) return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
@@ -50,10 +56,10 @@ export default function DisputesPage() {
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
           {[
-            { label: 'Total', value: DISPUTES.length, color: '' },
-            { label: 'Open', value: DISPUTES.filter(d => d.status === 'open').length, color: 'text-destructive' },
-            { label: 'In Review', value: DISPUTES.filter(d => d.status === 'in-review').length, color: 'text-amber-500' },
-            { label: 'Resolved', value: DISPUTES.filter(d => d.status === 'resolved').length, color: 'text-primary' },
+            { label: 'Total', value: disputes.length, color: '' },
+            { label: 'Open', value: disputes.filter(d => d.status === 'open').length, color: 'text-destructive' },
+            { label: 'In Progress', value: disputes.filter(d => d.status === 'in-progress').length, color: 'text-amber-500' },
+            { label: 'Resolved', value: disputes.filter(d => d.status === 'resolved' || d.status === 'closed').length, color: 'text-primary' },
           ].map(s => (
             <Card key={s.label} className="border-border p-4">
               <p className="text-xs text-muted mb-1">{s.label}</p>
@@ -72,11 +78,12 @@ export default function DisputesPage() {
               <SelectContent>
                 <SelectItem value="all">All Disputes</SelectItem>
                 <SelectItem value="open">Open</SelectItem>
-                <SelectItem value="in-review">In Review</SelectItem>
+                <SelectItem value="in-progress">In Progress</SelectItem>
                 <SelectItem value="resolved">Resolved</SelectItem>
+                <SelectItem value="closed">Closed</SelectItem>
               </SelectContent>
             </Select>
-            <p className="text-sm text-muted">Showing {filteredDisputes.length} of {DISPUTES.length} disputes</p>
+            <p className="text-sm text-muted">Showing {filteredDisputes.length} of {disputes.length} disputes</p>
           </div>
         </Card>
 
@@ -87,21 +94,20 @@ export default function DisputesPage() {
               <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <h3 className="font-semibold text-lg">{dispute.id}</h3>
+                    <h3 className="font-semibold text-lg">{dispute.id.slice(0, 8)}</h3>
                     {statusBadge(dispute.status)}
                     {dispute.priority === 'high' && (
                       <Badge className="bg-amber-100 text-amber-700 border-0 text-xs">High Priority</Badge>
                     )}
                   </div>
 
-                  <p className="text-sm text-muted mb-4">{dispute.reason}</p>
+                  <p className="text-sm text-muted mb-4">{dispute.issue}</p>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm mb-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm mb-4">
                     {[
-                      { label: 'Customer', value: dispute.customer },
-                      { label: 'Provider', value: dispute.provider },
-                      { label: 'Service', value: dispute.listing },
-                      { label: 'Amount', value: dispute.amount },
+                      { label: 'Customer', value: dispute.customer_name || '—' },
+                      { label: 'Provider', value: dispute.provider_name || '—' },
+                      { label: 'Service', value: dispute.listing_title },
                     ].map(item => (
                       <div key={item.label}>
                         <p className="text-xs text-muted mb-0.5">{item.label}</p>
@@ -117,9 +123,9 @@ export default function DisputesPage() {
 
                 <div className="flex flex-row lg:flex-col items-center lg:items-end gap-2 shrink-0">
                   <p className="text-xs text-muted">
-                    {new Date(dispute.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    {new Date(dispute.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                   </p>
-                  <Dialog>
+                  <Dialog onOpenChange={open => { if (!open) { setResolutionText(''); setResolutionAction(''); } }}>
                     <DialogTrigger asChild>
                       <Button className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm">
                         Review Dispute
@@ -127,23 +133,22 @@ export default function DisputesPage() {
                     </DialogTrigger>
                     <DialogContent className="max-w-2xl">
                       <DialogHeader>
-                        <DialogTitle>Dispute {dispute.id}</DialogTitle>
+                        <DialogTitle>Dispute {dispute.id.slice(0, 8)}</DialogTitle>
                         <DialogDescription>Review details and take action on this dispute</DialogDescription>
                       </DialogHeader>
                       <div className="space-y-4 py-2">
                         <div className="p-4 bg-secondary rounded text-sm">
-                          <p><strong>Customer:</strong> {dispute.customer}</p>
-                          <p><strong>Provider:</strong> {dispute.provider}</p>
-                          <p><strong>Service:</strong> {dispute.listing}</p>
-                          <p><strong>Amount:</strong> {dispute.amount}</p>
+                          <p><strong>Customer:</strong> {dispute.customer_name || '—'}</p>
+                          <p><strong>Provider:</strong> {dispute.provider_name || '—'}</p>
+                          <p><strong>Service:</strong> {dispute.listing_title}</p>
                         </div>
                         <div>
                           <Label className="mb-1 block">Resolution Notes</Label>
-                          <Textarea placeholder="Document your decision and reasoning..." className="min-h-[100px]" />
+                          <Textarea value={resolutionText} onChange={e => setResolutionText(e.target.value)} placeholder="Document your decision and reasoning..." className="min-h-[100px]" />
                         </div>
                         <div>
                           <Label className="mb-1 block">Action</Label>
-                          <Select>
+                          <Select value={resolutionAction} onValueChange={setResolutionAction}>
                             <SelectTrigger><SelectValue placeholder="Select resolution" /></SelectTrigger>
                             <SelectContent>
                               <SelectItem value="refund-full">Full Refund to Customer</SelectItem>
@@ -157,7 +162,7 @@ export default function DisputesPage() {
                           <Button variant="outline" className="border-border" onClick={() => toast.info('Messaging coming soon')}>
                             <MessageSquare size={14} className="mr-1.5" /> Contact Parties
                           </Button>
-                          <Button className="bg-primary text-primary-foreground" onClick={() => toast.success('Resolution submitted')}>
+                          <Button className="bg-primary text-primary-foreground" onClick={() => handleResolve(dispute.id)}>
                             Submit Resolution
                           </Button>
                         </div>

@@ -6,13 +6,17 @@ import { Label } from '../../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Checkbox } from '../../components/ui/checkbox';
 import { Search, Grid3x3, List, SlidersHorizontal, X } from 'lucide-react';
-import { listings, categories } from '../../data/mockData';
-import { getListingImage } from '../../data/images';
+import { getListingImageUrl } from '../../../lib/storage';
 import { EmptyState } from '../../components/EmptyState';
+import { useListings } from '../../../hooks/useListings';
+import { useCategories } from '../../../hooks/useCategories';
 
 type SortKey = 'featured' | 'price-low' | 'price-high' | 'rating';
 
 export default function Browse() {
+  const { listings, loading: listingsLoading } = useListings();
+  const { categories, loading: categoriesLoading } = useCategories();
+
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -22,9 +26,11 @@ export default function Browse() {
   const [sortBy, setSortBy] = useState<SortKey>('featured');
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  function toggleCategory(id: string) {
+  const loading = listingsLoading || categoriesLoading;
+
+  function toggleCategory(slug: string) {
     setSelectedCategories(prev =>
-      prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
+      prev.includes(slug) ? prev.filter(c => c !== slug) : [...prev, slug]
     );
   }
 
@@ -44,13 +50,13 @@ export default function Browse() {
       const q = searchTerm.toLowerCase();
       result = result.filter(l =>
         l.title.toLowerCase().includes(q) ||
-        l.providerName.toLowerCase().includes(q) ||
-        l.category.toLowerCase().includes(q)
+        (l.provider_name ?? '').toLowerCase().includes(q) ||
+        l.category_slug.toLowerCase().includes(q)
       );
     }
 
     if (selectedCategories.length > 0) {
-      result = result.filter(l => selectedCategories.includes(l.category));
+      result = result.filter(l => selectedCategories.includes(l.category_slug));
     }
 
     if (minPrice !== '') result = result.filter(l => l.price >= Number(minPrice));
@@ -65,7 +71,7 @@ export default function Browse() {
     }
 
     return result;
-  }, [searchTerm, selectedCategories, minPrice, maxPrice, minRating, sortBy]);
+  }, [listings, searchTerm, selectedCategories, minPrice, maxPrice, minRating, sortBy]);
 
   const activeFilterCount = selectedCategories.length + (minPrice ? 1 : 0) + (maxPrice ? 1 : 0) + (minRating ? 1 : 0);
 
@@ -91,13 +97,13 @@ export default function Browse() {
         <legend className="text-sm font-medium mb-3">Categories</legend>
         <div className="space-y-2">
           {categories.map(cat => (
-            <div key={cat.id} className="flex items-center gap-2">
+            <div key={cat.slug} className="flex items-center gap-2">
               <Checkbox
-                id={`cat-${cat.id}`}
-                checked={selectedCategories.includes(cat.id)}
-                onCheckedChange={() => toggleCategory(cat.id)}
+                id={`cat-${cat.slug}`}
+                checked={selectedCategories.includes(cat.slug)}
+                onCheckedChange={() => toggleCategory(cat.slug)}
               />
-              <label htmlFor={`cat-${cat.id}`} className="text-sm cursor-pointer">{cat.name}</label>
+              <label htmlFor={`cat-${cat.slug}`} className="text-sm cursor-pointer">{cat.name}</label>
             </div>
           ))}
         </div>
@@ -138,6 +144,12 @@ export default function Browse() {
       <Button variant="outline" className="w-full" onClick={clearFilters}>
         Clear all filters
       </Button>
+    </div>
+  );
+
+  if (loading) return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
     </div>
   );
 
@@ -233,15 +245,15 @@ export default function Browse() {
                   key={listing.id}
                   id={listing.id}
                   title={listing.title}
-                  providerName={listing.providerName}
+                  providerName={listing.provider_name ?? ''}
                   price={listing.price}
                   duration={listing.duration}
                   rating={listing.rating}
-                  reviewCount={listing.reviewCount}
-                  nextAvailable={listing.nextAvailable}
+                  reviewCount={listing.review_count}
+                  nextAvailable={listing.next_available ?? ''}
                   featured={listing.featured}
-                  category={listing.category}
-                  image={listing.images[0] ? getListingImage(listing.images[0]) : undefined}
+                  category={listing.category_slug}
+                  image={listing.images[0] ? getListingImageUrl(listing.images[0]) : undefined}
                 />
               ))}
             </div>

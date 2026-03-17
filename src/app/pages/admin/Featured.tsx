@@ -5,25 +5,36 @@ import { Badge } from '../../components/ui/badge';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Star, GripVertical, X, Plus } from 'lucide-react';
-import { listings } from '../../data/mockData';
+import { useListings } from '../../../hooks/useListings';
+import { supabase } from '../../../lib/supabase';
 import { toast } from 'sonner';
 
 export default function FeaturedManager() {
-  const [featured, setFeatured] = useState(listings.filter(l => l.featured).map(l => l.id));
+  const { listings, loading, setListings } = useListings();
   const [searchQuery, setSearchQuery] = useState('');
 
-  function removeFeatured(id: string) {
-    setFeatured(prev => prev.filter(f => f !== id));
+  async function removeFeatured(id: string) {
+    const { error } = await supabase.from('listings').update({ featured: false }).eq('id', id);
+    if (error) { toast.error('Failed to update featured status'); return; }
+    setListings(prev => prev.map(l => l.id === id ? { ...l, featured: false } : l));
     toast.success('Removed from featured');
   }
 
-  function addFeatured(id: string) {
-    setFeatured(prev => [...prev, id]);
+  async function addFeatured(id: string) {
+    const { error } = await supabase.from('listings').update({ featured: true }).eq('id', id);
+    if (error) { toast.error('Failed to update featured status'); return; }
+    setListings(prev => prev.map(l => l.id === id ? { ...l, featured: true } : l));
     toast.success('Added to featured');
   }
 
-  const featuredListings = listings.filter(l => featured.includes(l.id));
-  const availableListings = listings.filter(l => !featured.includes(l.id) && l.title.toLowerCase().includes(searchQuery.toLowerCase()));
+  if (loading) return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+    </div>
+  );
+
+  const featuredListings = listings.filter(l => l.featured);
+  const availableListings = listings.filter(l => !l.featured && l.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
     <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
@@ -51,7 +62,7 @@ export default function FeaturedManager() {
                       <GripVertical size={18} className="text-muted cursor-grab shrink-0" aria-hidden="true" />
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm truncate">{listing.title}</p>
-                        <p className="text-xs text-muted">{listing.providerName} • ${listing.price}</p>
+                        <p className="text-xs text-muted">{listing.provider_name} • ${listing.price}</p>
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
                         <div className="flex items-center gap-1">
@@ -101,7 +112,7 @@ export default function FeaturedManager() {
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm truncate">{listing.title}</p>
-                          <p className="text-xs text-muted">{listing.providerName}</p>
+                          <p className="text-xs text-muted">{listing.provider_name}</p>
                         </div>
                         <Button
                           size="sm"

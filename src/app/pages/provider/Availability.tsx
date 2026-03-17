@@ -7,6 +7,8 @@ import { Calendar } from '../../components/ui/calendar';
 import { Label } from '../../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Info, Save } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../../lib/supabase';
 import { toast } from 'sonner';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as const;
@@ -29,6 +31,7 @@ const DEFAULT_SCHEDULE: Record<Day, DaySchedule> = {
 };
 
 export default function Availability() {
+  const { user } = useAuth();
   const [blockedDates, setBlockedDates] = useState<Date[]>([]);
   const [weeklySchedule, setWeeklySchedule] = useState(DEFAULT_SCHEDULE);
   const [bufferTime, setBufferTime] = useState('30');
@@ -49,7 +52,19 @@ export default function Availability() {
           </div>
           <Button
             className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto"
-            onClick={() => toast.success('Availability saved')}
+            onClick={async () => {
+              const { error } = await supabase.from('providers').update({
+                availability: {
+                  weeklySchedule,
+                  blockedDates: blockedDates.map(d => d.toISOString()),
+                  bufferTime: parseInt(bufferTime),
+                  noticeHours: parseInt(noticeHours),
+                  instantBooking,
+                },
+              }).eq('id', user.id);
+              if (error) { toast.error('Failed to save availability'); return; }
+              toast.success('Availability saved');
+            }}
           >
             <Save size={15} className="mr-2" />
             Save Changes

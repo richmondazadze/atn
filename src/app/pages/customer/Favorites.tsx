@@ -1,43 +1,26 @@
-import { useState, useEffect } from 'react';
 import { Heart } from 'lucide-react';
 import { ListingCard } from '../../components/ListingCard';
 import { Button } from '../../components/ui/button';
-import { listings } from '../../data/mockData';
-import { getListingImage } from '../../data/images';
+import { useListings } from '../../../hooks/useListings';
+import { useFavorites } from '../../../hooks/useFavorites';
 import { EmptyState } from '../../components/EmptyState';
 import { Link } from 'react-router';
 
-const STORAGE_KEY = 'atn_favorites';
-
-function loadFavorites(): string[] {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]');
-  } catch {
-    return [];
-  }
-}
-
 export default function Favorites() {
-  const [favoriteIds, setFavoriteIds] = useState<string[]>(loadFavorites);
+  const { listings, loading: listingsLoading } = useListings();
+  const { favoriteIds, loading: favoritesLoading, toggleFavorite } = useFavorites();
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(favoriteIds));
-  }, [favoriteIds]);
+  const loading = listingsLoading || favoritesLoading;
 
-  function removeFavorite(id: string) {
-    setFavoriteIds(prev => prev.filter(f => f !== id));
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-secondary flex items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
   }
 
-  // Seed with first 4 listings for demo if empty
-  useEffect(() => {
-    if (favoriteIds.length === 0) {
-      const seeded = listings.slice(0, 4).map(l => l.id);
-      setFavoriteIds(seeded);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const favoriteListings = listings.filter(l => favoriteIds.includes(l.id));
+  const favoriteListings = listings.filter(l => favoriteIds.has(l.id));
 
   return (
     <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
@@ -63,19 +46,19 @@ export default function Favorites() {
                 <ListingCard
                   id={listing.id}
                   title={listing.title}
-                  providerName={listing.providerName}
+                  providerName={listing.provider_name ?? ''}
                   price={listing.price}
                   duration={listing.duration}
                   rating={listing.rating}
-                  reviewCount={listing.reviewCount}
-                  nextAvailable={listing.nextAvailable}
+                  reviewCount={listing.review_count}
+                  nextAvailable={listing.next_available ?? ''}
                   featured={listing.featured}
-                  category={listing.category}
-                  image={listing.images[0] ? getListingImage(listing.images[0]) : undefined}
+                  category={listing.category_slug}
+                  image={listing.images[0]}
                   linkPrefix="/customer"
                 />
                 <button
-                  onClick={() => removeFavorite(listing.id)}
+                  onClick={() => toggleFavorite(listing.id)}
                   aria-label={`Remove ${listing.title} from favorites`}
                   className="absolute top-3 right-3 p-2.5 rounded-full bg-white shadow hover:bg-destructive hover:text-white transition-colors md:opacity-0 md:group-hover:opacity-100"
                 >

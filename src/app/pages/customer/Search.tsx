@@ -6,13 +6,16 @@ import { Label } from '../../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Checkbox } from '../../components/ui/checkbox';
 import { Search as SearchIcon, SlidersHorizontal, X } from 'lucide-react';
-import { listings, categories } from '../../data/mockData';
-import { getListingImage } from '../../data/images';
+import { useListings } from '../../../hooks/useListings';
+import { useCategories } from '../../../hooks/useCategories';
 import { EmptyState } from '../../components/EmptyState';
 
 type SortKey = 'featured' | 'price-low' | 'price-high' | 'rating';
 
 export default function Search() {
+  const { listings, loading: listingsLoading } = useListings();
+  const { categories, loading: categoriesLoading } = useCategories();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [minPrice, setMinPrice] = useState('');
@@ -20,9 +23,11 @@ export default function Search() {
   const [sortBy, setSortBy] = useState<SortKey>('featured');
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  function toggleCategory(id: string) {
+  const loading = listingsLoading || categoriesLoading;
+
+  function toggleCategory(slug: string) {
     setSelectedCategories(prev =>
-      prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
+      prev.includes(slug) ? prev.filter(c => c !== slug) : [...prev, slug]
     );
   }
 
@@ -40,11 +45,11 @@ export default function Search() {
       const q = searchTerm.toLowerCase();
       result = result.filter(l =>
         l.title.toLowerCase().includes(q) ||
-        l.providerName.toLowerCase().includes(q) ||
-        l.category.toLowerCase().includes(q)
+        (l.provider_name ?? '').toLowerCase().includes(q) ||
+        l.category_slug.toLowerCase().includes(q)
       );
     }
-    if (selectedCategories.length > 0) result = result.filter(l => selectedCategories.includes(l.category));
+    if (selectedCategories.length > 0) result = result.filter(l => selectedCategories.includes(l.category_slug));
     if (minPrice !== '') result = result.filter(l => l.price >= Number(minPrice));
     if (maxPrice !== '') result = result.filter(l => l.price <= Number(maxPrice));
     switch (sortBy) {
@@ -53,7 +58,15 @@ export default function Search() {
       case 'rating': result.sort((a, b) => b.rating - a.rating); break;
     }
     return result;
-  }, [searchTerm, selectedCategories, minPrice, maxPrice, sortBy]);
+  }, [listings, searchTerm, selectedCategories, minPrice, maxPrice, sortBy]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   const filterPanel = (
     <div className="space-y-6">
@@ -75,9 +88,9 @@ export default function Search() {
         <legend className="text-sm font-medium mb-3">Categories</legend>
         <div className="space-y-2">
           {categories.map(cat => (
-            <div key={cat.id} className="flex items-center gap-2">
-              <Checkbox id={`s-cat-${cat.id}`} checked={selectedCategories.includes(cat.id)} onCheckedChange={() => toggleCategory(cat.id)} />
-              <label htmlFor={`s-cat-${cat.id}`} className="text-sm cursor-pointer">{cat.name}</label>
+            <div key={cat.slug} className="flex items-center gap-2">
+              <Checkbox id={`s-cat-${cat.slug}`} checked={selectedCategories.includes(cat.slug)} onCheckedChange={() => toggleCategory(cat.slug)} />
+              <label htmlFor={`s-cat-${cat.slug}`} className="text-sm cursor-pointer">{cat.name}</label>
             </div>
           ))}
         </div>
@@ -146,15 +159,15 @@ export default function Search() {
                   key={listing.id}
                   id={listing.id}
                   title={listing.title}
-                  providerName={listing.providerName}
+                  providerName={listing.provider_name ?? ''}
                   price={listing.price}
                   duration={listing.duration}
                   rating={listing.rating}
-                  reviewCount={listing.reviewCount}
-                  nextAvailable={listing.nextAvailable}
+                  reviewCount={listing.review_count}
+                  nextAvailable={listing.next_available ?? ''}
                   featured={listing.featured}
-                  category={listing.category}
-                  image={listing.images[0] ? getListingImage(listing.images[0]) : undefined}
+                  category={listing.category_slug}
+                  image={listing.images[0]}
                   linkPrefix="/customer"
                 />
               ))}

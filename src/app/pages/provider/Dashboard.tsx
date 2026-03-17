@@ -3,14 +3,21 @@ import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { Calendar, DollarSign, Star, Bot, Clock, MapPin } from 'lucide-react';
-import { bookings } from '../../data/mockData';
+import { useBookings } from '../../../hooks/useBookings';
 import { useAuth } from '../../context/AuthContext';
 import { EmptyState } from '../../components/EmptyState';
 
 export default function ProviderDashboard() {
   const { user } = useAuth();
+  const { bookings, loading } = useBookings();
   const firstName = user.name.split(' ')[0];
-  const myBookings = bookings.filter(b => b.providerId === user.id && b.status === 'confirmed');
+  const myBookings = bookings.filter(b => b.status === 'confirmed');
+
+  if (loading) return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
@@ -67,10 +74,10 @@ export default function ProviderDashboard() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-2">
                         <Badge className="bg-primary text-primary-foreground border-0">Confirmed</Badge>
-                        <span className="text-xs text-muted">Booked {new Date(booking.bookedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                        <span className="text-xs text-muted">Booked {new Date(booking.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                       </div>
                       <h3 className="font-medium mb-0.5">{booking.title}</h3>
-                      <p className="text-sm text-muted mb-3">{booking.customerName}</p>
+                      <p className="text-sm text-muted mb-3">{booking.title}</p>
                       <div className="flex flex-col sm:flex-row gap-2">
                         <div className="flex items-center gap-1.5 text-sm text-muted">
                           <Clock size={13} />

@@ -21,7 +21,7 @@ type FormData = z.infer<typeof schema>;
 export default function SignUp() {
   const [step, setStep] = useState<'role' | 'details'>('role');
   const [role, setRole] = useState<'customer' | 'provider'>('customer');
-  const { setRole: setAuthRole } = useAuth();
+  const { signUp: authSignUp } = useAuth();
   const navigate = useNavigate();
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
@@ -34,8 +34,18 @@ export default function SignUp() {
     },
   });
 
-  function onSubmit(_data: FormData) {
-    setAuthRole(role);
+  async function onSubmit(data: FormData) {
+    const { error } = await authSignUp(data.email, data.password, {
+      name: data.name,
+      phone: data.phone,
+      role,
+    });
+
+    if (error) {
+      toast.error(error);
+      return;
+    }
+
     navigate('/verify-email');
     toast.success('Account created! Check your email to verify.');
   }

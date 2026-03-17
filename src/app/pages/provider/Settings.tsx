@@ -12,6 +12,7 @@ import { Separator } from '../../components/ui/separator';
 import { Badge } from '../../components/ui/badge';
 import { Bell, DollarSign, Shield, User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../../lib/supabase';
 import { toast } from 'sonner';
 
 const contactSchema = z.object({
@@ -44,7 +45,12 @@ export default function ProviderSettings() {
 
   const preferredContact = watch('preferredContact');
 
-  function onContactSave(_data: ContactData) {
+  async function onContactSave(data: ContactData) {
+    const { error } = await supabase.from('profiles').update({
+      email: data.email,
+      phone: data.phone,
+    }).eq('id', user.id);
+    if (error) { toast.error('Failed to save settings'); return; }
     toast.success('Settings saved');
   }
 

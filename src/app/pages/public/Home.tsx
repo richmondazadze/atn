@@ -2,12 +2,41 @@ import { Link } from 'react-router';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { ArrowRight, Search, Calendar, UserCheck } from 'lucide-react';
-import { listings, testimonials, howItWorksSteps } from '../../data/mockData';
-import { getListingImage } from '../../data/images';
+import { getListingImageUrl } from '../../../lib/storage';
 import { RatingStars } from '../../components/RatingStars';
+import { useListings } from '../../../hooks/useListings';
+import { useTestimonials } from '../../../hooks/useTestimonials';
+
+const howItWorksSteps = [
+  {
+    number: 1,
+    title: 'Browse services',
+    description: 'Explore vetted providers and services across 10 categories in Jonesboro.',
+  },
+  {
+    number: 2,
+    title: 'Book instantly',
+    description: 'Choose your date and time, then confirm your booking in seconds.',
+  },
+  {
+    number: 3,
+    title: 'Get it done',
+    description: 'Meet your provider at the scheduled time. Leave a review when complete.',
+  },
+];
 
 export default function PublicHome() {
-  const featuredListings = listings.filter(l => l.featured).slice(0, 3);
+  const { listings, loading: listingsLoading } = useListings({ featured: true });
+  const { testimonials, loading: testimonialsLoading } = useTestimonials();
+
+  const featuredListings = listings.slice(0, 3);
+  const loading = listingsLoading || testimonialsLoading;
+
+  if (loading) return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-white">
@@ -81,14 +110,14 @@ export default function PublicHome() {
             {featuredListings.map((listing) => (
               <Card key={listing.id} className="border-border overflow-hidden hover:border-primary transition-colors group">
                 <div className="h-44 bg-gradient-to-br from-primary/20 to-primary/10">
-                  {listing.images[0] && getListingImage(listing.images[0]) && (
-                    <img src={getListingImage(listing.images[0])} alt={listing.title} className="w-full h-full object-cover" loading="lazy" />
+                  {listing.images[0] && getListingImageUrl(listing.images[0]) && (
+                    <img src={getListingImageUrl(listing.images[0])} alt={listing.title} className="w-full h-full object-cover" loading="lazy" />
                   )}
                 </div>
                 <div className="p-5">
                   <h3 className="font-medium text-foreground group-hover:text-primary transition-colors">{listing.title}</h3>
-                  <p className="text-sm text-muted mt-1 mb-3">{listing.providerName}</p>
-                  <RatingStars rating={listing.rating} reviewCount={listing.reviewCount} />
+                  <p className="text-sm text-muted mt-1 mb-3">{listing.provider_name}</p>
+                  <RatingStars rating={listing.rating} reviewCount={listing.review_count} />
                   <div className="flex items-center justify-between text-sm mt-3 mb-4">
                     <span className="font-medium">${listing.price}</span>
                     <span className="text-muted">{listing.duration}m</span>
@@ -132,8 +161,8 @@ export default function PublicHome() {
         <div className="py-12 lg:py-16 max-w-7xl mx-auto">
           <h2 className="text-2xl lg:text-[32px] font-semibold mb-10 lg:mb-12 text-center">What Customers Say</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {testimonials.map((t, i) => (
-              <Card key={i} className="border-border p-6 lg:p-8">
+            {testimonials.map((t) => (
+              <Card key={t.id} className="border-border p-6 lg:p-8">
                 <RatingStars rating={t.rating} showCount={false} size={16} />
                 <p className="text-sm text-foreground mt-3 mb-4">"{t.text}"</p>
                 <div>

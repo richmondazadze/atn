@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -10,7 +11,9 @@ import { Textarea } from '../../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Switch } from '../../components/ui/switch';
 import { ArrowLeft, Upload, X, Trash2, AlertCircle } from 'lucide-react';
-import { categories, listings } from '../../data/mockData';
+import { useCategories } from '../../../hooks/useCategories';
+import { useListing } from '../../../hooks/useListings';
+import { supabase } from '../../../lib/supabase';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../../components/ui/alert-dialog';
 import { toast } from 'sonner';
 
@@ -28,7 +31,43 @@ type FormData = z.infer<typeof schema>;
 export default function EditListing() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const listing = listings.find(l => l.id === id);
+  const { listing, loading: listingLoading } = useListing(id);
+  const { categories, loading: categoriesLoading } = useCategories();
+
+  const { register, handleSubmit, control, setValue, watch, reset, formState: { errors } } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      title: '',
+      category: '',
+      description: '',
+      price: undefined,
+      duration: undefined,
+      isActive: true,
+      amenities: [{ value: '' }],
+    },
+  });
+
+  useEffect(() => {
+    if (listing) {
+      reset({
+        title: listing.title,
+        category: listing.category_slug,
+        description: listing.description,
+        price: listing.price,
+        duration: listing.duration,
+        isActive: listing.status === 'active',
+        amenities: (listing.amenities ?? ['Supplies included']).map(a => ({ value: a })),
+      });
+    }
+  }, [listing, reset]);
+
+  const loading = listingLoading || categoriesLoading;
+
+  if (loading) return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+    </div>
+  );
 
   if (!listing) {
     return (
@@ -45,29 +84,28 @@ export default function EditListing() {
     );
   }
 
-  const { register, handleSubmit, control, setValue, watch, formState: { errors } } = useForm<FormData>({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      title: listing.title,
-      category: listing.category,
-      description: listing.description,
-      price: listing.price,
-      duration: listing.duration,
-      isActive: true,
-      amenities: (listing.amenities ?? ['Supplies included']).map(a => ({ value: a })),
-    },
-  });
-
   const { fields, append, remove } = useFieldArray({ control, name: 'amenities' });
   const categoryValue = watch('category');
   const isActive = watch('isActive');
 
-  function onSubmit(_data: FormData) {
+  async function onSubmit(data: FormData) {
+    const { error } = await supabase.from('listings').update({
+      title: data.title,
+      category_slug: data.category,
+      description: data.description,
+      price: data.price,
+      duration: data.duration,
+      status: data.isActive ? 'active' : 'draft',
+      amenities: data.amenities.map(a => a.value).filter(Boolean),
+    }).eq('id', id!);
+    if (error) { toast.error('Failed to save'); return; }
     toast.success('Listing updated');
     navigate('/provider/listings');
   }
 
-  function handleDelete() {
+  async function handleDelete() {
+    const { error } = await supabase.from('listings').update({ status: 'archived' }).eq('id', id!);
+    if (error) { toast.error('Failed to delete listing'); return; }
     toast.success('Listing deleted');
     navigate('/provider/listings');
   }
@@ -107,7 +145,7 @@ export default function EditListing() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map(cat => <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>)}
+                    {categories.map(cat => <SelectItem key={cat.slug} value={cat.slug}>{cat.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 {errors.category && <p className="text-xs text-destructive mt-1">{errors.category.message}</p>}

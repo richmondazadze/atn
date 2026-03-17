@@ -2,15 +2,32 @@ import { Link, useParams } from 'react-router';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
-import { Star, Clock, DollarSign, MapPin, CheckCircle2, Calendar, AlertCircle } from 'lucide-react';
-import { listings, reviews } from '../../data/mockData';
-import { getListingImage } from '../../data/images';
+import { Clock, DollarSign, MapPin, CheckCircle2, Calendar } from 'lucide-react';
+import { getListingImageUrl } from '../../../lib/storage';
 import { RatingStars } from '../../components/RatingStars';
+import { useListing } from '../../../hooks/useListings';
+import { useReviews } from '../../../hooks/useReviews';
 
 export default function ListingDetailPublic() {
   const { id } = useParams<{ id: string }>();
-  const listing = listings.find(l => l.id === id) ?? listings[0];
-  const listingReviews = reviews.filter(r => r.listingId === listing.id).slice(0, 3);
+  const { listing, loading: listingLoading } = useListing(id);
+  const { reviews, loading: reviewsLoading } = useReviews({ listingId: id });
+
+  const loading = listingLoading || reviewsLoading;
+
+  if (loading) return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+    </div>
+  );
+
+  if (!listing) return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <p className="text-muted">Listing not found.</p>
+    </div>
+  );
+
+  const listingReviews = reviews.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
@@ -19,8 +36,8 @@ export default function ListingDetailPublic() {
           {/* Main Content */}
           <div className="lg:col-span-2">
             <div className="h-56 sm:h-80 lg:h-96 rounded overflow-hidden bg-gradient-to-br from-primary/20 to-primary/10 mb-6 lg:mb-8">
-              {listing.images[0] && getListingImage(listing.images[0]) && (
-                <img src={getListingImage(listing.images[0])} alt={listing.title} className="w-full h-full object-cover" />
+              {listing.images[0] && getListingImageUrl(listing.images[0]) && (
+                <img src={getListingImageUrl(listing.images[0])} alt={listing.title} className="w-full h-full object-cover" />
               )}
             </div>
 
@@ -28,8 +45,8 @@ export default function ListingDetailPublic() {
               <div className="flex items-start justify-between mb-3 gap-3">
                 <div>
                   <h1 className="text-2xl lg:text-[32px] font-semibold mb-1.5">{listing.title}</h1>
-                  <Link to={`/provider/${listing.providerId}`} className="text-primary hover:underline text-sm font-medium">
-                    {listing.providerName}
+                  <Link to={`/provider/${listing.provider_id}`} className="text-primary hover:underline text-sm font-medium">
+                    {listing.provider_name}
                   </Link>
                 </div>
                 {listing.featured && <Badge className="bg-primary/10 text-primary border-0 shrink-0">Featured</Badge>}
@@ -39,7 +56,7 @@ export default function ListingDetailPublic() {
                 <div className="flex items-center gap-1.5">
                   <RatingStars rating={listing.rating} size={15} />
                   <span className="font-medium">{listing.rating}</span>
-                  <span className="text-muted">({listing.reviewCount} reviews)</span>
+                  <span className="text-muted">({listing.review_count} reviews)</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-muted">
                   <MapPin size={14} />
@@ -87,9 +104,9 @@ export default function ListingDetailPublic() {
                     <Card key={review.id} className="border-border p-5">
                       <div className="flex items-start justify-between mb-2 gap-3">
                         <div>
-                          <p className="font-medium text-sm">{review.customerName}</p>
+                          <p className="font-medium text-sm">{review.customer_name}</p>
                           <p className="text-xs text-muted">
-                            {new Date(review.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                            {new Date(review.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                           </p>
                         </div>
                         <RatingStars rating={review.rating} size={13} />
@@ -115,10 +132,12 @@ export default function ListingDetailPublic() {
                   <Clock size={14} />
                   <span>{listing.duration} minutes</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Calendar size={14} />
-                  <span>Next: {new Date(listing.nextAvailable).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</span>
-                </div>
+                {listing.next_available && (
+                  <div className="flex items-center gap-2">
+                    <Calendar size={14} />
+                    <span>Next: {new Date(listing.next_available).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</span>
+                  </div>
+                )}
               </div>
 
               <Link to="/login">

@@ -4,15 +4,21 @@ import { Card } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { Switch } from '../../components/ui/switch';
 import { Plus, Edit, Eye } from 'lucide-react';
-import { listings } from '../../data/mockData';
-import { getListingImage } from '../../data/images';
+import { useListings } from '../../../hooks/useListings';
 import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../../lib/supabase';
 import { EmptyState } from '../../components/EmptyState';
 import { toast } from 'sonner';
 
 export default function ListingsManager() {
   const { user } = useAuth();
-  const myListings = listings.filter(l => l.providerId === user.id);
+  const { listings, loading, setListings } = useListings({ providerId: user.id });
+
+  if (loading) return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
@@ -20,7 +26,7 @@ export default function ListingsManager() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 lg:mb-8">
           <div>
             <h1 className="text-2xl lg:text-[32px] font-semibold mb-1">My Listings</h1>
-            <p className="text-sm text-muted">{myListings.length} active listing{myListings.length !== 1 ? 's' : ''} (10 max)</p>
+            <p className="text-sm text-muted">{listings.length} active listing{listings.length !== 1 ? 's' : ''} (10 max)</p>
           </div>
           <Link to="/provider/listings/new">
             <Button className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto">
@@ -30,7 +36,7 @@ export default function ListingsManager() {
           </Link>
         </div>
 
-        {myListings.length === 0 ? (
+        {listings.length === 0 ? (
           <EmptyState
             icon={<Plus size={40} />}
             title="No listings yet"
@@ -43,12 +49,12 @@ export default function ListingsManager() {
           />
         ) : (
           <div className="space-y-4">
-            {myListings.map((listing) => (
+            {listings.map((listing) => (
               <Card key={listing.id} className="border-border p-5 lg:p-6">
                 <div className="flex flex-col sm:flex-row sm:items-start gap-4 lg:gap-6">
                   <div className="w-full sm:w-28 h-32 sm:h-28 rounded overflow-hidden bg-gradient-to-br from-primary/20 to-primary/10 shrink-0">
-                    {listing.images[0] && getListingImage(listing.images[0]) && (
-                      <img src={getListingImage(listing.images[0])} alt={listing.title} className="w-full h-full object-cover" loading="lazy" />
+                    {listing.images?.[0] && (
+                      <img src={listing.images[0]} alt={listing.title} className="w-full h-full object-cover" loading="lazy" />
                     )}
                   </div>
 
@@ -64,9 +70,15 @@ export default function ListingsManager() {
                       <div className="flex items-center gap-2 shrink-0">
                         <span className="text-xs text-muted hidden sm:inline">Active</span>
                         <Switch
-                          defaultChecked
+                          defaultChecked={listing.status === 'active'}
                           aria-label={`Toggle ${listing.title} active status`}
-                          onCheckedChange={checked => toast.success(`Listing ${checked ? 'activated' : 'deactivated'}`)}
+                          onCheckedChange={async (checked) => {
+                            const newStatus = checked ? 'active' : 'draft';
+                            const { error } = await supabase.from('listings').update({ status: newStatus }).eq('id', listing.id);
+                            if (error) { toast.error('Failed to update listing'); return; }
+                            toast.success(`Listing ${checked ? 'activated' : 'deactivated'}`);
+                            setListings(prev => prev.map(l => l.id === listing.id ? { ...l, status: newStatus } : l));
+                          }}
                         />
                       </div>
                     </div>
@@ -82,7 +94,7 @@ export default function ListingsManager() {
                       </div>
                       <div>
                         <span className="text-xs text-muted block">Bookings</span>
-                        <span className="font-medium">{listing.reviewCount}</span>
+                        <span className="font-medium">{listing.review_count}</span>
                       </div>
                       <div>
                         <span className="text-xs text-muted block">Rating</span>

@@ -116,8 +116,8 @@ export function Sidebar({ type }: SidebarProps) {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  function handleLogout() {
-    logout();
+  async function handleLogout() {
+    await logout();
     navigate('/login');
   }
   const homeLink = type === 'public' ? '/' : `/${type}`;

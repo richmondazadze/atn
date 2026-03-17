@@ -3,7 +3,15 @@ import { Sidebar } from '../components/Navigation';
 import { useAuth } from '../context/AuthContext';
 
 export default function AdminLayout() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-secondary">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (user.role !== 'admin') return <Navigate to={`/${user.role}`} replace />;
