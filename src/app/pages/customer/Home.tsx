@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { ListingCard } from '../../components/ListingCard';
@@ -6,15 +6,62 @@ import { RatingStars } from '../../components/RatingStars';
 import { Clock, MapPin } from 'lucide-react';
 import { useListings } from '../../../hooks/useListings';
 import { useBookings } from '../../../hooks/useBookings';
+import { useFavorites } from '../../../hooks/useFavorites';
 import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../../lib/supabase';
+import { toast } from 'sonner';
 
 export default function CustomerHome() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { listings, loading: listingsLoading } = useListings();
-  const { bookings, loading: bookingsLoading } = useBookings();
+  const { bookings, loading: bookingsLoading, refetch: refetchBookings } = useBookings();
+  const { favoriteIds, toggleFavorite } = useFavorites();
 
   const firstName = user.name.split(' ')[0];
   const loading = listingsLoading || bookingsLoading;
+
+  const now = new Date();
+  const upcoming = bookings
+    .filter(b => {
+      if (b.status !== 'confirmed') return false;
+      const d = new Date(`${b.date}T${b.time}`);
+      return d > now;
+    })
+    .slice(0, 2);
+
+  const completedListingIds = [...new Set(
+    bookings.filter(b => b.status === 'completed').map(b => b.listing_id)
+  )];
+  const { listings: bookAgainListings } = useListings(
+    completedListingIds.length > 0 ? { listingIds: completedListingIds, status: 'all' } : { listingIds: ['__none__'] }
+  );
+
+  const preferredCategories = [...new Set(
+    bookings.filter(b => b.status === 'completed').flatMap(b => {
+      const listing = listings.find(l => l.id === b.listing_id);
+      return listing?.category_slug ? [listing.category_slug] : [];
+    })
+  )];
+  const featuredForYou = listings.filter(l => l.featured)
+    .sort((a, b) => {
+      const aMatch = preferredCategories.includes(a.category_slug) ? 1 : 0;
+      const bMatch = preferredCategories.includes(b.category_slug) ? 1 : 0;
+      if (aMatch !== bMatch) return bMatch - aMatch;
+      const aFav = favoriteIds.has(a.id) ? 1 : 0;
+      const bFav = favoriteIds.has(b.id) ? 1 : 0;
+      return bFav - aFav;
+    })
+    .slice(0, 3);
+
+  const bookAgain = bookAgainListings.slice(0, 3);
+
+  async function handleCancel(bookingId: string) {
+    const { error } = await supabase.from('bookings').update({ status: 'cancelled' }).eq('id', bookingId);
+    if (error) { toast.error('Failed to cancel'); return; }
+    toast.success('Booking cancelled');
+    refetchBookings();
+  }
 
   if (loading) {
     return (
@@ -23,10 +70,6 @@ export default function CustomerHome() {
       </div>
     );
   }
-
-  const featured = listings.filter(l => l.featured).slice(0, 3);
-  const upcoming = bookings.filter(b => b.status === 'confirmed').slice(0, 2);
-  const previousListings = listings.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
@@ -71,8 +114,12 @@ export default function CustomerHome() {
                     )}
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" className="flex-1 border-border text-sm min-h-10">View details</Button>
-                    <Button variant="ghost" className="text-destructive text-sm min-h-10">Cancel</Button>
+                    <Button variant="outline" className="flex-1 border-border text-sm min-h-10" onClick={() => navigate('/customer/bookings')}>
+                      View details
+                    </Button>
+                    <Button variant="ghost" className="text-destructive text-sm min-h-10" onClick={() => handleCancel(booking.id)}>
+                      Cancel
+                    </Button>
                   </div>
                 </Card>
               ))}
@@ -89,7 +136,7 @@ export default function CustomerHome() {
             </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
-            {featured.map(listing => (
+            {featuredForYou.map(listing => (
               <ListingCard
                 key={listing.id}
                 id={listing.id}
@@ -104,6 +151,8 @@ export default function CustomerHome() {
                 category={listing.category_slug}
                 image={listing.images[0]}
                 linkPrefix="/customer"
+                isFavorite={favoriteIds.has(listing.id)}
+                onToggleFavorite={toggleFavorite}
               />
             ))}
           </div>
@@ -113,7 +162,7 @@ export default function CustomerHome() {
         <section>
           <h2 className="text-xl lg:text-2xl font-semibold mb-4 lg:mb-6">Book again</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-            {previousListings.map(listing => (
+            {(bookAgain.length > 0 ? bookAgain : listings.slice(0, 3)).map(listing => (
               <Card key={listing.id} className="border-border bg-white p-5 hover:border-primary transition-colors">
                 <div className="flex items-start gap-3 mb-4">
                   <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium shrink-0" aria-hidden="true">

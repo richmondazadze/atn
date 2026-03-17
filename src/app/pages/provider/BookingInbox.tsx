@@ -58,7 +58,7 @@ export default function BookingInbox() {
 
         <div className="flex items-center gap-1.5 text-sm text-muted mb-2">
           <User size={13} />
-          <span>{booking.title}</span>
+          <span>{booking.customer_name || 'Customer'}</span>
         </div>
 
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted">
@@ -169,7 +169,7 @@ export default function BookingInbox() {
         <DialogContent>
           <DialogHeader><DialogTitle>Message Customer</DialogTitle></DialogHeader>
           <div>
-            <Label className="mb-2 block text-sm">To: {selectedBooking?.title}</Label>
+            <Label className="mb-2 block text-sm">To: {selectedBooking?.customer_name || 'Customer'}</Label>
             <Textarea placeholder="Type your message…" value={message} onChange={e => setMessage(e.target.value)} rows={5} className="resize-none" />
           </div>
           <DialogFooter>

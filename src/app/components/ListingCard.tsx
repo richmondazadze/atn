@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { Clock, DollarSign, Calendar } from 'lucide-react';
+import { Clock, DollarSign, Calendar, Heart } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { RatingStars } from './RatingStars';
 
@@ -16,6 +16,8 @@ interface ListingCardProps {
   category: string;
   image?: string;
   linkPrefix?: string;
+  isFavorite?: boolean;
+  onToggleFavorite?: (id: string) => void;
 }
 
 export function ListingCard({
@@ -30,20 +32,35 @@ export function ListingCard({
   featured,
   image,
   linkPrefix = '',
+  isFavorite,
+  onToggleFavorite,
 }: ListingCardProps) {
-  const formattedDate = new Date(nextAvailable).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const formattedDate = nextAvailable
+    ? new Date(nextAvailable).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    : '—';
 
   return (
-    <Link
-      to={`${linkPrefix}/listing/${id}`}
-      className="block bg-background border border-border rounded-lg hover:border-primary transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-      aria-label={`${title} by ${providerName}, $${price}`}
-    >
-      <div className="aspect-[16/10] rounded-t-lg overflow-hidden bg-gradient-to-br from-primary/20 to-primary/10">
-        {image && (
-          <img src={image} alt={title} className="w-full h-full object-cover" loading="lazy" />
-        )}
-      </div>
+    <div className="relative group/card">
+      <Link
+        to={`${linkPrefix}/listing/${id}`}
+        className="block bg-background border border-border rounded-lg hover:border-primary transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        aria-label={`${title} by ${providerName}, $${price}`}
+      >
+        <div className="aspect-[16/10] rounded-t-lg overflow-hidden bg-gradient-to-br from-primary/20 to-primary/10 relative">
+          {image && (
+            <img src={image} alt={title} className="w-full h-full object-cover" loading="lazy" />
+          )}
+          {onToggleFavorite && (
+            <button
+              type="button"
+              onClick={e => { e.preventDefault(); e.stopPropagation(); onToggleFavorite(id); }}
+              aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+              className="absolute top-2 right-2 p-2 rounded-full bg-white/90 shadow hover:bg-white transition-colors z-10"
+            >
+              <Heart size={16} className={isFavorite ? 'fill-primary text-primary' : 'text-muted'} />
+            </button>
+          )}
+        </div>
 
       <div className="p-4">
         <div className="flex items-start justify-between mb-2 gap-2">
@@ -75,5 +92,6 @@ export function ListingCard({
         </div>
       </div>
     </Link>
+    </div>
   );
 }

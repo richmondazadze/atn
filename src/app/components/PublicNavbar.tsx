@@ -48,9 +48,24 @@ export function PublicNavbar() {
         <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-[72px]">
           <nav className="flex items-center justify-between h-16 lg:h-[72px]" aria-label="Main navigation">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2.5 shrink-0">
-              <img src="/atn_logo_no_bg.png" alt="ATN" className="w-8 h-8 lg:w-9 lg:h-9 object-contain" />
-              <span className="text-lg lg:text-xl font-semibold tracking-tight text-foreground">ATN</span>
+            <Link
+              to="/"
+              className="flex items-center gap-3 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-lg py-1"
+            >
+              <img
+                src="/atn_logo_no_bg.png"
+                alt=""
+                className="w-9 h-9 lg:w-10 lg:h-10 object-contain flex-shrink-0"
+                aria-hidden
+              />
+              <div className="flex flex-col justify-center min-w-0">
+                <span className="text-base lg:text-lg font-semibold tracking-tight text-foreground leading-tight block">
+                  ATN
+                </span>
+                <span className="text-[10px] lg:text-xs text-muted leading-tight hidden sm:block mt-0.5">
+                  Access Terrain Network
+                </span>
+              </div>
             </Link>
 
             {/* Desktop links */}

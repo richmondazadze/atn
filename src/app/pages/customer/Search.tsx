@@ -8,6 +8,7 @@ import { Checkbox } from '../../components/ui/checkbox';
 import { Search as SearchIcon, SlidersHorizontal, X } from 'lucide-react';
 import { useListings } from '../../../hooks/useListings';
 import { useCategories } from '../../../hooks/useCategories';
+import { useFavorites } from '../../../hooks/useFavorites';
 import { EmptyState } from '../../components/EmptyState';
 
 type SortKey = 'featured' | 'price-low' | 'price-high' | 'rating';
@@ -15,6 +16,7 @@ type SortKey = 'featured' | 'price-low' | 'price-high' | 'rating';
 export default function Search() {
   const { listings, loading: listingsLoading } = useListings();
   const { categories, loading: categoriesLoading } = useCategories();
+  const { favoriteIds, toggleFavorite } = useFavorites();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -169,6 +171,8 @@ export default function Search() {
                   category={listing.category_slug}
                   image={listing.images[0]}
                   linkPrefix="/customer"
+                  isFavorite={favoriteIds.has(listing.id)}
+                  onToggleFavorite={toggleFavorite}
                 />
               ))}
             </div>

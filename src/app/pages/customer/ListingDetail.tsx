@@ -6,9 +6,12 @@ import { Badge } from '../../components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Calendar } from '../../components/ui/calendar';
 import { Alert, AlertDescription } from '../../components/ui/alert';
-import { Clock, DollarSign, MapPin, CheckCircle2, Calendar as CalendarIcon, Info } from 'lucide-react';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { Clock, DollarSign, MapPin, CheckCircle2, Calendar as CalendarIcon, Info, Heart } from 'lucide-react';
 import { useListing } from '../../../hooks/useListings';
 import { useReviews } from '../../../hooks/useReviews';
+import { useFavorites } from '../../../hooks/useFavorites';
 import { RatingStars } from '../../components/RatingStars';
 import { toast } from 'sonner';
 import { supabase } from '../../../lib/supabase';
@@ -21,13 +24,16 @@ export default function ListingDetail() {
   const { user } = useAuth();
   const { listing, loading: listingLoading } = useListing(id);
   const { reviews, loading: reviewsLoading } = useReviews({ listingId: id });
+  const { favoriteIds, toggleFavorite } = useFavorites();
 
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTime, setSelectedTime] = useState('');
+  const [bookingAddress, setBookingAddress] = useState('');
   const [booking, setBooking] = useState(false);
 
   const loading = listingLoading || reviewsLoading;
+  const isFavorite = id ? favoriteIds.has(id) : false;
 
   async function handleConfirmBooking() {
     if (!selectedDate || !selectedTime) {
@@ -46,8 +52,8 @@ export default function ListingDetail() {
       time: selectedTime,
       duration: listing.duration,
       price: listing.price,
-      status: 'pending',
-      address: '',
+      status: 'confirmed',
+      address: bookingAddress.trim() || null,
     });
     setBooking(false);
 
@@ -59,6 +65,7 @@ export default function ListingDetail() {
     setShowBookingModal(false);
     setSelectedDate(undefined);
     setSelectedTime('');
+    setBookingAddress('');
     toast.success('Booking confirmed! Check your bookings for details.');
   }
 
@@ -94,11 +101,25 @@ export default function ListingDetail() {
 
             <div className="mb-6 lg:mb-8">
               <div className="flex items-start justify-between mb-3 gap-3">
-                <div>
+                <div className="min-w-0">
                   <h1 className="text-2xl lg:text-[32px] font-semibold mb-1.5">{listing.title}</h1>
                   <span className="text-primary text-sm font-medium">{listing.provider_name}</span>
                 </div>
-                {listing.featured && <Badge className="bg-primary/10 text-primary border-0 shrink-0">Featured</Badge>}
+                <div className="flex items-center gap-2 shrink-0">
+                  {listing.featured && <Badge className="bg-primary/10 text-primary border-0">Featured</Badge>}
+                  {user.id && (
+                    <button
+                      type="button"
+                      onClick={() => id && toggleFavorite(id)}
+                      aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                      className={`p-2.5 rounded-full transition-colors ${
+                        isFavorite ? 'bg-primary/10 text-primary' : 'bg-secondary text-muted hover:text-primary'
+                      }`}
+                    >
+                      <Heart size={18} className={isFavorite ? 'fill-current' : ''} />
+                    </button>
+                  )}
+                </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-4 text-sm">
@@ -204,8 +225,20 @@ export default function ListingDetail() {
 
           <Alert className="border-primary/20 bg-primary/5 mb-5">
             <Info size={15} className="text-foreground" />
-            <AlertDescription>Your booking is held for 10 minutes. Complete payment to confirm.</AlertDescription>
+            <AlertDescription>Select your date, time, and service address to confirm your booking.</AlertDescription>
           </Alert>
+
+          {/* Address */}
+          <div className="mb-5">
+            <Label htmlFor="booking-address">Service address (optional)</Label>
+            <Input
+              id="booking-address"
+              placeholder="e.g., 123 Main St, Jonesboro, AR"
+              value={bookingAddress}
+              onChange={e => setBookingAddress(e.target.value)}
+              className="mt-1"
+            />
+          </div>
 
           {/* Date picker */}
           <div className="mb-5">

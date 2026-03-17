@@ -283,6 +283,7 @@ export type Database = {
           email: string
           id: string
           name: string
+          notification_preferences: Json | null
           phone: string | null
           role: Database["public"]["Enums"]["user_role"]
         }
@@ -293,6 +294,7 @@ export type Database = {
           email: string
           id: string
           name: string
+          notification_preferences?: Json | null
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
         }
@@ -303,6 +305,7 @@ export type Database = {
           email?: string
           id?: string
           name?: string
+          notification_preferences?: Json | null
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
         }
@@ -315,6 +318,7 @@ export type Database = {
           created_at: string
           id: string
           joined_date: string
+          payment_info: Json | null
           rating: number
           review_count: number
           social_links: Json | null
@@ -327,6 +331,7 @@ export type Database = {
           created_at?: string
           id: string
           joined_date?: string
+          payment_info?: Json | null
           rating?: number
           review_count?: number
           social_links?: Json | null
@@ -339,6 +344,7 @@ export type Database = {
           created_at?: string
           id?: string
           joined_date?: string
+          payment_info?: Json | null
           rating?: number
           review_count?: number
           social_links?: Json | null

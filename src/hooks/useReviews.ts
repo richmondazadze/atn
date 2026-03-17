@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import type { Tables } from '../types/database';
 
 export type Review = Tables<'reviews'>;
 
-export function useReviews(opts?: { listingId?: string; providerId?: string }) {
+export function useReviews(opts?: { listingId?: string; providerId?: string; customerId?: string }) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchReviews = useCallback(async () => {
     let query = supabase
       .from('reviews')
       .select('*')
@@ -20,12 +20,18 @@ export function useReviews(opts?: { listingId?: string; providerId?: string }) {
     if (opts?.providerId) {
       query = query.eq('provider_id', opts.providerId);
     }
+    if (opts?.customerId) {
+      query = query.eq('customer_id', opts.customerId);
+    }
 
-    query.then(({ data }) => {
-      setReviews(data ?? []);
-      setLoading(false);
-    });
-  }, [opts?.listingId, opts?.providerId]);
+    const { data } = await query;
+    setReviews(data ?? []);
+    setLoading(false);
+  }, [opts?.listingId, opts?.providerId, opts?.customerId]);
 
-  return { reviews, loading, setReviews };
+  useEffect(() => {
+    fetchReviews();
+  }, [fetchReviews]);
+
+  return { reviews, loading, setReviews, refetch: fetchReviews };
 }

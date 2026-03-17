@@ -21,7 +21,7 @@ export function useBookings() {
 
     let query = supabase
       .from('bookings')
-      .select('*')
+      .select('*, profiles!bookings_customer_id_fkey(name)')
       .order('date', { ascending: false });
 
     if (user.role === 'customer') {
@@ -31,7 +31,14 @@ export function useBookings() {
     }
 
     const { data } = await query;
-    setBookings(data ?? []);
+    const mapped = (data ?? []).map((row: Record<string, unknown>) => {
+      const profile = row.profiles as { name: string } | null;
+      return {
+        ...(row as Tables<'bookings'>),
+        customer_name: profile?.name ?? 'Customer',
+      };
+    });
+    setBookings(mapped);
     setLoading(false);
   }, [user.id, user.role, isAuthenticated]);
 

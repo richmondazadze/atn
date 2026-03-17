@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 
 export default function ListingsManager() {
   const { user } = useAuth();
-  const { listings, loading, setListings } = useListings({ providerId: user.id });
+  const { listings, loading, setListings } = useListings({ providerId: user.id, status: 'all' });
 
   if (loading) return (
     <div className="flex min-h-[60vh] items-center justify-center">
@@ -26,7 +26,7 @@ export default function ListingsManager() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 lg:mb-8">
           <div>
             <h1 className="text-2xl lg:text-[32px] font-semibold mb-1">My Listings</h1>
-            <p className="text-sm text-muted">{listings.length} active listing{listings.length !== 1 ? 's' : ''} (10 max)</p>
+            <p className="text-sm text-muted">{listings.filter(l => l.status === 'active').length} active, {listings.filter(l => l.status === 'draft').length} draft (10 max)</p>
           </div>
           <Link to="/provider/listings/new">
             <Button className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto">
@@ -63,6 +63,7 @@ export default function ListingsManager() {
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                           <h3 className="font-medium text-lg truncate">{listing.title}</h3>
+                          {listing.status === 'draft' && <Badge variant="secondary" className="shrink-0">Draft</Badge>}
                           {listing.featured && <Badge className="bg-primary/10 text-primary border-0 shrink-0">Featured</Badge>}
                         </div>
                         <p className="text-sm text-muted line-clamp-2">{listing.description}</p>
@@ -109,10 +110,12 @@ export default function ListingsManager() {
                           Edit
                         </Button>
                       </Link>
-                      <Button variant="ghost" size="sm" onClick={() => toast.info('Preview coming soon')}>
-                        <Eye size={14} className="mr-1.5" />
-                        Preview
-                      </Button>
+                      <Link to={`/listing/${listing.id}`} target="_blank">
+                        <Button variant="ghost" size="sm">
+                          <Eye size={14} className="mr-1.5" />
+                          Preview
+                        </Button>
+                      </Link>
                     </div>
                   </div>
                 </div>

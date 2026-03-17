@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { Switch } from '../../components/ui/switch';
@@ -37,10 +37,37 @@ export default function Availability() {
   const [bufferTime, setBufferTime] = useState('30');
   const [noticeHours, setNoticeHours] = useState('4');
   const [instantBooking, setInstantBooking] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    supabase
+      .from('providers')
+      .select('availability')
+      .eq('id', user.id)
+      .single()
+      .then(({ data }) => {
+        const avail = data?.availability as Record<string, unknown> | null;
+        if (avail) {
+          if (avail.weeklySchedule) setWeeklySchedule(avail.weeklySchedule as typeof DEFAULT_SCHEDULE);
+          if (avail.blockedDates) setBlockedDates((avail.blockedDates as string[]).map(d => new Date(d)));
+          if (avail.bufferTime != null) setBufferTime(String(avail.bufferTime));
+          if (avail.noticeHours != null) setNoticeHours(String(avail.noticeHours));
+          if (avail.instantBooking != null) setInstantBooking(avail.instantBooking as boolean);
+        }
+        setLoaded(true);
+      });
+  }, [user.id]);
 
   function updateDay(day: Day, patch: Partial<DaySchedule>) {
     setWeeklySchedule(prev => ({ ...prev, [day]: { ...prev[day], ...patch } }));
   }
+
+  if (!loaded) return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
@@ -52,7 +79,9 @@ export default function Availability() {
           </div>
           <Button
             className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto"
+            disabled={saving}
             onClick={async () => {
+              setSaving(true);
               const { error } = await supabase.from('providers').update({
                 availability: {
                   weeklySchedule,
@@ -62,12 +91,13 @@ export default function Availability() {
                   instantBooking,
                 },
               }).eq('id', user.id);
+              setSaving(false);
               if (error) { toast.error('Failed to save availability'); return; }
               toast.success('Availability saved');
             }}
           >
             <Save size={15} className="mr-2" />
-            Save Changes
+            {saving ? 'Saving…' : 'Save Changes'}
           </Button>
         </div>
 
@@ -82,14 +112,14 @@ export default function Availability() {
                 {DAYS.map(day => {
                   const schedule = weeklySchedule[day];
                   return (
-                    <div key={day} className="flex items-center gap-3 p-3 border border-border rounded">
+                    <div key={day} className={`flex items-center gap-3 p-3 border rounded transition-colors ${schedule.enabled ? 'border-border' : 'border-border bg-secondary/60'}`}>
                       <div className="flex items-center gap-2 w-32 shrink-0">
                         <Switch
                           checked={schedule.enabled}
                           onCheckedChange={checked => updateDay(day, { enabled: checked })}
                           aria-label={`Enable ${day}`}
                         />
-                        <Label className="font-medium text-sm">{day.slice(0, 3)}</Label>
+                        <Label className={`font-medium text-sm ${!schedule.enabled ? 'text-muted' : ''}`}>{day.slice(0, 3)}</Label>
                       </div>
 
                       {schedule.enabled ? (
@@ -113,7 +143,7 @@ export default function Availability() {
                           </Select>
                         </div>
                       ) : (
-                        <span className="text-xs text-muted">Unavailable</span>
+                        <span className="text-xs text-muted italic">Unavailable</span>
                       )}
                     </div>
                   );

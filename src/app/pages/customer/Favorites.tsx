@@ -7,10 +7,13 @@ import { EmptyState } from '../../components/EmptyState';
 import { Link } from 'react-router';
 
 export default function Favorites() {
-  const { listings, loading: listingsLoading } = useListings();
   const { favoriteIds, loading: favoritesLoading, toggleFavorite } = useFavorites();
+  const ids = Array.from(favoriteIds);
+  const { listings, loading: listingsLoading } = useListings(
+    ids.length > 0 ? { listingIds: ids, status: 'all' } : { listingIds: [] }
+  );
 
-  const loading = listingsLoading || favoritesLoading;
+  const loading = favoritesLoading || listingsLoading;
 
   if (loading) {
     return (

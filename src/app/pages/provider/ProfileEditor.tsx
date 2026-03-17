@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -27,26 +27,53 @@ type FormData = z.infer<typeof schema>;
 
 export default function ProfileEditor() {
   const { user } = useAuth();
-  const { categories, loading } = useCategories();
+  const { categories, loading: categoriesLoading } = useCategories();
 
-  const [selectedCategories, setSelectedCategories] = useState(['hair-braiding']);
-  const [zipCodes, setZipCodes] = useState(['72401', '72404', '72405']);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [zipCodes, setZipCodes] = useState<string[]>([]);
   const [newZip, setNewZip] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(user.avatar_url ?? null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [providerLoading, setProviderLoading] = useState(true);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, watch, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       name: user.name,
-      bio: 'Licensed braider specializing in knotless, box braids, and protective styles. Trained at Paul Mitchell. Your hair health is my priority.',
+      bio: user.bio ?? '',
       phone: user.phone ?? '',
-      instagram: '@tashabraidsjonesboro',
+      instagram: '',
       facebook: '',
     },
   });
 
+  useEffect(() => {
+    supabase
+      .from('providers')
+      .select('categories, zip_codes, social_links')
+      .eq('id', user.id)
+      .single()
+      .then(({ data }) => {
+        if (data) {
+          setSelectedCategories(data.categories ?? []);
+          setZipCodes(data.zip_codes ?? []);
+          const social = data.social_links as Record<string, string> | null;
+          if (social) {
+            reset({
+              name: user.name,
+              bio: user.bio ?? '',
+              phone: user.phone ?? '',
+              instagram: social.instagram ?? '',
+              facebook: social.facebook ?? '',
+            });
+          }
+        }
+        setProviderLoading(false);
+      });
+  }, [user.id, user.name, user.bio, user.phone, reset]);
+
+  const loading = categoriesLoading || providerLoading;
   const bio = watch('bio');
 
   function toggleCategory(id: string) {
@@ -95,6 +122,10 @@ export default function ProfileEditor() {
     const { error: providerError } = await supabase.from('providers').update({
       zip_codes: zipCodes,
       categories: selectedCategories,
+      social_links: {
+        instagram: data.instagram,
+        facebook: data.facebook,
+      },
     }).eq('id', user.id);
     if (providerError) { toast.error('Failed to save provider details'); return; }
 

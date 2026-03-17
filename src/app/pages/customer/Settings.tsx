@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,7 +14,6 @@ import { supabase } from '../../../lib/supabase';
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Enter a valid email'),
   phone: z.string().min(10, 'Enter a valid phone number'),
 });
 type ProfileData = z.infer<typeof profileSchema>;
@@ -28,17 +28,51 @@ const passwordSchema = z.object({
 });
 type PasswordData = z.infer<typeof passwordSchema>;
 
+type NotificationPrefs = {
+  bookingConfirmations: boolean;
+  bookingReminders: boolean;
+  promotionalEmails: boolean;
+};
+
+const DEFAULT_NOTIFICATIONS: NotificationPrefs = {
+  bookingConfirmations: true,
+  bookingReminders: true,
+  promotionalEmails: false,
+};
+
 export default function CustomerSettings() {
   const { user, refreshProfile } = useAuth();
+  const [notifications, setNotifications] = useState<NotificationPrefs>(DEFAULT_NOTIFICATIONS);
+  const [notificationsLoading, setNotificationsLoading] = useState(true);
 
   const profileForm = useForm<ProfileData>({
     resolver: zodResolver(profileSchema),
-    defaultValues: { name: user.name, email: user.email, phone: user.phone ?? '' },
+    defaultValues: { name: user.name, phone: user.phone ?? '' },
   });
 
   const passwordForm = useForm<PasswordData>({
     resolver: zodResolver(passwordSchema),
   });
+
+  useEffect(() => {
+    profileForm.reset({ name: user.name, phone: user.phone ?? '' });
+  }, [user.name, user.phone, profileForm.reset]);
+
+  useEffect(() => {
+    if (!user.id) return;
+    supabase
+      .from('profiles')
+      .select('notification_preferences')
+      .eq('id', user.id)
+      .single()
+      .then(({ data }) => {
+        const prefs = data?.notification_preferences as NotificationPrefs | null;
+        if (prefs && typeof prefs === 'object') {
+          setNotifications({ ...DEFAULT_NOTIFICATIONS, ...prefs });
+        }
+        setNotificationsLoading(false);
+      });
+  }, [user.id]);
 
   async function onProfileSave(data: ProfileData) {
     const { error } = await supabase
@@ -53,6 +87,17 @@ export default function CustomerSettings() {
 
     toast.success('Profile updated');
     await refreshProfile();
+  }
+
+  async function onNotificationsChange(key: keyof NotificationPrefs, value: boolean) {
+    const next = { ...notifications, [key]: value };
+    setNotifications(next);
+    const { error } = await supabase
+      .from('profiles')
+      .update({ notification_preferences: next })
+      .eq('id', user.id);
+    if (error) toast.error('Failed to save notification preference');
+    else toast.success('Notification preference saved');
   }
 
   async function onPasswordUpdate(data: PasswordData) {
@@ -86,8 +131,8 @@ export default function CustomerSettings() {
               </div>
               <div>
                 <Label htmlFor="cs-email">Email</Label>
-                <Input id="cs-email" type="email" className="mt-1" aria-invalid={!!profileForm.formState.errors.email} {...profileForm.register('email')} />
-                {profileForm.formState.errors.email && <p className="text-xs text-destructive mt-1">{profileForm.formState.errors.email.message}</p>}
+                <Input id="cs-email" type="email" value={user.email} className="mt-1 bg-secondary cursor-not-allowed" disabled />
+                <p className="text-xs text-muted mt-1">Contact support to change your email.</p>
               </div>
               <div>
                 <Label htmlFor="cs-phone">Phone</Label>
@@ -101,24 +146,51 @@ export default function CustomerSettings() {
           {/* Notifications */}
           <Card className="border-border p-5 lg:p-6">
             <h2 className="text-lg font-medium mb-5">Notifications</h2>
-            <div className="space-y-4">
-              {[
-                { id: 'n1', label: 'Booking confirmations', desc: 'Receive email when bookings are confirmed', defaultChecked: true },
-                { id: 'n2', label: 'Booking reminders', desc: 'Get reminders 24 hours before your booking', defaultChecked: true },
-                { id: 'n3', label: 'Promotional emails', desc: 'Special offers and new provider announcements', defaultChecked: false },
-              ].map((item, i) => (
-                <div key={item.id}>
-                  {i > 0 && <Separator className="mb-4" />}
+            {notificationsLoading ? (
+              <div className="h-24 flex items-center justify-center">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-medium text-sm">{item.label}</div>
-                      <div className="text-xs text-muted">{item.desc}</div>
+                      <div className="font-medium text-sm">Booking confirmations</div>
+                      <div className="text-xs text-muted">Receive email when bookings are confirmed</div>
                     </div>
-                    <Switch defaultChecked={item.defaultChecked} aria-label={item.label} />
+                    <Switch
+                      checked={notifications.bookingConfirmations}
+                      onCheckedChange={v => onNotificationsChange('bookingConfirmations', v)}
+                      aria-label="Booking confirmations"
+                    />
                   </div>
                 </div>
-              ))}
-            </div>
+                <Separator />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium text-sm">Booking reminders</div>
+                    <div className="text-xs text-muted">Get reminders 24 hours before your booking</div>
+                  </div>
+                  <Switch
+                    checked={notifications.bookingReminders}
+                    onCheckedChange={v => onNotificationsChange('bookingReminders', v)}
+                    aria-label="Booking reminders"
+                  />
+                </div>
+                <Separator />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium text-sm">Promotional emails</div>
+                    <div className="text-xs text-muted">Special offers and new provider announcements</div>
+                  </div>
+                  <Switch
+                    checked={notifications.promotionalEmails}
+                    onCheckedChange={v => onNotificationsChange('promotionalEmails', v)}
+                    aria-label="Promotional emails"
+                  />
+                </div>
+              </div>
+            )}
           </Card>
 
           {/* Password */}

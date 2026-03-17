@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -10,10 +10,12 @@ import { Label } from '../../components/ui/label';
 import { Textarea } from '../../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Switch } from '../../components/ui/switch';
-import { ArrowLeft, Upload, X, Trash2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Upload, X, Trash2, AlertCircle, ImagePlus } from 'lucide-react';
 import { useCategories } from '../../../hooks/useCategories';
 import { useListing } from '../../../hooks/useListings';
+import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../../lib/supabase';
+import { uploadListingImage } from '../../../lib/storage';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../../components/ui/alert-dialog';
 import { toast } from 'sonner';
 
@@ -31,8 +33,13 @@ type FormData = z.infer<typeof schema>;
 export default function EditListing() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
   const { listing, loading: listingLoading } = useListing(id);
   const { categories, loading: categoriesLoading } = useCategories();
+
+  const [images, setImages] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { register, handleSubmit, control, setValue, watch, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -58,8 +65,41 @@ export default function EditListing() {
         isActive: listing.status === 'active',
         amenities: (listing.amenities ?? ['Supplies included']).map(a => ({ value: a })),
       });
+      setImages(listing.images ?? []);
     }
   }, [listing, reset]);
+
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
+    setUploading(true);
+    const uploaded: string[] = [];
+    for (const file of files) {
+      const url = await uploadListingImage(user.id, file);
+      if (url) uploaded.push(url);
+    }
+    if (uploaded.length > 0) {
+      const updated = [...images, ...uploaded];
+      setImages(updated);
+      await supabase.from('listings').update({ images: updated }).eq('id', id!);
+      toast.success(`${uploaded.length} photo${uploaded.length > 1 ? 's' : ''} uploaded`);
+    } else {
+      toast.error('Failed to upload photos');
+    }
+    setUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }
+
+  async function removeImage(index: number) {
+    const updated = images.filter((_, i) => i !== index);
+    setImages(updated);
+    await supabase.from('listings').update({ images: updated }).eq('id', id!);
+    toast.success('Photo removed');
+  }
+
+  const { fields, append, remove } = useFieldArray({ control, name: 'amenities' });
+  const categoryValue = watch('category');
+  const isActive = watch('isActive');
 
   const loading = listingLoading || categoriesLoading;
 
@@ -84,10 +124,6 @@ export default function EditListing() {
     );
   }
 
-  const { fields, append, remove } = useFieldArray({ control, name: 'amenities' });
-  const categoryValue = watch('category');
-  const isActive = watch('isActive');
-
   async function onSubmit(data: FormData) {
     const { error } = await supabase.from('listings').update({
       title: data.title,
@@ -97,6 +133,7 @@ export default function EditListing() {
       duration: data.duration,
       status: data.isActive ? 'active' : 'draft',
       amenities: data.amenities.map(a => a.value).filter(Boolean),
+      images,
     }).eq('id', id!);
     if (error) { toast.error('Failed to save'); return; }
     toast.success('Listing updated');
@@ -196,12 +233,55 @@ export default function EditListing() {
 
           <Card className="border-border p-5 lg:p-8 mb-6">
             <h2 className="text-lg font-medium mb-5">Photos</h2>
-            <div className="border-2 border-dashed border-border rounded p-8 text-center">
-              <Upload size={32} className="mx-auto mb-3 text-muted" aria-hidden="true" />
-              <p className="text-sm mb-1">Drag photos here or click to browse</p>
-              <p className="text-xs text-muted">PNG, JPG up to 5MB each.</p>
-              <Button type="button" variant="outline" className="mt-3">Choose files</Button>
-            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              multiple
+              className="hidden"
+              onChange={handleImageUpload}
+            />
+
+            {images.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
+                {images.map((url, i) => (
+                  <div key={i} className="relative group aspect-[4/3] rounded-lg overflow-hidden border border-border bg-secondary">
+                    <img src={url} alt={`Listing photo ${i + 1}`} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(i)}
+                      className="absolute top-2 right-2 p-1.5 rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80"
+                      aria-label={`Remove photo ${i + 1}`}
+                    >
+                      <X size={14} />
+                    </button>
+                    {i === 0 && (
+                      <span className="absolute bottom-2 left-2 text-[10px] font-medium bg-black/60 text-white px-2 py-0.5 rounded">Cover</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="w-full border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer disabled:opacity-50"
+            >
+              {uploading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  <span className="text-sm text-muted">Uploading…</span>
+                </div>
+              ) : (
+                <>
+                  <ImagePlus size={28} className="mx-auto mb-2 text-muted" />
+                  <p className="text-sm font-medium">{images.length > 0 ? 'Add more photos' : 'Upload photos'}</p>
+                  <p className="text-xs text-muted mt-1">PNG, JPG, WebP up to 5MB each</p>
+                </>
+              )}
+            </button>
           </Card>
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-5 border-t border-border">
