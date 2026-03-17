@@ -147,81 +147,79 @@ export default function ListingDetail() {
 
       {/* Booking Modal */}
       <Dialog open={showBookingModal} onOpenChange={setShowBookingModal}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-2xl gap-0">
+          <DialogHeader className="mb-4">
             <DialogTitle>Book {listing.title}</DialogTitle>
           </DialogHeader>
 
-          <Alert className="border-primary/20 bg-primary/5 mb-4">
+          <Alert className="border-primary/20 bg-primary/5 mb-5">
             <Info size={15} className="text-foreground" />
             <AlertDescription>Your booking is held for 10 minutes. Complete payment to confirm.</AlertDescription>
           </Alert>
 
-          <div className="grid grid-cols-1 sm:[grid-template-columns:3fr_2fr] gap-6 mb-6">
-            {/* Date picker */}
-            <div className="min-w-0">
-              <h3 className="font-medium text-sm mb-3">Select date</h3>
-              <div className="rounded-xl border border-border bg-background p-2">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={setSelectedDate}
-                  className="bg-background w-full"
-                  disabled={date => {
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    const candidate = new Date(date);
-                    candidate.setHours(0, 0, 0, 0);
-                    return candidate < today;
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Time picker */}
-            <div className="min-w-0">
-              <h3 className="font-medium text-sm mb-3">Select time</h3>
-              <div className="rounded-xl border border-border bg-background p-3">
-                <div className="grid grid-cols-2 gap-2">
-                  {TIME_SLOTS.map(slot => (
-                    <button
-                      key={slot}
-                      type="button"
-                      onClick={() => setSelectedTime(slot)}
-                      className={`h-14 rounded-lg border text-sm font-medium transition-colors ${
-                        selectedTime === slot
-                          ? 'bg-primary text-primary-foreground border-primary'
-                          : 'bg-background border-border text-foreground hover:bg-secondary'
-                      }`}
-                    >
-                      {slot}
-                    </button>
-                  ))}
-                </div>
-              </div>
+          {/* Date picker — full width, always on top */}
+          <div className="mb-5">
+            <h3 className="font-medium text-sm mb-3">Select date</h3>
+            <div className="rounded-xl border border-border bg-background p-1 sm:p-2">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                className="bg-background w-full p-2"
+                disabled={date => {
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  const candidate = new Date(date);
+                  candidate.setHours(0, 0, 0, 0);
+                  return candidate < today;
+                }}
+              />
             </div>
           </div>
 
-          <div className="border-t border-border pt-5">
-            <div className="flex items-center justify-between text-sm mb-4">
-              <div className="text-muted">
-                <span className="block text-xs uppercase tracking-wide mb-1">Selected slot</span>
-                {selectedDate && selectedTime ? (
-                  <span className="font-medium text-foreground">
-                    {selectedDate.toLocaleDateString('en-US', {
-                      weekday: 'short',
-                      month: 'short',
-                      day: 'numeric',
-                    })}{' '}
-                    at {selectedTime}
-                  </span>
-                ) : (
-                  <span className="text-xs text-muted">Choose a date and time to continue</span>
-                )}
-              </div>
+          {/* Time picker — full width grid, responsive columns */}
+          <div className="mb-5">
+            <h3 className="font-medium text-sm mb-3">Select time</h3>
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+              {TIME_SLOTS.map(slot => (
+                <button
+                  key={slot}
+                  type="button"
+                  onClick={() => setSelectedTime(slot)}
+                  className={`h-12 rounded-lg border text-sm font-medium transition-colors ${
+                    selectedTime === slot
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'bg-background border-border text-foreground hover:bg-secondary'
+                  }`}
+                >
+                  {slot}
+                </button>
+              ))}
             </div>
+          </div>
 
-            <div className="space-y-2 text-sm mb-5">
+          {/* Selected slot summary */}
+          {(selectedDate || selectedTime) && (
+            <div className="rounded-lg bg-secondary px-4 py-3 mb-5">
+              <span className="block text-xs uppercase tracking-wide text-muted mb-1">Selected slot</span>
+              {selectedDate && selectedTime ? (
+                <span className="font-medium text-sm text-foreground">
+                  {selectedDate.toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                  })}{' '}
+                  at {selectedTime}
+                </span>
+              ) : (
+                <span className="text-xs text-muted">Choose a {!selectedDate ? 'date' : 'time'} to continue</span>
+              )}
+            </div>
+          )}
+
+          {/* Pricing + CTA — sticky on mobile so it's always reachable */}
+          <div className="border-t border-border pt-4 mt-auto sticky bottom-0 bg-background pb-[env(safe-area-inset-bottom)]">
+            <div className="space-y-2 text-sm mb-4">
               <div className="flex justify-between">
                 <span>Service fee</span>
                 <span>${listing.price}</span>
@@ -237,7 +235,7 @@ export default function ListingDetail() {
             </div>
 
             <Button
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-12 text-base"
               disabled={!selectedDate || !selectedTime}
               onClick={handleConfirmBooking}
             >
