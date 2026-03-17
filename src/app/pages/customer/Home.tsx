@@ -16,7 +16,7 @@ export default function CustomerHome() {
   const previousListings = listings.slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-secondary px-4 lg:px-[72px]">
+    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6 lg:mb-8">
@@ -57,8 +57,8 @@ export default function CustomerHome() {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" className="flex-1 border-border text-sm">View details</Button>
-                    <Button variant="ghost" className="text-destructive text-sm">Cancel</Button>
+                    <Button variant="outline" className="flex-1 border-border text-sm min-h-10">View details</Button>
+                    <Button variant="ghost" className="text-destructive text-sm min-h-10">Cancel</Button>
                   </div>
                 </Card>
               ))}
@@ -66,10 +66,10 @@ export default function CustomerHome() {
           </section>
         )}
 
-        {/* Trending */}
+        {/* Featured services */}
         <section className="mb-10 lg:mb-12">
           <div className="flex items-center justify-between mb-4 lg:mb-6">
-            <h2 className="text-xl lg:text-2xl font-semibold">Trending near Jonesboro</h2>
+            <h2 className="text-xl lg:text-2xl font-semibold">Featured services for you</h2>
             <Link to="/customer/search">
               <Button variant="ghost" className="text-primary text-sm">Browse all</Button>
             </Link>
@@ -111,7 +111,7 @@ export default function CustomerHome() {
                     <RatingStars rating={listing.rating} showCount={false} size={12} />
                   </div>
                 </div>
-                <Link to={`/customer/listing/${listing.id}`}>
+                <Link to={`/customer/listing/${listing.id}`} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-md">
                   <Button variant="outline" className="w-full border-border text-sm">Book again</Button>
                 </Link>
               </Card>

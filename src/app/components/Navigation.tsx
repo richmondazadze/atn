@@ -6,10 +6,7 @@ import {
   BarChart3, Flag, Folder, BookOpen, Users, Menu, X, LogOut,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { RoleSwitcher } from './RoleSwitcher';
 import { useNavigate } from 'react-router';
-
-const IS_DEV = import.meta.env.DEV;
 
 type NavType = 'public' | 'customer' | 'provider' | 'admin';
 
@@ -75,7 +72,7 @@ function NavLinks({ type, onNav }: { type: NavType; onNav?: () => void }) {
                 to={item.path}
                 onClick={onNav}
                 aria-current={isActive ? 'page' : undefined}
-                className={`flex items-center gap-3 px-4 py-3 rounded transition-colors text-sm font-medium ${
+                className={`flex items-center gap-3 px-4 py-3 rounded transition-colors text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                   isActive
                     ? 'bg-primary text-primary-foreground'
                     : 'text-foreground hover:bg-secondary'
@@ -127,7 +124,6 @@ export function Sidebar({ type }: SidebarProps) {
 
   const sidebarContent = (
     <div className="flex flex-col h-full">
-      {/* Logo */}
       <div className="px-6 py-5 border-b border-border">
         <Link to={homeLink} onClick={() => setMobileOpen(false)} className="flex items-center gap-3">
           <img src="/atn_logo_no_bg.png" alt="ATN logo" className="w-9 h-9 object-contain" />
@@ -138,23 +134,19 @@ export function Sidebar({ type }: SidebarProps) {
         </Link>
       </div>
 
-      {/* User info */}
       {type !== 'public' && (
         <UserAvatar name={user.name} role={user.role.charAt(0).toUpperCase() + user.role.slice(1)} />
       )}
 
-      {/* Nav */}
       <div className="flex-1 overflow-y-auto p-4">
         <NavLinks type={type} onNav={() => setMobileOpen(false)} />
       </div>
 
-      {/* Bottom actions */}
       <div className="p-4 border-t border-border space-y-2">
-        {IS_DEV && <RoleSwitcher />}
         {type !== 'public' && (
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 w-full px-4 py-3 rounded text-sm font-medium text-muted hover:bg-secondary hover:text-foreground transition-colors"
+            className="flex items-center gap-3 w-full px-4 py-3 rounded text-sm font-medium text-muted hover:bg-secondary hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <LogOut size={18} />
             <span>Log out</span>
@@ -167,7 +159,7 @@ export function Sidebar({ type }: SidebarProps) {
   return (
     <>
       {/* Mobile top bar */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-30 h-14 bg-white border-b border-border flex items-center justify-between px-4">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-30 h-14 bg-background border-b border-border flex items-center justify-between px-4">
         <Link to={homeLink} className="flex items-center gap-2">
           <img src="/atn_logo_no_bg.png" alt="ATN logo" className="w-8 h-8 object-contain" />
           <span className="text-lg font-semibold text-foreground">ATN</span>
@@ -175,7 +167,7 @@ export function Sidebar({ type }: SidebarProps) {
         <button
           onClick={() => setMobileOpen(true)}
           aria-label="Open navigation menu"
-          className="p-2 rounded hover:bg-secondary"
+          className="p-2.5 -mr-1 rounded-lg hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Menu size={22} />
         </button>
@@ -192,7 +184,7 @@ export function Sidebar({ type }: SidebarProps) {
 
       {/* Mobile drawer */}
       <aside
-        className={`lg:hidden fixed top-0 left-0 z-50 h-full w-72 bg-white border-r border-border shadow-xl transition-transform duration-300 ${
+        className={`lg:hidden fixed top-0 left-0 z-50 h-full w-[min(18rem,85vw)] bg-background border-r border-border shadow-xl transition-transform duration-300 ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         aria-label="Sidebar navigation"
@@ -200,7 +192,7 @@ export function Sidebar({ type }: SidebarProps) {
         <button
           onClick={() => setMobileOpen(false)}
           aria-label="Close navigation menu"
-          className="absolute top-4 right-4 p-1 rounded hover:bg-secondary"
+          className="absolute top-3 right-3 p-2.5 rounded-lg hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <X size={20} />
         </button>
@@ -209,7 +201,7 @@ export function Sidebar({ type }: SidebarProps) {
 
       {/* Desktop sidebar */}
       <aside
-        className="hidden lg:flex w-64 h-screen bg-white border-r border-border flex-col shrink-0 sticky top-0"
+        className="hidden lg:flex w-64 h-screen bg-background border-r border-border flex-col shrink-0 sticky top-0 max-h-screen"
         aria-label="Sidebar navigation"
       >
         {sidebarContent}
@@ -220,7 +212,7 @@ export function Sidebar({ type }: SidebarProps) {
 
 export function TopBar({ title, actions }: { title?: string; actions?: React.ReactNode }) {
   return (
-    <header className="h-16 bg-white border-b border-border px-6 flex items-center justify-between">
+    <header className="h-16 bg-background border-b border-border px-4 sm:px-6 flex items-center justify-between">
       {title && <h1 className="text-xl font-semibold text-foreground">{title}</h1>}
       {actions && <div className="flex items-center gap-4">{actions}</div>}
     </header>

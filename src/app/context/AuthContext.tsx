@@ -37,9 +37,28 @@ const MOCK_USERS: Record<UserRole, MockUser> = {
   },
 };
 
+const MOCK_CREDENTIALS: Array<{ email: string; password: string; role: UserRole }> = [
+  {
+    email: 'admin@atn.local',
+    password: 'admin123',
+    role: 'admin',
+  },
+  {
+    email: 'deja.johnson@email.com',
+    password: 'provider123',
+    role: 'provider',
+  },
+  {
+    email: 'sarah.williams@email.com',
+    password: 'customer123',
+    role: 'customer',
+  },
+];
+
 interface AuthContextValue {
   user: MockUser;
   isAuthenticated: boolean;
+  login: (email: string, password: string) => Promise<UserRole | null>;
   setRole: (role: UserRole) => void;
   logout: () => void;
 }
@@ -52,6 +71,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const user = role ? MOCK_USERS[role] : MOCK_USERS['customer'];
   const isAuthenticated = role !== null;
 
+  async function login(email: string, password: string): Promise<UserRole | null> {
+    const match = MOCK_CREDENTIALS.find(
+      (cred) =>
+        cred.email.toLowerCase() === email.toLowerCase().trim() &&
+        cred.password === password,
+    );
+
+    if (!match) {
+      return null;
+    }
+
+    setRoleState(match.role);
+    return match.role;
+  }
+
   function setRole(newRole: UserRole) {
     setRoleState(newRole);
   }
@@ -61,7 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, setRole, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, login, setRole, logout }}>
       {children}
     </AuthContext.Provider>
   );

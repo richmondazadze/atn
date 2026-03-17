@@ -33,7 +33,7 @@ export default function ProvidersTable() {
     }), [searchQuery, statusFilter]);
 
   return (
-    <div className="min-h-screen bg-secondary px-4 lg:px-[72px]">
+    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-7xl mx-auto">
         <div className="mb-6 lg:mb-8">
           <h1 className="text-2xl lg:text-[32px] font-semibold mb-1">Provider Management</h1>
@@ -65,6 +65,7 @@ export default function ProvidersTable() {
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="Search providers by name or email..."
                 className="pl-9"
+                aria-label="Search providers"
               />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -112,7 +113,7 @@ export default function ProvidersTable() {
                         </Avatar>
                         <div>
                           <p className="font-medium text-sm">{provider.name}</p>
-                          <p className="text-xs text-muted">{provider.zipCodes.slice(0,2).join(', ')}</p>
+                          <p className="text-xs text-muted">{provider.zipCodes?.slice(0,2).join(', ')}</p>
                         </div>
                       </div>
                     </TableCell>

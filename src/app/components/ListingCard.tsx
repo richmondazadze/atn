@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
-import { Star, Clock, DollarSign, Calendar } from 'lucide-react';
+import { Clock, DollarSign, Calendar } from 'lucide-react';
 import { Badge } from './ui/badge';
+import { RatingStars } from './RatingStars';
 
 interface ListingCardProps {
   id: string;
@@ -35,10 +36,10 @@ export function ListingCard({
   return (
     <Link
       to={`${linkPrefix}/listing/${id}`}
-      className="block bg-background border border-border rounded hover:border-primary transition-colors group"
+      className="block bg-background border border-border rounded-lg hover:border-primary transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       aria-label={`${title} by ${providerName}, $${price}`}
     >
-      <div className="h-44 rounded-t overflow-hidden bg-gradient-to-br from-primary/20 to-primary/10">
+      <div className="aspect-[16/10] rounded-t-lg overflow-hidden bg-gradient-to-br from-primary/20 to-primary/10">
         {image && (
           <img src={image} alt={title} className="w-full h-full object-cover" loading="lazy" />
         )}
@@ -47,7 +48,7 @@ export function ListingCard({
       <div className="p-4">
         <div className="flex items-start justify-between mb-2 gap-2">
           <div className="min-w-0">
-            <h3 className="font-medium group-hover:text-primary transition-colors truncate">{title}</h3>
+            <h3 className="font-medium group-hover:text-primary transition-colors truncate" title={title}>{title}</h3>
             <p className="text-sm text-muted mt-0.5 truncate">{providerName}</p>
           </div>
           {featured && (
@@ -55,22 +56,20 @@ export function ListingCard({
           )}
         </div>
 
-        <div className="flex items-center gap-1 mb-3">
-          <Star size={13} className="fill-amber-400 text-amber-400" />
-          <span className="text-sm font-medium">{rating}</span>
-          <span className="text-sm text-muted">({reviewCount})</span>
+        <div className="mb-3">
+          <RatingStars rating={rating} reviewCount={reviewCount} size={13} />
         </div>
 
         <div className="space-y-1.5 text-sm text-muted">
           <div className="flex items-center gap-2">
-            <DollarSign size={13} />
+            <DollarSign size={14} />
             <span>${price}</span>
-            <span aria-hidden="true">•</span>
-            <Clock size={13} />
+            <span aria-hidden="true">·</span>
+            <Clock size={14} />
             <span>{duration}m</span>
           </div>
           <div className="flex items-center gap-2">
-            <Calendar size={13} />
+            <Calendar size={14} />
             <span className="text-xs">Next: {formattedDate}</span>
           </div>
         </div>

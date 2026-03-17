@@ -73,7 +73,7 @@ export default function EditListing() {
   }
 
   return (
-    <div className="min-h-screen bg-secondary px-4 lg:px-[72px]">
+    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-4xl mx-auto">
         <Link to="/provider/listings" className="inline-flex items-center gap-2 text-muted mb-5 hover:text-foreground text-sm">
           <ArrowLeft size={16} /> Back to listings
@@ -144,7 +144,7 @@ export default function EditListing() {
                 <div key={field.id} className="flex items-center gap-2">
                   <Input className="flex-1" {...register(`amenities.${i}.value`)} />
                   {fields.length > 1 && (
-                    <button type="button" onClick={() => remove(i)} aria-label="Remove" className="p-1.5 text-destructive hover:bg-destructive/10 rounded">
+                    <button type="button" onClick={() => remove(i)} aria-label="Remove" className="p-2.5 text-destructive hover:bg-destructive/10 rounded">
                       <X size={15} />
                     </button>
                   )}

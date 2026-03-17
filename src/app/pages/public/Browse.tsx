@@ -253,10 +253,10 @@ export default function Browse() {
       {filtersOpen && (
         <>
           <div className="fixed inset-0 z-40 bg-black/40 lg:hidden" onClick={() => setFiltersOpen(false)} aria-hidden="true" />
-          <aside className="fixed inset-y-0 left-0 z-50 w-80 max-w-full bg-white border-r border-border p-6 overflow-y-auto lg:hidden">
+          <aside className="fixed inset-y-0 left-0 z-50 w-[min(20rem,85vw)] max-w-full bg-white border-r border-border p-6 overflow-y-auto lg:hidden">
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-semibold">Filters</h2>
-              <button onClick={() => setFiltersOpen(false)} aria-label="Close filters" className="p-1 rounded hover:bg-secondary">
+              <button onClick={() => setFiltersOpen(false)} aria-label="Close filters" className="p-2.5 rounded hover:bg-secondary">
                 <X size={18} />
               </button>
             </div>

@@ -39,7 +39,7 @@ function statusBadge(status: string) {
 
 export default function AdminOverview() {
   return (
-    <div className="min-h-screen bg-secondary px-4 lg:px-[72px]">
+    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 lg:mb-8">
           <div>
@@ -80,11 +80,11 @@ export default function AdminOverview() {
             <h2 className="text-lg font-medium mb-5">Revenue Trend</h2>
             <ResponsiveContainer width="100%" height={220}>
               <LineChart data={revenueData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                 <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip contentStyle={{ borderRadius: '4px', border: '1px solid hsl(var(--border))' }} />
-                <Line type="monotone" dataKey="revenue" stroke="#7BC950" strokeWidth={2} dot={{ fill: '#7BC950', r: 3 }} />
+                <Tooltip contentStyle={{ borderRadius: '4px', border: '1px solid var(--border)' }} />
+                <Line type="monotone" dataKey="revenue" stroke="var(--primary)" strokeWidth={2} dot={{ fill: 'var(--primary)', r: 3 }} />
               </LineChart>
             </ResponsiveContainer>
           </Card>
@@ -93,11 +93,11 @@ export default function AdminOverview() {
             <h2 className="text-lg font-medium mb-5">Bookings by Category</h2>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={categoryData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                 <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                 <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip contentStyle={{ borderRadius: '4px', border: '1px solid hsl(var(--border))' }} />
-                <Bar dataKey="bookings" fill="#7BC950" radius={[3, 3, 0, 0]} />
+                <Tooltip contentStyle={{ borderRadius: '4px', border: '1px solid var(--border)' }} />
+                <Bar dataKey="bookings" fill="var(--primary)" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </Card>

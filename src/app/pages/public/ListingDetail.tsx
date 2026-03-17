@@ -13,7 +13,7 @@ export default function ListingDetailPublic() {
   const listingReviews = reviews.filter(r => r.listingId === listing.id).slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-secondary px-4 lg:px-[72px]">
+    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
           {/* Main Content */}

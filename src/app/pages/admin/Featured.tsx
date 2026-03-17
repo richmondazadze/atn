@@ -26,7 +26,7 @@ export default function FeaturedManager() {
   const availableListings = listings.filter(l => !featured.includes(l.id) && l.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
-    <div className="min-h-screen bg-secondary px-4 lg:px-[72px]">
+    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-7xl mx-auto">
         <div className="mb-6 lg:mb-8">
           <h1 className="text-2xl lg:text-[32px] font-semibold mb-1">Featured Listings</h1>
@@ -61,7 +61,7 @@ export default function FeaturedManager() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-destructive h-7 w-7 p-0"
+                          className="text-destructive h-9 w-9 p-0"
                           aria-label={`Remove ${listing.title} from featured`}
                           onClick={() => removeFeatured(listing.id)}
                         >

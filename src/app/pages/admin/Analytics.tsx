@@ -39,11 +39,11 @@ const TOP_PROVIDERS = [
   { name: 'Deja Johnson', category: 'Cleaning', bookings: 47, revenue: '$3,525', rating: 4.9 },
 ];
 
-const TOOLTIP_STYLE = { borderRadius: '4px', border: '1px solid hsl(var(--border))', fontSize: '12px' };
+const TOOLTIP_STYLE = { borderRadius: '4px', border: '1px solid var(--border)', fontSize: '12px' };
 
 export default function Analytics() {
   return (
-    <div className="min-h-screen bg-secondary px-4 lg:px-[72px]">
+    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 lg:mb-8">
           <div>
@@ -90,7 +90,7 @@ export default function Analytics() {
           <h2 className="text-lg font-medium mb-5">Revenue & Booking Trends</h2>
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={revenueData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis dataKey="month" tick={{ fontSize: 12 }} />
               <YAxis yAxisId="left" tick={{ fontSize: 12 }} />
               <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12 }} />
@@ -131,7 +131,7 @@ export default function Analytics() {
             <h2 className="text-lg font-medium mb-5">User Growth</h2>
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={userGrowth}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                 <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} />

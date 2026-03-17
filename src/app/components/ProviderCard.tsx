@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
-import { Star, MapPin, CheckCircle2 } from 'lucide-react';
+import { MapPin, CheckCircle2 } from 'lucide-react';
 import { Badge } from './ui/badge';
+import { RatingStars } from './RatingStars';
 
 interface ProviderCardProps {
   id: string;
@@ -30,7 +31,7 @@ export function ProviderCard({
   return (
     <Link
       to={`${linkPrefix}/provider/${id}`}
-      className="block bg-background border border-border rounded p-4 hover:border-primary transition-colors"
+      className="block bg-background border border-border rounded-lg p-4 hover:border-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       aria-label={`${name}, ${rating} stars, ${verified ? 'verified provider' : 'provider'}`}
     >
       <div className="flex items-start gap-3">
@@ -46,16 +47,16 @@ export function ProviderCard({
             {verified && <CheckCircle2 size={15} className="text-primary shrink-0" aria-label="Verified" />}
           </div>
 
-          <div className="flex items-center gap-1 mb-2">
-            <Star size={13} className="fill-amber-400 text-amber-400" />
-            <span className="text-sm font-medium">{rating}</span>
-            <span className="text-sm text-muted">({reviewCount})</span>
+          <div className="mb-2">
+            <RatingStars rating={rating} reviewCount={reviewCount} size={13} />
           </div>
 
-          <div className="flex items-center gap-1.5 text-xs text-muted mb-2">
-            <MapPin size={11} />
-            <span className="truncate">{zipCodes.slice(0, 3).join(', ')}{zipCodes.length > 3 ? '…' : ''}</span>
-          </div>
+          {zipCodes?.length > 0 && (
+            <div className="flex items-center gap-1.5 text-xs text-muted mb-2">
+              <MapPin size={11} />
+              <span className="truncate">{zipCodes.slice(0, 3).join(', ')}{zipCodes.length > 3 ? '…' : ''}</span>
+            </div>
+          )}
 
           <div className="flex flex-wrap gap-1">
             {categories.slice(0, 2).map(cat => (

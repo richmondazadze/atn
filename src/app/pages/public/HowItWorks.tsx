@@ -5,7 +5,7 @@ import { Search, Calendar, UserCheck, Shield, CreditCard, Star } from 'lucide-re
 
 export default function HowItWorks() {
   return (
-    <div className="min-h-screen bg-white px-6 lg:px-[72px]">
+    <div className="min-h-screen bg-white px-4 md:px-6 lg:px-[72px]">
       <div className="py-12 lg:py-16 max-w-7xl mx-auto">
         <div className="text-center mb-12 lg:mb-16">
           <h1 className="text-3xl lg:text-[48px] lg:leading-[56px] font-semibold mb-4">How ATN Works</h1>

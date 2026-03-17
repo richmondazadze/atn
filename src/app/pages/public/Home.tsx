@@ -12,7 +12,7 @@ export default function PublicHome() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero */}
-      <section className="border-b border-border px-6 lg:px-[72px]">
+      <section className="border-b border-border px-4 md:px-6 lg:px-[72px]">
         <div className="py-16 lg:py-24 max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <div>
@@ -48,7 +48,7 @@ export default function PublicHome() {
       </section>
 
       {/* Trust strip */}
-      <section className="border-b border-border bg-secondary px-6 lg:px-[72px]">
+      <section className="border-b border-border bg-secondary px-4 md:px-6 lg:px-[72px]">
         <div className="py-8 max-w-7xl mx-auto">
           <div className="grid grid-cols-3 gap-6 text-center">
             {[
@@ -66,7 +66,7 @@ export default function PublicHome() {
       </section>
 
       {/* Featured services */}
-      <section className="border-b border-border px-6 lg:px-[72px]">
+      <section className="border-b border-border px-4 md:px-6 lg:px-[72px]">
         <div className="py-12 lg:py-16 max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6 lg:mb-8">
             <h2 className="text-2xl lg:text-[32px] font-semibold">Featured Services</h2>
@@ -106,7 +106,7 @@ export default function PublicHome() {
       </section>
 
       {/* How it works */}
-      <section className="border-b border-border bg-secondary px-6 lg:px-[72px]">
+      <section className="border-b border-border bg-secondary px-4 md:px-6 lg:px-[72px]">
         <div className="py-12 lg:py-16 max-w-7xl mx-auto">
           <h2 className="text-2xl lg:text-[32px] font-semibold mb-10 lg:mb-12 text-center">How It Works</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 lg:gap-12">
@@ -128,7 +128,7 @@ export default function PublicHome() {
       </section>
 
       {/* Testimonials */}
-      <section className="border-b border-border px-6 lg:px-[72px]">
+      <section className="border-b border-border px-4 md:px-6 lg:px-[72px]">
         <div className="py-12 lg:py-16 max-w-7xl mx-auto">
           <h2 className="text-2xl lg:text-[32px] font-semibold mb-10 lg:mb-12 text-center">What Customers Say</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
@@ -147,7 +147,7 @@ export default function PublicHome() {
       </section>
 
       {/* CTA */}
-      <section className="px-6 lg:px-[72px]">
+      <section className="px-4 md:px-6 lg:px-[72px]">
         <div className="py-12 lg:py-16 max-w-7xl mx-auto text-center">
           <h2 className="text-2xl lg:text-[32px] font-semibold mb-3">Ready to get started?</h2>
           <p className="text-base text-muted mb-6 lg:mb-8">Join Access Terrain Network as a customer or provider</p>

@@ -20,12 +20,12 @@ export default function ListingDetail() {
   const listingReviews = reviews.filter(r => r.listingId === listing.id).slice(0, 3);
 
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTime, setSelectedTime] = useState('');
 
   function handleConfirmBooking() {
-    if (!selectedTime) {
-      toast.error('Please select a time slot');
+    if (!selectedDate || !selectedTime) {
+      toast.error('Please select both a date and time');
       return;
     }
     setShowBookingModal(false);
@@ -152,40 +152,75 @@ export default function ListingDetail() {
             <DialogTitle>Book {listing.title}</DialogTitle>
           </DialogHeader>
 
-          <Alert className="border-primary/20 bg-primary/5">
+          <Alert className="border-primary/20 bg-primary/5 mb-4">
             <Info size={15} className="text-foreground" />
             <AlertDescription>Your booking is held for 10 minutes. Complete payment to confirm.</AlertDescription>
           </Alert>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
+          <div className="grid grid-cols-1 sm:[grid-template-columns:3fr_2fr] gap-6 mb-6">
+            {/* Date picker */}
+            <div className="min-w-0">
               <h3 className="font-medium text-sm mb-3">Select date</h3>
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                className="rounded border border-border"
-                disabled={date => date < new Date()}
-              />
+              <div className="rounded-xl border border-border bg-background p-2">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  className="bg-background w-full"
+                  disabled={date => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const candidate = new Date(date);
+                    candidate.setHours(0, 0, 0, 0);
+                    return candidate < today;
+                  }}
+                />
+              </div>
             </div>
-            <div>
+
+            {/* Time picker */}
+            <div className="min-w-0">
               <h3 className="font-medium text-sm mb-3">Select time</h3>
-              <div className="grid grid-cols-2 gap-2">
-                {TIME_SLOTS.map(slot => (
-                  <Button
-                    key={slot}
-                    variant={selectedTime === slot ? 'default' : 'outline'}
-                    className={selectedTime === slot ? 'bg-primary text-primary-foreground' : 'border-border'}
-                    onClick={() => setSelectedTime(slot)}
-                  >
-                    {slot}
-                  </Button>
-                ))}
+              <div className="rounded-xl border border-border bg-background p-3">
+                <div className="grid grid-cols-2 gap-2">
+                  {TIME_SLOTS.map(slot => (
+                    <button
+                      key={slot}
+                      type="button"
+                      onClick={() => setSelectedTime(slot)}
+                      className={`h-14 rounded-lg border text-sm font-medium transition-colors ${
+                        selectedTime === slot
+                          ? 'bg-primary text-primary-foreground border-primary'
+                          : 'bg-background border-border text-foreground hover:bg-secondary'
+                      }`}
+                    >
+                      {slot}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
 
           <div className="border-t border-border pt-5">
+            <div className="flex items-center justify-between text-sm mb-4">
+              <div className="text-muted">
+                <span className="block text-xs uppercase tracking-wide mb-1">Selected slot</span>
+                {selectedDate && selectedTime ? (
+                  <span className="font-medium text-foreground">
+                    {selectedDate.toLocaleDateString('en-US', {
+                      weekday: 'short',
+                      month: 'short',
+                      day: 'numeric',
+                    })}{' '}
+                    at {selectedTime}
+                  </span>
+                ) : (
+                  <span className="text-xs text-muted">Choose a date and time to continue</span>
+                )}
+              </div>
+            </div>
+
             <div className="space-y-2 text-sm mb-5">
               <div className="flex justify-between">
                 <span>Service fee</span>
@@ -203,6 +238,7 @@ export default function ListingDetail() {
 
             <Button
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+              disabled={!selectedDate || !selectedTime}
               onClick={handleConfirmBooking}
             >
               Continue to payment

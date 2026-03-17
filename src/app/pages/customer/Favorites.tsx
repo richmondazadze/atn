@@ -40,7 +40,7 @@ export default function Favorites() {
   const favoriteListings = listings.filter(l => favoriteIds.includes(l.id));
 
   return (
-    <div className="min-h-screen bg-secondary px-4 lg:px-[72px]">
+    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-6 lg:mb-8">
           <h1 className="text-2xl lg:text-[32px] font-semibold">Favorites</h1>
@@ -77,7 +77,7 @@ export default function Favorites() {
                 <button
                   onClick={() => removeFavorite(listing.id)}
                   aria-label={`Remove ${listing.title} from favorites`}
-                  className="absolute top-3 right-3 p-1.5 rounded-full bg-white shadow hover:bg-destructive hover:text-white transition-colors opacity-0 group-hover:opacity-100"
+                  className="absolute top-3 right-3 p-2.5 rounded-full bg-white shadow hover:bg-destructive hover:text-white transition-colors md:opacity-0 md:group-hover:opacity-100"
                 >
                   <Heart size={14} className="fill-current" />
                 </button>

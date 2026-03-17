@@ -75,7 +75,7 @@ export default function MyBookings() {
   const cancelled = bookings.filter(b => b.status === 'cancelled');
 
   return (
-    <div className="min-h-screen bg-secondary px-4 lg:px-[72px]">
+    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-4xl mx-auto">
         <h1 className="text-2xl lg:text-[32px] font-semibold mb-6 lg:mb-8">My Bookings</h1>
 
