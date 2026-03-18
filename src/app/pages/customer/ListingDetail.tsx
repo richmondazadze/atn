@@ -193,9 +193,9 @@ export default function ListingDetail() {
               <div className="space-y-2 text-sm text-muted mb-5">
                 <div className="flex items-center gap-2">
                   <Clock size={14} />
-                  <span>{listing.duration} minutes</span>
+                  <span>{listing.duration >= 60 ? `${Math.floor(listing.duration / 60)} hours` : `${listing.duration} minutes`}</span>
                 </div>
-                {listing.next_available && (
+                {listing.next_available && !isNaN(new Date(listing.next_available).getTime()) && (
                   <div className="flex items-center gap-2">
                     <CalendarIcon size={14} />
                     <span>Next: {new Date(listing.next_available).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</span>

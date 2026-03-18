@@ -35,18 +35,22 @@ export function ListingCard({
   isFavorite,
   onToggleFavorite,
 }: ListingCardProps) {
-  const formattedDate = nextAvailable
+  const numPrice = typeof price === 'number' ? price : parseFloat(String(price).replace(/[^0-9.]/g, '')) || 0;
+  const hasValidNext = nextAvailable && !isNaN(new Date(nextAvailable).getTime());
+  const formattedDate = hasValidNext
     ? new Date(nextAvailable).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-    : '—';
+    : null;
+  const numDuration = Number(duration) || 0;
+  const durationLabel = numDuration >= 60 ? `${Math.floor(numDuration / 60)}h` : `${numDuration}m`;
 
   return (
-    <div className="relative group/card">
+    <div className="relative group/card h-full flex flex-col">
       <Link
         to={`${linkPrefix}/listing/${id}`}
-        className="block bg-background border border-border rounded-lg hover:border-primary transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        className="flex flex-col flex-1 min-h-0 bg-background border border-border rounded-lg hover:border-primary transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         aria-label={`${title} by ${providerName}, $${price}`}
       >
-        <div className="aspect-[16/10] rounded-t-lg overflow-hidden bg-gradient-to-br from-primary/20 to-primary/10 relative">
+        <div className="aspect-[16/10] rounded-t-lg overflow-hidden bg-gradient-to-br from-primary/20 to-primary/10 relative shrink-0">
           {image && (
             <img src={image} alt={title} className="w-full h-full object-cover" loading="lazy" />
           )}
@@ -62,10 +66,10 @@ export function ListingCard({
           )}
         </div>
 
-      <div className="p-4">
+      <div className="p-4 flex flex-col flex-1 min-h-0">
         <div className="flex items-start justify-between mb-2 gap-2">
-          <div className="min-w-0">
-            <h3 className="font-medium group-hover:text-primary transition-colors truncate" title={title}>{title}</h3>
+          <div className="min-w-0 flex-1">
+            <h3 className="font-medium group-hover:text-primary transition-colors line-clamp-2" title={title}>{title}</h3>
             <p className="text-sm text-muted mt-0.5 truncate">{providerName}</p>
           </div>
           {featured && (
@@ -73,22 +77,26 @@ export function ListingCard({
           )}
         </div>
 
-        <div className="mb-3">
+        <div className="mb-3 shrink-0">
           <RatingStars rating={rating} reviewCount={reviewCount} size={13} />
         </div>
 
-        <div className="space-y-1.5 text-sm text-muted">
+        <div className="space-y-1.5 text-sm text-muted min-h-[3rem] shrink-0 mt-auto">
           <div className="flex items-center gap-2">
-            <DollarSign size={14} />
-            <span>${price}</span>
+            <span className="text-muted">$</span>
+            <span>{numPrice}</span>
             <span aria-hidden="true">·</span>
             <Clock size={14} />
-            <span>{duration}m</span>
+            <span>{durationLabel}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Calendar size={14} />
-            <span className="text-xs">Next: {formattedDate}</span>
-          </div>
+          {hasValidNext && formattedDate ? (
+            <div className="flex items-center gap-2">
+              <Calendar size={14} />
+              <span className="text-xs">Next: {formattedDate}</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 h-5" aria-hidden="true" />
+          )}
         </div>
       </div>
     </Link>

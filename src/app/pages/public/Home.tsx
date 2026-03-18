@@ -119,8 +119,8 @@ export default function PublicHome() {
                   <p className="text-sm text-muted mt-1 mb-3">{listing.provider_name}</p>
                   <RatingStars rating={listing.rating} reviewCount={listing.review_count} />
                   <div className="flex items-center justify-between text-sm mt-3 mb-4">
-                    <span className="font-medium">${listing.price}</span>
-                    <span className="text-muted">{listing.duration}m</span>
+                    <span className="font-medium">${typeof listing.price === 'number' ? listing.price : parseFloat(String(listing.price).replace(/[^0-9.]/g, '')) || 0}</span>
+                    <span className="text-muted">{listing.duration >= 60 ? `${Math.floor(listing.duration / 60)}h` : `${listing.duration}m`}</span>
                   </div>
                   <Link to="/login">
                     <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-sm">

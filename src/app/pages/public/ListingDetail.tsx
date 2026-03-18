@@ -2,7 +2,7 @@ import { Link, useParams } from 'react-router';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
-import { Clock, DollarSign, MapPin, CheckCircle2, Calendar } from 'lucide-react';
+import { Clock, MapPin, CheckCircle2, Calendar } from 'lucide-react';
 import { getListingImageUrl } from '../../../lib/storage';
 import { RatingStars } from '../../components/RatingStars';
 import { useListing } from '../../../hooks/useListings';
@@ -63,11 +63,11 @@ export default function ListingDetailPublic() {
                   <span>Jonesboro, AR</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-muted">
-                  <DollarSign size={14} />
-                  <span>${listing.price}</span>
+                  <span>$</span>
+                  <span>{typeof listing.price === 'number' ? listing.price : parseFloat(String(listing.price).replace(/[^0-9.]/g, '')) || 0}</span>
                   <span aria-hidden="true">•</span>
                   <Clock size={14} />
-                  <span>{listing.duration}m</span>
+                  <span>{listing.duration >= 60 ? `${Math.floor(listing.duration / 60)} hours` : `${listing.duration} minutes`}</span>
                 </div>
               </div>
             </div>
@@ -130,9 +130,9 @@ export default function ListingDetailPublic() {
               <div className="space-y-2 text-sm text-muted mb-5">
                 <div className="flex items-center gap-2">
                   <Clock size={14} />
-                  <span>{listing.duration} minutes</span>
+                  <span>{listing.duration >= 60 ? `${Math.floor(listing.duration / 60)} hours` : `${listing.duration} minutes`}</span>
                 </div>
-                {listing.next_available && (
+                {listing.next_available && !isNaN(new Date(listing.next_available).getTime()) && (
                   <div className="flex items-center gap-2">
                     <Calendar size={14} />
                     <span>Next: {new Date(listing.next_available).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</span>

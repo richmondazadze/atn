@@ -76,10 +76,12 @@ export default function ProviderProfile() {
                   <p className="text-sm text-muted mb-4 line-clamp-2">{listing.description}</p>
                   <div className="flex items-center justify-between text-sm mb-4">
                     <span className="font-medium flex items-center gap-1">
-                      <DollarSign size={13} />{listing.price}
+                      <span>$</span>
+                      <span>{typeof listing.price === 'number' ? listing.price : parseFloat(String(listing.price).replace(/[^0-9.]/g, '')) || 0}</span>
                     </span>
                     <span className="text-muted flex items-center gap-1">
-                      <Clock size={13} />{listing.duration}m
+                      <Clock size={13} />
+                      <span>{listing.duration >= 60 ? `${Math.floor(listing.duration / 60)}h` : `${listing.duration}m`}</span>
                     </span>
                   </div>
                   <Link to="/login">
