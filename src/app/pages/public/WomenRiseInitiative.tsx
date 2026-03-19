@@ -67,7 +67,7 @@ export default function WomenRiseInitiative() {
               <div className="space-y-4 lg:space-y-6">
               <div className="rounded-2xl overflow-hidden border border-border/70 bg-white shadow-sm">
                 <img
-                  src="/asu.webp"
+                  src="/women_emp.jpg"
                   alt="ATN x Arkansas State University"
                   className="w-full h-[340px] lg:h-[480px] object-cover"
                   loading="lazy"
