@@ -33,7 +33,7 @@ export default function WifiHubsPublicPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-6">
           {/* List */}
           <div className="lg:col-span-1">
-            <Card className="border-border p-4 lg:p-5">
+            <Card className="border-border p-4 lg:p-5 h-[480px] lg:h-[640px] flex flex-col">
               <div className="flex items-center justify-between mb-3">
                 <div className="text-sm font-medium">Locations</div>
                 <div className="text-xs text-muted">{hubs.length} hub{hubs.length === 1 ? '' : 's'}</div>
@@ -42,7 +42,7 @@ export default function WifiHubsPublicPage() {
               {hubs.length === 0 ? (
                 <div className="text-sm text-muted py-8 text-center">No hubs available yet.</div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-2 overflow-y-auto pr-1 flex-1 min-h-0">
                   {hubs.map(h => {
                     const active = h.id === selectedId;
                     return (
@@ -71,7 +71,7 @@ export default function WifiHubsPublicPage() {
               )}
 
               {selected && (
-                <div className="mt-4 pt-4 border-t border-border">
+                <div className="mt-4 pt-4 border-t border-border shrink-0">
                   <div className="text-sm font-medium mb-2">Selected hub</div>
                   <div className="text-xs text-muted">{selected.address}</div>
                   {selected.network_name && <div className="text-xs text-muted mt-1">Network: {selected.network_name}</div>}
