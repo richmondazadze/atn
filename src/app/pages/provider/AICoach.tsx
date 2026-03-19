@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { useRef, useState, useEffect } from 'react';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
@@ -66,7 +67,8 @@ export default function AICoach() {
   }, [messages]);
 
   async function fetchAIResponse(userMessage: string): Promise<string> {
-    const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
+    const apiKey = (import.meta as unknown as { env: { VITE_OPENROUTER_API_KEY?: string } })
+      .env.VITE_OPENROUTER_API_KEY;
     if (!apiKey) {
       return 'AI Coach is not configured. Add VITE_OPENROUTER_API_KEY to your environment. Get a key at openrouter.ai';
     }
@@ -80,27 +82,82 @@ export default function AICoach() {
       { role: 'user' as const, content: userMessage },
     ];
 
-    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'z-ai/glm-4.5-air:free',
-        messages: apiMessages,
-        max_tokens: 1024,
-      }),
-    });
+    // Pick smaller models first to reduce the chance of upstream 429s.
+    // These are OpenRouter "free" models that were eligible for this API key
+    // via `GET /models/user`.
+    const modelCandidates = [
+      'meta-llama/llama-3.2-3b-instruct:free',
+      'google/gemma-3-4b-it:free',
+      'arcee-ai/trinity-mini:free',
+      'nvidia/nemotron-nano-9b-v2:free',
+    ];
 
-    if (!res.ok) {
-      const err = await res.text();
-      throw new Error(err || `API error: ${res.status}`);
+    async function callModel(model: string): Promise<string> {
+      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model,
+          messages: apiMessages,
+          max_tokens: 1024,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.text();
+        throw new Error(err || `API error: ${res.status}`);
+      }
+
+      const data = await res.json();
+      const text = data.choices?.[0]?.message?.content;
+      return text?.trim() || 'Sorry, I could not generate a response. Please try again.';
     }
 
-    const data = await res.json();
-    const text = data.choices?.[0]?.message?.content;
-    return text?.trim() || 'Sorry, I could not generate a response. Please try again.';
+    async function getEligibleModelIds(): Promise<Set<string> | null> {
+      try {
+        const res = await fetch('https://openrouter.ai/api/v1/models/user', {
+          method: 'GET',
+          headers: { Authorization: `Bearer ${apiKey}` },
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        const ids: string[] = (data?.data ?? []).map((m: unknown) => String((m as { id?: unknown }).id ?? ''));
+        return new Set(ids.filter(Boolean));
+      } catch {
+        return null;
+      }
+    }
+
+    try {
+      const eligibleModelIds = await getEligibleModelIds();
+      const orderedModels = eligibleModelIds
+        ? modelCandidates.filter((m) => eligibleModelIds.has(m))
+        : modelCandidates;
+
+      if (orderedModels.length === 0) {
+        throw new Error(
+          'No eligible OpenRouter endpoints found for the selected models due to guardrail/privacy settings. Configure: https://openrouter.ai/settings/privacy'
+        );
+      }
+
+      let lastErr: unknown;
+      for (const model of orderedModels.slice(0, 3)) {
+        try {
+          return await callModel(model);
+        } catch (e) {
+          lastErr = e;
+        }
+      }
+      const msg = lastErr instanceof Error ? lastErr.message : 'Failed to get AI response';
+      throw new Error(msg);
+    } catch (err) {
+      // If both models fail, surface the real OpenRouter message.
+      const msg = err instanceof Error ? err.message : 'Failed to get AI response';
+      throw new Error(msg);
+    }
   }
 
   async function handleSend() {
