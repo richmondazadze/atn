@@ -55,6 +55,8 @@ export default function AICoach() {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const assistantIndexRef = useRef<number | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     const welcomeContent = WELCOME_MESSAGES[selectedTool];
@@ -67,7 +69,11 @@ export default function AICoach() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  async function fetchAIResponse(userMessage: string): Promise<string> {
+  async function fetchAIResponse(
+    userMessage: string,
+    onToken: (token: string) => void,
+    signal: AbortSignal
+  ): Promise<string> {
     const apiKey = (import.meta as unknown as { env: { VITE_OPENROUTER_API_KEY?: string } })
       .env.VITE_OPENROUTER_API_KEY;
     if (!apiKey) {
@@ -93,7 +99,7 @@ export default function AICoach() {
       'nvidia/nemotron-nano-9b-v2:free',
     ];
 
-    async function callModel(model: string): Promise<string> {
+    async function callModelNonStream(model: string): Promise<string> {
       const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -105,6 +111,7 @@ export default function AICoach() {
           messages: apiMessages,
           max_tokens: 1024,
         }),
+        signal,
       });
 
       if (!res.ok) {
@@ -115,6 +122,79 @@ export default function AICoach() {
       const data = await res.json();
       const text = data.choices?.[0]?.message?.content;
       return text?.trim() || 'Sorry, I could not generate a response. Please try again.';
+    }
+
+    async function callModelStream(model: string): Promise<string> {
+      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model,
+          messages: apiMessages,
+          max_tokens: 1024,
+          stream: true,
+        }),
+        signal,
+      });
+
+      if (!res.ok) {
+        const err = await res.text();
+        throw new Error(err || `API error: ${res.status}`);
+      }
+
+      if (!res.body) throw new Error('OpenRouter stream had no response body.');
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+
+      let full = '';
+      let buffer = '';
+
+      // OpenRouter returns SSE. We parse `data:` lines and append `delta.content`.
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        buffer = buffer.replace(/\r/g, '');
+
+        let sepIndex: number;
+        while ((sepIndex = buffer.indexOf('\n\n')) !== -1) {
+          const chunk = buffer.slice(0, sepIndex);
+          buffer = buffer.slice(sepIndex + 2);
+
+          const lines = chunk.split('\n');
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith('data:')) continue;
+
+            const dataStr = trimmed.slice('data:'.length).trim();
+            if (!dataStr || dataStr === '[DONE]') {
+              if (dataStr === '[DONE]') return full;
+              continue;
+            }
+
+            try {
+              const parsed = JSON.parse(dataStr) as unknown;
+              const delta =
+                (parsed as any)?.choices?.[0]?.delta?.content ??
+                (parsed as any)?.choices?.[0]?.message?.content ??
+                (parsed as any)?.choices?.[0]?.text;
+
+              if (typeof delta === 'string' && delta.length > 0) {
+                full += delta;
+                onToken(delta);
+              }
+            } catch {
+              // Ignore malformed JSON chunks.
+            }
+          }
+        }
+      }
+
+      return full.trim();
     }
 
     async function getEligibleModelIds(): Promise<Set<string> | null> {
@@ -147,9 +227,16 @@ export default function AICoach() {
       let lastErr: unknown;
       for (const model of orderedModels.slice(0, 3)) {
         try {
-          return await callModel(model);
+          return await callModelStream(model);
         } catch (e) {
           lastErr = e;
+          try {
+            const full = await callModelNonStream(model);
+            onToken(full);
+            return full;
+          } catch (fallbackErr) {
+            lastErr = fallbackErr;
+          }
         }
       }
       const msg = lastErr instanceof Error ? lastErr.message : 'Failed to get AI response';
@@ -162,29 +249,62 @@ export default function AICoach() {
   }
 
   async function handleSend() {
+    if (isTyping) return;
     if (!input.trim()) return;
 
     const userMessage = input.trim();
-    setMessages(prev => [
-      ...prev,
-      { role: 'user', content: userMessage, timestamp: new Date() },
-    ]);
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    assistantIndexRef.current = null;
+
+    // Append the user message + an empty assistant message placeholder,
+    // then stream into the placeholder.
+    setMessages(prev => {
+      const next: Message[] = [
+        ...prev,
+        { role: 'user' as const, content: userMessage, timestamp: new Date() },
+        { role: 'assistant' as const, content: '', timestamp: new Date() },
+      ];
+      assistantIndexRef.current = next.length - 1;
+      return next;
+    });
     setInput('');
     setIsTyping(true);
 
     try {
-      const response = await fetchAIResponse(userMessage);
-      setMessages(prev => [
-        ...prev,
-        { role: 'assistant', content: response, timestamp: new Date() },
-      ]);
+      await fetchAIResponse(
+        userMessage,
+        (token) => {
+          setMessages(prev => {
+            const idx = assistantIndexRef.current;
+            if (idx == null) return prev;
+            const target = prev[idx];
+            if (!target || target.role !== 'assistant') return prev;
+
+            const next = prev.slice();
+            next[idx] = { ...target, content: target.content + token };
+            return next;
+          });
+        },
+        controller.signal
+      );
     } catch (err) {
-      setMessages(prev => [
-        ...prev,
-        { role: 'assistant', content: `Error: ${err instanceof Error ? err.message : 'Failed to get AI response'}. Please check your API key and try again.`, timestamp: new Date() },
-      ]);
+      const errorText = `Error: ${err instanceof Error ? err.message : 'Failed to get AI response'}. Please check your API key and try again.`;
+      setMessages(prev => {
+        const idx = assistantIndexRef.current;
+        if (idx == null) return prev;
+        const target = prev[idx];
+        if (!target || target.role !== 'assistant') return prev;
+
+        const next = prev.slice();
+        next[idx] = { ...target, content: errorText };
+        return next;
+      });
     } finally {
       setIsTyping(false);
+      abortControllerRef.current = null;
+      assistantIndexRef.current = null;
     }
   }
 
