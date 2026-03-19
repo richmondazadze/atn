@@ -11,8 +11,9 @@ export default function WomenRiseInitiative() {
       <div className="py-10 lg:py-14 max-w-7xl mx-auto space-y-28 lg:space-y-32">
         {/* Hero */}
         <section className="pt-2">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-start">
-            <div className="space-y-6">
+          <div className="space-y-6 lg:space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-start">
+              <div className="space-y-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border/70 bg-background text-sm text-muted">
                 <Sparkles size={14} />
                 ATN x Arkansas State University
@@ -60,31 +61,10 @@ export default function WomenRiseInitiative() {
                   <a href="/browse">Explore services</a>
                 </Button>
               </div>
-
-              {/* Workshop + Mentorship tiles (no longer inside the right image column) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full pt-1">
-                <div className="rounded-2xl border border-border/70 bg-background p-4 w-full">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="text-xs text-muted">Workshop space</div>
-                    <Badge variant="secondary">On-campus</Badge>
-                  </div>
-                  <div className="mt-3 aspect-[4/3] w-full rounded-xl bg-secondary" />
-                  <div className="text-xs text-muted mt-3">Image placeholder</div>
-                </div>
-
-                <div className="rounded-2xl border border-border/70 bg-background p-4 w-full">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="text-xs text-muted">Mentorship moment</div>
-                    <Badge variant="secondary">Cohort-based</Badge>
-                  </div>
-                  <div className="mt-3 aspect-[4/3] w-full rounded-xl bg-secondary" />
-                  <div className="text-xs text-muted mt-3">Image placeholder</div>
-                </div>
-              </div>
             </div>
 
             {/* Image placeholders */}
-            <div className="space-y-4 lg:space-y-6">
+              <div className="space-y-4 lg:space-y-6">
               <div className="rounded-2xl overflow-hidden border border-border/70 bg-white shadow-sm">
                 <img
                   src="https://placehold.co/1200x760/png?text=Women+Empowerment+%E2%80%A2+ASU+%E2%80%A2+ATN"
@@ -92,6 +72,28 @@ export default function WomenRiseInitiative() {
                   className="w-full h-[340px] lg:h-[480px] object-cover"
                   loading="lazy"
                 />
+              </div>
+            </div>
+          </div>
+
+            {/* Workshop + Mentorship tiles (span full width under the full hero row) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+              <div className="rounded-2xl border border-border/70 bg-background p-5 w-full">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-xs text-muted">Workshop space</div>
+                  <Badge variant="secondary">On-campus</Badge>
+                </div>
+                <div className="mt-4 aspect-[8/5] w-full rounded-xl bg-secondary" />
+                <div className="text-xs text-muted mt-3">Image placeholder</div>
+              </div>
+
+              <div className="rounded-2xl border border-border/70 bg-background p-5 w-full">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-xs text-muted">Mentorship moment</div>
+                  <Badge variant="secondary">Cohort-based</Badge>
+                </div>
+                <div className="mt-4 aspect-[8/5] w-full rounded-xl bg-secondary" />
+                <div className="text-xs text-muted mt-3">Image placeholder</div>
               </div>
             </div>
           </div>
