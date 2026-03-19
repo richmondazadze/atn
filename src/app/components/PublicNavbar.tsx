@@ -7,6 +7,7 @@ const NAV_LINKS = [
   { label: 'Home', path: '/', exact: true },
   { label: 'Browse', path: '/browse' },
   { label: 'How It Works', path: '/how-it-works' },
+  { label: 'Women Rise Initiative', path: '/women-rise-initiative' },
 ];
 
 export function PublicNavbar() {

@@ -11,6 +11,7 @@ import ResetPassword from "./pages/auth/ResetPassword";
 import Privacy from "./pages/public/Privacy";
 import Terms from "./pages/public/Terms";
 import HowItWorks from "./pages/public/HowItWorks";
+import WomenRiseInitiative from "./pages/public/WomenRiseInitiative";
 
 // Customer pages
 import CustomerHome from "./pages/customer/Home";
@@ -76,6 +77,7 @@ export const router = createBrowserRouter([
       { path: "listing/:id", element: <ListingDetailPublic /> },
       { path: "provider/:id", element: <ProviderProfile /> },
       { path: "how-it-works", element: <HowItWorks /> },
+      { path: "women-rise-initiative", element: <WomenRiseInitiative /> },
       { path: "privacy", element: <Privacy /> },
       { path: "terms", element: <Terms /> },
     ],
