@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { label: 'Browse', path: '/browse' },
   { label: 'How It Works', path: '/how-it-works' },
   { label: 'Women Rise Initiative', path: '/women-rise-initiative' },
+  { label: 'WiFi Hubs', path: '/wifi-hubs' },
 ];
 
 export function PublicNavbar() {

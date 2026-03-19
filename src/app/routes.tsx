@@ -12,6 +12,7 @@ import Privacy from "./pages/public/Privacy";
 import Terms from "./pages/public/Terms";
 import HowItWorks from "./pages/public/HowItWorks";
 import WomenRiseInitiative from "./pages/public/WomenRiseInitiative";
+import WifiHubsPublicPage from "./pages/public/WifiHubs";
 
 // Customer pages
 import CustomerHome from "./pages/customer/Home";
@@ -21,6 +22,7 @@ import MyBookings from "./pages/customer/MyBookings";
 import Favorites from "./pages/customer/Favorites";
 import CustomerHelp from "./pages/customer/Help";
 import CustomerSettings from "./pages/customer/Settings";
+import WifiHubsCustomerPage from "./pages/customer/WifiHubs";
 
 // Provider pages
 import ProviderDashboard from "./pages/provider/Dashboard";
@@ -36,6 +38,7 @@ import Payouts from "./pages/provider/Payouts";
 import ProviderSettings from "./pages/provider/Settings";
 import ProviderOnboarding from "./pages/provider/Onboarding";
 import ProviderHelp from "./pages/provider/Help";
+import WifiHubsProviderPage from "./pages/provider/WifiHubs";
 
 // Admin pages
 import AdminOverview from "./pages/admin/Overview";
@@ -47,6 +50,7 @@ import CategoriesManager from "./pages/admin/Categories";
 import ResourcesCMS from "./pages/admin/Resources";
 import Analytics from "./pages/admin/Analytics";
 import AdminSettings from "./pages/admin/Settings";
+import WifiHubsAdmin from "./pages/admin/WifiHubs";
 
 // Design System pages
 import Foundations from "./pages/design/Foundations";
@@ -78,6 +82,7 @@ export const router = createBrowserRouter([
       { path: "provider/:id", element: <ProviderProfile /> },
       { path: "how-it-works", element: <HowItWorks /> },
       { path: "women-rise-initiative", element: <WomenRiseInitiative /> },
+      { path: "wifi-hubs", element: <WifiHubsPublicPage /> },
       { path: "privacy", element: <Privacy /> },
       { path: "terms", element: <Terms /> },
     ],
@@ -98,6 +103,7 @@ export const router = createBrowserRouter([
       { path: "listing/:id", element: <ListingDetail /> },
       { path: "bookings", element: <MyBookings /> },
       { path: "favorites", element: <Favorites /> },
+      { path: "wifi-hubs", element: <WifiHubsCustomerPage /> },
       { path: "help", element: <CustomerHelp /> },
       { path: "settings", element: <CustomerSettings /> },
     ],
@@ -116,6 +122,7 @@ export const router = createBrowserRouter([
       { path: "listings/:id/edit", element: <EditListing /> },
       { path: "availability", element: <Availability /> },
       { path: "bookings", element: <BookingInbox /> },
+      { path: "wifi-hubs", element: <WifiHubsProviderPage /> },
       { path: "reviews", element: <ReviewsReceived /> },
       { path: "ai-coach", element: <AICoach /> },
       { path: "payouts", element: <Payouts /> },
@@ -136,6 +143,7 @@ export const router = createBrowserRouter([
       { path: "featured", element: <FeaturedManager /> },
       { path: "categories", element: <CategoriesManager /> },
       { path: "resources", element: <ResourcesCMS /> },
+      { path: "wifi-hubs", element: <WifiHubsAdmin /> },
       { path: "analytics", element: <Analytics /> },
       { path: "settings", element: <AdminSettings /> },
     ],

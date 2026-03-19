@@ -1,9 +1,10 @@
+import * as React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Separator } from '../../components/ui/separator';
-import { ArrowRight, CalendarDays, GraduationCap, ShieldCheck, Sparkles, Users } from 'lucide-react';
+import { ArrowRight, CalendarDays, GraduationCap, ShieldCheck, Users } from 'lucide-react';
 
 export default function WomenRiseInitiative() {
   return (
@@ -14,8 +15,7 @@ export default function WomenRiseInitiative() {
           <div className="space-y-6 lg:space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-start">
               <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border/70 bg-background text-sm text-muted">
-                <Sparkles size={14} />
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none border border-border/70 bg-background text-sm text-muted text-bold">
                 ATN x Arkansas State University
               </div>
 
@@ -67,8 +67,8 @@ export default function WomenRiseInitiative() {
               <div className="space-y-4 lg:space-y-6">
               <div className="rounded-2xl overflow-hidden border border-border/70 bg-white shadow-sm">
                 <img
-                  src="https://placehold.co/1200x760/png?text=Women+Empowerment+%E2%80%A2+ASU+%E2%80%A2+ATN"
-                  alt="Women empowerment placeholder"
+                  src="/asu.webp"
+                  alt="ATN x Arkansas State University"
                   className="w-full h-[340px] lg:h-[480px] object-cover"
                   loading="lazy"
                 />
@@ -81,19 +81,29 @@ export default function WomenRiseInitiative() {
               <div className="rounded-2xl border border-border/70 bg-background p-5 w-full">
                 <div className="flex items-center justify-between gap-3">
                   <div className="text-xs text-muted">Workshop space</div>
-                  <Badge variant="secondary">On-campus</Badge>
                 </div>
-                <div className="mt-4 aspect-[8/5] w-full rounded-xl bg-secondary" />
-                <div className="text-xs text-muted mt-3">Image placeholder</div>
+                <div className="mt-4 aspect-[8/5] w-full rounded-xl overflow-hidden border border-border/70 bg-secondary">
+                  <img
+                    src="/space.jpg"
+                    alt="Workshop space"
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
               </div>
 
               <div className="rounded-2xl border border-border/70 bg-background p-5 w-full">
                 <div className="flex items-center justify-between gap-3">
                   <div className="text-xs text-muted">Mentorship moment</div>
-                  <Badge variant="secondary">Cohort-based</Badge>
                 </div>
-                <div className="mt-4 aspect-[8/5] w-full rounded-xl bg-secondary" />
-                <div className="text-xs text-muted mt-3">Image placeholder</div>
+                <div className="mt-4 aspect-[8/5] w-full rounded-xl overflow-hidden border border-border/70 bg-secondary">
+                  <img
+                    src="/speech.jpg"
+                    alt="Mentorship moment"
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -280,35 +290,7 @@ export default function WomenRiseInitiative() {
           </Tabs>
         </section>
 
-        {/* Empowerment gallery + CTA */}
         <section className="space-y-10">
-          <div className="flex items-end justify-between gap-6 flex-wrap">
-            <div className="space-y-2">
-              <h2 className="text-2xl lg:text-[28px] font-semibold">Women empowerment, community by community</h2>
-              <p className="text-sm lg:text-base text-muted leading-relaxed">
-                These placeholders represent real stories: participants learning together, building confidence, and
-                strengthening local women-led businesses.
-              </p>
-            </div>
-            <Badge variant="secondary">Women Rise</Badge>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-            {[
-              { label: 'Empowerment workshop', src: 'https://placehold.co/900x900/png?text=Empowerment+Workshop' },
-              { label: 'Mentorship + coaching', src: 'https://placehold.co/900x900/png?text=Mentorship+%2B+Coaching' },
-              { label: 'Women-led community', src: 'https://placehold.co/900x900/png?text=Women-led+Community' },
-            ].map(item => (
-              <div key={item.label} className="rounded-2xl overflow-hidden border border-border/70 bg-background">
-                <img src={item.src} alt={item.label} className="w-full h-56 object-cover" loading="lazy" />
-                <div className="p-4">
-                  <div className="text-sm font-medium">{item.label}</div>
-                  <div className="text-xs text-muted mt-1">Image placeholder</div>
-                </div>
-              </div>
-            ))}
-          </div>
-
           <Card className="border-border/70 bg-secondary/20 p-6 lg:p-8 rounded-2xl">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
               <div className="lg:col-span-2 space-y-3">

@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router';
 import {
   Home, Search, Compass, FileText, LogIn, UserPlus, Calendar, Heart,
   Settings, LayoutDashboard, List, Clock, Star, Bot, DollarSign,
-  BarChart3, Flag, Folder, BookOpen, Users, Menu, X, LogOut,
+  BarChart3, Flag, Folder, BookOpen, Users, Menu, X, LogOut, Wifi,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router';
@@ -22,6 +22,7 @@ const navItems: Record<NavType, NavItem[]> = {
     { label: 'Home', path: '/', icon: <Home size={20} />, exact: true },
     { label: 'Browse', path: '/browse', icon: <Compass size={20} /> },
     { label: 'How It Works', path: '/how-it-works', icon: <FileText size={20} /> },
+    { label: 'WiFi Hubs', path: '/wifi-hubs', icon: <Wifi size={20} /> },
     { label: 'Log In', path: '/login', icon: <LogIn size={20} /> },
     { label: 'Sign Up', path: '/signup', icon: <UserPlus size={20} /> },
   ],
@@ -30,6 +31,7 @@ const navItems: Record<NavType, NavItem[]> = {
     { label: 'Search', path: '/customer/search', icon: <Search size={20} /> },
     { label: 'Bookings', path: '/customer/bookings', icon: <Calendar size={20} /> },
     { label: 'Favorites', path: '/customer/favorites', icon: <Heart size={20} /> },
+    { label: 'WiFi Hubs', path: '/customer/wifi-hubs', icon: <Wifi size={20} /> },
     { label: 'Help', path: '/customer/help', icon: <BookOpen size={20} /> },
     { label: 'Settings', path: '/customer/settings', icon: <Settings size={20} /> },
   ],
@@ -38,6 +40,7 @@ const navItems: Record<NavType, NavItem[]> = {
     { label: 'Listings', path: '/provider/listings', icon: <List size={20} /> },
     { label: 'Availability', path: '/provider/availability', icon: <Clock size={20} /> },
     { label: 'Bookings', path: '/provider/bookings', icon: <Calendar size={20} /> },
+    { label: 'WiFi Hubs', path: '/provider/wifi-hubs', icon: <Wifi size={20} /> },
     { label: 'Reviews', path: '/provider/reviews', icon: <Star size={20} /> },
     { label: 'AI Coach', path: '/provider/ai-coach', icon: <Bot size={20} /> },
     { label: 'Payouts', path: '/provider/payouts', icon: <DollarSign size={20} /> },
@@ -52,6 +55,7 @@ const navItems: Record<NavType, NavItem[]> = {
     { label: 'Featured', path: '/admin/featured', icon: <Star size={20} /> },
     { label: 'Categories', path: '/admin/categories', icon: <Folder size={20} /> },
     { label: 'Resources', path: '/admin/resources', icon: <BookOpen size={20} /> },
+    { label: 'WiFi Hubs', path: '/admin/wifi-hubs', icon: <Wifi size={20} /> },
     { label: 'Analytics', path: '/admin/analytics', icon: <BarChart3 size={20} /> },
     { label: 'Settings', path: '/admin/settings', icon: <Settings size={20} /> },
   ],
