@@ -15,8 +15,20 @@ export default function WomenRiseInitiative() {
           <div className="space-y-6 lg:space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-start">
               <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none border border-border/70 bg-background text-sm text-muted text-bold">
-                ATN x Arkansas State University
+              <div className="inline-flex items-center justify-center gap-3 px-4 py-1 rounded-none border border-border/70 bg-background text-sm text-muted text-bold mx-auto w-fit">
+                <img
+                  src="/atn_logo_no_bg.png"
+                  alt="ATN"
+                  className="h-11 w-auto"
+                  loading="lazy"
+                />
+                <span className="leading-none">x</span>
+                <img
+                  src="/asu_logo-removebg-preview.png"
+                  alt="Arkansas State University"
+                  className="h-11 w-auto"
+                  loading="lazy"
+                />
               </div>
 
               <div className="space-y-3">
