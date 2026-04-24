@@ -12,6 +12,7 @@ import { useCategories } from '../../../hooks/useCategories';
 import { useListings } from '../../../hooks/useListings';
 import { supabase } from '../../../lib/supabase';
 import { toast } from 'sonner';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
 
 export default function CategoriesManager() {
   const { categories, loading: categoriesLoading, setCategories } = useCategories();
@@ -80,12 +81,12 @@ export default function CategoriesManager() {
 
   if (loading) return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <LoadingSpinner />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
+    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-5xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 lg:mb-8">
           <div>
@@ -138,7 +139,7 @@ export default function CategoriesManager() {
           ].map(s => (
             <Card key={s.label} className="border-border p-4">
               <p className="text-xs text-muted mb-1">{s.label}</p>
-              <p className={`text-2xl font-semibold ${s.color}`}>{s.value}</p>
+              <p className={`text-2xl font-semibold ${s.color} chewy-regular`}>{s.value}</p>
             </Card>
           ))}
         </div>
@@ -165,7 +166,7 @@ export default function CategoriesManager() {
                     </TableCell>
                     <TableCell>
                       <Badge className="bg-primary/10 text-primary border-0 text-xs">
-                        {category.listingCount} listings
+                        <span className="chewy-regular">{category.listingCount}</span> listings
                       </Badge>
                     </TableCell>
                     <TableCell>

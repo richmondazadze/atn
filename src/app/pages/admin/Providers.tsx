@@ -15,6 +15,7 @@ import { useProviders } from '../../../hooks/useProviders';
 import { useProviderStats } from '../../../hooks/useProviderStats';
 import { supabase } from '../../../lib/supabase';
 import { toast } from 'sonner';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
 
 export default function ProvidersTable() {
   const { providers, loading, setProviders } = useProviders();
@@ -77,12 +78,12 @@ export default function ProvidersTable() {
 
   if (loading) return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <LoadingSpinner />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
+    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-7xl mx-auto">
         <div className="mb-6 lg:mb-8">
           <h1 className="text-2xl lg:text-[32px] font-semibold mb-1">Provider Management</h1>
@@ -99,7 +100,7 @@ export default function ProvidersTable() {
           ].map(s => (
             <Card key={s.label} className="border-border p-4">
               <p className="text-xs text-muted mb-1">{s.label}</p>
-              <p className={`text-2xl font-semibold ${s.color}`}>{s.value}</p>
+              <p className={`text-2xl font-semibold ${s.color} chewy-regular`}>{s.value}</p>
             </Card>
           ))}
         </div>
@@ -206,17 +207,15 @@ export default function ProvidersTable() {
                         {provider.categories.slice(0, 1).map(cat => (
                           <Badge key={cat} variant="outline" className="text-xs border-border">{cat}</Badge>
                         ))}
-                        {provider.categories.length > 1 && (
-                          <Badge variant="outline" className="text-xs border-border">+{provider.categories.length - 1}</Badge>
-                        )}
+                          <Badge variant="outline" className="text-xs border-border">+<span className="chewy-regular">{provider.categories.length - 1}</span></Badge>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <span className="font-medium text-sm">{provider.rating}</span>
-                      <span className="text-xs text-muted ml-1">({provider.review_count})</span>
+                      <span className="font-medium text-sm chewy-regular">{provider.rating}</span>
+                      <span className="text-xs text-muted ml-1">(<span className="chewy-regular">{provider.review_count}</span>)</span>
                     </TableCell>
-                    <TableCell className="hidden sm:table-cell text-sm">{provider.completedBookings}</TableCell>
-                    <TableCell className="hidden sm:table-cell font-medium text-sm">${provider.totalEarnings.toLocaleString()}</TableCell>
+                    <TableCell className="hidden sm:table-cell text-sm chewy-regular">{provider.completedBookings}</TableCell>
+                    <TableCell className="hidden sm:table-cell font-medium text-sm chewy-regular">${provider.totalEarnings.toLocaleString()}</TableCell>
                     <TableCell className="hidden lg:table-cell text-sm text-muted">
                       {new Date(provider.joined_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </TableCell>

@@ -5,9 +5,10 @@ import { Label } from '../../components/ui/label';
 import { Textarea } from '../../components/ui/textarea';
 import { Switch } from '../../components/ui/switch';
 import { Separator } from '../../components/ui/separator';
-import { Settings as SettingsIcon, DollarSign, Shield, Bell } from 'lucide-react';
+import { Settings as SettingsIcon, DollarSign, Bell } from 'lucide-react';
 import { toast } from 'sonner';
 import { usePlatformSettings } from '../../../hooks/usePlatformSettings';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
 
 export default function AdminSettings() {
   const { settings, loading, saveSettings } = usePlatformSettings();
@@ -28,12 +29,12 @@ export default function AdminSettings() {
   if (loading)
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        <LoadingSpinner />
       </div>
     );
 
   return (
-    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
+    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-4xl mx-auto">
         <div className="mb-6 lg:mb-8">
           <h1 className="text-2xl lg:text-[32px] font-semibold mb-1">Platform Settings</h1>
@@ -94,7 +95,8 @@ export default function AdminSettings() {
         {/* Provider Requirements */}
         <Card className="border-border p-5 lg:p-8 mb-6">
           <div className="flex items-center gap-2 mb-5">
-            <Shield size={18} className="text-muted" />
+            {/* Security — Removed Shield icon */}
+            <div className="text-muted" />
             <h2 className="text-lg font-medium">Provider Requirements</h2>
           </div>
           <div className="space-y-5">

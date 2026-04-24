@@ -18,6 +18,7 @@ import { supabase } from '../../../lib/supabase';
 import { uploadListingImage } from '../../../lib/storage';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../../components/ui/alert-dialog';
 import { toast } from 'sonner';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
 
 const schema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters'),
@@ -105,13 +106,13 @@ export default function EditListing() {
 
   if (loading) return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <LoadingSpinner />
     </div>
   );
 
   if (!listing) {
     return (
-      <div className="min-h-screen bg-secondary flex items-center justify-center p-8">
+      <div className="min-h-screen bg-background flex items-center justify-center p-8">
         <div className="text-center">
           <AlertCircle size={48} className="mx-auto mb-4 text-muted" />
           <h1 className="text-xl font-semibold mb-2">Listing not found</h1>
@@ -148,7 +149,7 @@ export default function EditListing() {
   }
 
   return (
-    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
+    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-4xl mx-auto">
         <Link to="/provider/listings" className="inline-flex items-center gap-2 text-muted mb-5 hover:text-foreground text-sm">
           <ArrowLeft size={16} /> Back to listings
@@ -245,7 +246,7 @@ export default function EditListing() {
             {images.length > 0 && (
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
                 {images.map((url, i) => (
-                  <div key={i} className="relative group aspect-[4/3] rounded-lg overflow-hidden border border-border bg-secondary">
+                  <div key={i} className="relative group aspect-[4/3] rounded-lg overflow-hidden border border-border bg-background">
                     <img src={url} alt={`Listing photo ${i + 1}`} className="w-full h-full object-cover" />
                     <button
                       type="button"
@@ -271,7 +272,7 @@ export default function EditListing() {
             >
               {uploading ? (
                 <div className="flex items-center justify-center gap-2">
-                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  <LoadingSpinner />
                   <span className="text-sm text-muted">Uploading…</span>
                 </div>
               ) : (

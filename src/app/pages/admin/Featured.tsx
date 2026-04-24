@@ -8,6 +8,7 @@ import { Star, GripVertical, X, Plus } from 'lucide-react';
 import { useListings } from '../../../hooks/useListings';
 import { supabase } from '../../../lib/supabase';
 import { toast } from 'sonner';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
 
 export default function FeaturedManager() {
   const { listings, loading, setListings } = useListings();
@@ -29,7 +30,7 @@ export default function FeaturedManager() {
 
   if (loading) return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <LoadingSpinner />
     </div>
   );
 
@@ -37,7 +38,7 @@ export default function FeaturedManager() {
   const availableListings = listings.filter(l => !l.featured && l.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
-    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
+    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-7xl mx-auto">
         <div className="mb-6 lg:mb-8">
           <h1 className="text-2xl lg:text-[32px] font-semibold mb-1">Featured Listings</h1>

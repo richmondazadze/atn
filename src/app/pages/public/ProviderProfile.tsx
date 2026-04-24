@@ -6,6 +6,7 @@ import { RatingStars } from '../../components/RatingStars';
 import { useProvider } from '../../../hooks/useProviders';
 import { useListings } from '../../../hooks/useListings';
 import { useReviews } from '../../../hooks/useReviews';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
 
 export default function ProviderProfile() {
   const { id } = useParams<{ id: string }>();
@@ -17,7 +18,7 @@ export default function ProviderProfile() {
 
   if (loading) return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <LoadingSpinner />
     </div>
   );
 
@@ -31,7 +32,7 @@ export default function ProviderProfile() {
   const initials = provider.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
 
   return (
-    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
+    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start gap-5 mb-8 pb-8 border-b border-border">

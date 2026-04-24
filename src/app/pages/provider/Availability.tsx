@@ -10,6 +10,7 @@ import { Info, Save } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../../lib/supabase';
 import { toast } from 'sonner';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as const;
 const TIME_SLOTS = [
@@ -65,12 +66,12 @@ export default function Availability() {
 
   if (!loaded) return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <LoadingSpinner />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
+    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 lg:mb-8">
           <div>
@@ -180,7 +181,7 @@ export default function Availability() {
 
               {blockedDates.length > 0 && (
                 <div className="mt-5">
-                  <h3 className="font-medium text-sm mb-3">Blocked Dates ({blockedDates.length})</h3>
+                  <h3 className="font-medium text-sm mb-3">Blocked Dates (<span className="chewy-regular">{blockedDates.length}</span>)</h3>
                   <div className="flex flex-wrap gap-2">
                     {[...blockedDates].sort((a, b) => a.getTime() - b.getTime()).map((date, i) => (
                       <Badge key={i} variant="destructive" className="text-xs">

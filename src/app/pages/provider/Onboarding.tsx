@@ -14,6 +14,7 @@ import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../../lib/supabase';
 import { uploadAvatar } from '../../../lib/storage';
 import { toast } from 'sonner';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
 
 export default function ProviderOnboarding() {
   const navigate = useNavigate();
@@ -102,12 +103,12 @@ export default function ProviderOnboarding() {
 
   if (loading) return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <LoadingSpinner />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
+    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-4xl mx-auto">
         <div className="mb-6 lg:mb-8">
           <h1 className="text-2xl lg:text-[32px] font-semibold mb-1">Welcome to Access Terrain Network</h1>
@@ -295,7 +296,7 @@ export default function ProviderOnboarding() {
                   Connect Bank Account via Stripe
                 </Button>
               </div>
-              <div className="p-4 bg-secondary rounded text-sm text-muted">
+              <div className="p-4 bg-background rounded text-sm text-muted">
                 <strong className="text-foreground">Payment schedule:</strong> Earnings are deposited weekly on Mondays. You can change this in Settings → Payment Information.
               </div>
             </div>

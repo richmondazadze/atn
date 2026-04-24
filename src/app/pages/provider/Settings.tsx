@@ -11,10 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Separator } from '../../components/ui/separator';
 import { Badge } from '../../components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../components/ui/dialog';
-import { Bell, DollarSign, Shield, User, Lock } from 'lucide-react';
+import { Bell, DollarSign, User, Lock } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../../lib/supabase';
 import { toast } from 'sonner';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
 
 const contactSchema = z.object({
   phone: z.string().min(10, 'Enter a valid phone number'),
@@ -140,7 +141,7 @@ export default function ProviderSettings() {
   }
 
   return (
-    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
+    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-4xl mx-auto">
         <div className="mb-6 lg:mb-8">
           <h1 className="text-2xl lg:text-[32px] font-semibold mb-1">Settings</h1>
@@ -215,10 +216,10 @@ export default function ProviderSettings() {
           <div className="space-y-5">
             {loadingPayment ? (
               <div className="flex items-center justify-center py-8">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                <LoadingSpinner />
               </div>
             ) : paymentInfo.bankName ? (
-              <div className="flex items-center justify-between p-4 bg-secondary rounded">
+              <div className="flex items-center justify-between p-4 bg-background rounded">
                 <div>
                   <div className="flex items-center gap-2 mb-0.5">
                     <p className="text-sm font-medium">{paymentInfo.bankName}</p>
@@ -288,7 +289,7 @@ export default function ProviderSettings() {
           <form onSubmit={handleSubmit(onContactSave)} noValidate className="space-y-4">
             <div>
               <Label htmlFor="ps-email">Email</Label>
-              <Input id="ps-email" type="email" className="mt-1 bg-secondary" value={user.email} disabled />
+              <Input id="ps-email" type="email" className="mt-1 bg-background" value={user.email} disabled />
               <p className="text-xs text-muted mt-1">Contact support to change your email address.</p>
             </div>
             <div>
@@ -314,7 +315,8 @@ export default function ProviderSettings() {
         {/* Security */}
         <Card className="border-border p-5 lg:p-8 mb-6">
           <div className="flex items-center gap-2 mb-5">
-            <Shield size={18} className="text-muted" />
+            {/* Security — Removed Shield icon */}
+            <div className="text-muted" />
             <h2 className="text-lg font-medium">Security</h2>
           </div>
           <div className="space-y-4">

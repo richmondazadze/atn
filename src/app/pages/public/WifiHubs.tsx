@@ -4,6 +4,7 @@ import { Button } from '../../components/ui/button';
 import { MapPin, Wifi } from 'lucide-react';
 import { useWifiHubs } from '../../../hooks/useWifiHubs';
 import { WifiHubsMap } from '../../components/WifiHubsMap';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
 
 export default function WifiHubsPublicPage() {
   const { hubs, loading } = useWifiHubs();
@@ -13,12 +14,12 @@ export default function WifiHubsPublicPage() {
 
   if (loading) return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <LoadingSpinner />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
+    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-7xl mx-auto">
         <div className="mb-6 lg:mb-8">
           <div className="flex items-center gap-2 mb-2">

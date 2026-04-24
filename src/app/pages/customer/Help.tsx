@@ -4,6 +4,7 @@ import { Input } from '../../components/ui/input';
 import { Search, BookOpen, FileText, HelpCircle } from 'lucide-react';
 import { usePublishedResources } from '../../../hooks/usePublishedResources';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
 
 export default function Help() {
   const { resources, loading } = usePublishedResources('customer');
@@ -25,12 +26,12 @@ export default function Help() {
 
   if (loading) return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <LoadingSpinner />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
+    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-4xl mx-auto">
         <h1 className="text-2xl lg:text-[32px] font-semibold mb-2">Help & Resources</h1>
         <p className="text-sm text-muted mb-6">Guides, FAQs, and tips for using ATN</p>

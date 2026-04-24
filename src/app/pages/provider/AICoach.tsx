@@ -312,7 +312,7 @@ export default function AICoach() {
   const quickPrompts = QUICK_PROMPTS[selectedTool] || [];
 
   return (
-    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
+    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
@@ -405,7 +405,7 @@ export default function AICoach() {
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shrink-0 mt-1">
                       <Bot size={16} className="text-primary-foreground" />
                     </div>
-                    <div className="px-4 py-3 rounded-2xl rounded-bl-sm bg-secondary border border-border">
+                    <div className="px-4 py-3 rounded-2xl rounded-bl-sm bg-background border border-border">
                       <div className="flex gap-1.5 items-center h-5">
                         <span className="w-2 h-2 rounded-full bg-muted animate-bounce" style={{ animationDelay: '0ms' }} />
                         <span className="w-2 h-2 rounded-full bg-muted animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -425,7 +425,7 @@ export default function AICoach() {
                     onChange={e => setInput(e.target.value)}
                     placeholder={`Ask about ${currentTool?.name.toLowerCase() ?? 'your business'}...`}
                     rows={1}
-                    className="flex-1 min-h-[44px] max-h-32 resize-none rounded-lg border border-border bg-secondary/50 px-4 py-3 text-sm outline-none placeholder:text-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent transition-shadow"
+                    className="flex-1 min-h-[44px] max-h-32 resize-none rounded-lg border border-border bg-background/50 px-4 py-3 text-sm outline-none placeholder:text-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent transition-shadow"
                     onKeyDown={e => {
                       if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
@@ -456,7 +456,7 @@ export default function AICoach() {
                         key={p.label}
                         onClick={() => setInput(p.text)}
                         disabled={isTyping}
-                        className="px-3 py-2 rounded-full text-xs font-medium bg-secondary hover:bg-border text-muted-foreground transition-colors border border-border whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+                        className="px-3 py-2 rounded-full text-xs font-medium bg-background hover:bg-border text-muted-foreground transition-colors border border-border whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
                       >
                         {p.label}
                       </button>

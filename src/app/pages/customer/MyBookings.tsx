@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { Button } from '../../components/ui/button';
-import { Card } from '../../components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Badge } from '../../components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../components/ui/dialog';
 import { Textarea } from '../../components/ui/textarea';
 import { Label } from '../../components/ui/label';
-import { Clock, MapPin, MessageSquare, Calendar, AlertCircle } from 'lucide-react';
+import { Clock, MapPin, MessageSquare, Calendar, AlertCircle, Star } from 'lucide-react';
 import { useBookings, type Booking } from '../../../hooks/useBookings';
 import { useBookingMessages } from '../../../hooks/useBookingMessages';
 import { useAuth } from '../../context/AuthContext';
@@ -16,6 +15,14 @@ import { Link } from 'react-router';
 import { toast } from 'sonner';
 import { supabase } from '../../../lib/supabase';
 import { RatingStars } from '../../components/RatingStars';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
+
+const badgeConfig = {
+  upcoming: { label: 'Confirmed', className: 'bg-surface-teal text-primary border-primary/20' },
+  pending:  { label: 'Pending',   className: 'bg-surface-amber text-amber-700 border-amber/20' },
+  past:     { label: 'Completed', className: 'bg-surface-green text-status-green border-status-green/20' },
+  cancelled:{ label: 'Cancelled', className: 'bg-surface-coral text-coral border-coral/20' },
+};
 
 function BookingCard({
   booking,
@@ -32,40 +39,31 @@ function BookingCard({
   onLeaveReview?: (b: Booking) => void;
   hasReviewed?: boolean;
 }) {
-  const badge =
-    variant === 'pending' ? (
-      <Badge variant="secondary" className="shrink-0 ml-3">Pending</Badge>
-    ) : variant === 'upcoming' ? (
-      <Badge className="bg-primary text-primary-foreground border-0 shrink-0 ml-3">Confirmed</Badge>
-    ) : variant === 'past' ? (
-      <Badge variant="outline" className="border-border text-muted shrink-0 ml-3">Completed</Badge>
-    ) : (
-      <Badge variant="outline" className="border-destructive text-destructive shrink-0 ml-3">Cancelled</Badge>
-    );
+  const cfg = badgeConfig[variant];
 
   return (
-    <Card className="border-border bg-white p-5 lg:p-6">
+    <div className="bg-background border border-border rounded-2xl p-5 lg:p-6 transition-all duration-150 hover:border-border/80 hover:shadow-sm">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between mb-3">
-            <div className="min-w-0">
-              <h3 className="font-medium truncate">{booking.title}</h3>
-            </div>
-            {badge}
+          <div className="flex items-start justify-between mb-3 gap-2">
+            <h3 className="font-semibold text-foreground truncate">{booking.title}</h3>
+            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold tracking-wide border shrink-0 ${cfg.className}`}>
+              {cfg.label}
+            </span>
           </div>
 
-          <div className="space-y-1 mb-4">
+          <div className="space-y-1.5 mb-4">
             <div className="flex items-center gap-2 text-sm text-muted">
-              <Clock size={13} />
+              <Clock size={13} className="shrink-0 text-primary" />
               <span>
                 {variant === 'past'
-                  ? `Completed on ${new Date(booking.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`
+                  ? `Completed ${new Date(booking.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`
                   : `${new Date(booking.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} at ${booking.time}`}
               </span>
             </div>
             {booking.address && (
               <div className="flex items-center gap-2 text-sm text-muted">
-                <MapPin size={13} />
+                <MapPin size={13} className="shrink-0 text-primary" />
                 <span className="truncate">{booking.address}</span>
               </div>
             )}
@@ -74,44 +72,41 @@ function BookingCard({
           <div className="flex flex-wrap gap-2">
             {variant === 'upcoming' && (
               <>
-                <Button variant="outline" className="border-border text-sm" onClick={() => onViewDetails?.(booking)}>
-                  View details
-                </Button>
-                <Button variant="ghost" className="text-destructive text-sm" onClick={() => onCancel?.(booking.id)}>
-                  Cancel booking
+                <Button variant="outline" size="sm" onClick={() => onViewDetails?.(booking)}>View details</Button>
+                <Button variant="ghost" size="sm" className="text-coral hover:bg-surface-coral" onClick={() => onCancel?.(booking.id)}>
+                  Cancel
                 </Button>
               </>
             )}
             {variant === 'pending' && (
-              <>
-                <Button variant="outline" className="border-border text-sm" onClick={() => onViewDetails?.(booking)}>
-                  View details
-                </Button>
-              </>
+              <Button variant="outline" size="sm" onClick={() => onViewDetails?.(booking)}>View details</Button>
             )}
             {variant === 'past' && (
               <>
                 <Button
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm"
+                  size="sm"
                   disabled={hasReviewed}
                   onClick={() => onLeaveReview?.(booking)}
+                  className={hasReviewed ? '' : ''}
                 >
-                  <MessageSquare size={14} className="mr-1.5" /> {hasReviewed ? 'Already reviewed' : 'Leave review'}
+                  <Star size={13} className="mr-1.5" />
+                  {hasReviewed ? 'Reviewed' : 'Leave review'}
                 </Button>
-                <Link to={`/customer/listing/${booking.listing_id}`}>
-                  <Button variant="outline" className="border-border text-sm">Book again</Button>
-                </Link>
+                <Button asChild variant="outline" size="sm">
+                  <Link to={`/customer/listing/${booking.listing_id}`}>Book again</Link>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => onViewDetails?.(booking)}>Details</Button>
               </>
             )}
           </div>
         </div>
 
-        <div className="text-right shrink-0">
-          <div className="text-xl font-semibold">${booking.price}</div>
+        <div className="text-right shrink-0 chewy-regular">
+          <div className="text-xl font-bold text-foreground">${booking.price}</div>
           <div className="text-xs text-muted">{booking.duration}m</div>
         </div>
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -132,22 +127,11 @@ export default function MyBookings() {
   const [disputeDesc, setDisputeDesc] = useState('');
 
   const now = new Date();
-
-  const upcoming = bookings.filter(b => {
-    if (b.status !== 'confirmed') return false;
-    const d = new Date(`${b.date}T${b.time}`);
-    return d > now;
-  });
+  const upcoming = bookings.filter(b => b.status === 'confirmed' && new Date(`${b.date}T${b.time}`) > now);
   const pending = bookings.filter(b => b.status === 'pending');
   const past = bookings.filter(b => b.status === 'completed');
   const cancelled = bookings.filter(b => b.status === 'cancelled');
-
-  // Past confirmed bookings (date passed but not yet marked completed) - treat as past for display
-  const pastConfirmed = bookings.filter(b => {
-    if (b.status !== 'confirmed') return false;
-    const d = new Date(`${b.date}T${b.time}`);
-    return d <= now;
-  });
+  const pastConfirmed = bookings.filter(b => b.status === 'confirmed' && new Date(`${b.date}T${b.time}`) <= now);
   const allPast = [...past, ...pastConfirmed];
 
   function hasReviewedListing(listingId: string) {
@@ -156,33 +140,9 @@ export default function MyBookings() {
 
   async function handleCancel(bookingId: string) {
     const { error } = await supabase.from('bookings').update({ status: 'cancelled' }).eq('id', bookingId);
-    if (error) {
-      toast.error('Failed to cancel booking. Please try again.');
-      return;
-    }
+    if (error) { toast.error('Failed to cancel booking. Please try again.'); return; }
     toast.success('Booking cancelled');
     refetch();
-  }
-
-  async function handleOpenDispute() {
-    if (!detailsBooking || !disputeDesc.trim()) return;
-    const { error } = await supabase.from('disputes').insert({
-      customer_id: user.id,
-      provider_id: detailsBooking.provider_id,
-      booking_id: detailsBooking.id,
-      listing_title: detailsBooking.title,
-      issue: disputeIssue,
-      description: disputeDesc.trim(),
-      priority: 'medium',
-    });
-    if (error) {
-      toast.error('Failed to open dispute. Please try again.');
-      return;
-    }
-    toast.success('Dispute submitted. Our team will review it shortly.');
-    setShowDispute(false);
-    setDisputeDesc('');
-    setDetailsBooking(null);
   }
 
   async function handleSubmitReview() {
@@ -197,10 +157,7 @@ export default function MyBookings() {
       text: reviewText.trim(),
     });
     setSubmittingReview(false);
-    if (error) {
-      toast.error('Failed to submit review');
-      return;
-    }
+    if (error) { toast.error('Failed to submit review'); return; }
     toast.success('Thank you for your review!');
     setReviewBooking(null);
     setReviewText('');
@@ -208,107 +165,95 @@ export default function MyBookings() {
     refetchReviews();
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-secondary flex items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <LoadingSpinner />
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
-      <div className="py-6 lg:py-8 max-w-4xl mx-auto">
-        <h1 className="text-2xl lg:text-[32px] font-semibold mb-6 lg:mb-8">My Bookings</h1>
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="bg-gradient-hero border-b border-border/60 px-4 md:px-6 lg:px-[72px]">
+        <div className="py-8 max-w-4xl mx-auto">
+          <h1 className="text-2xl lg:text-[32px] font-bold text-foreground mb-1">My Bookings</h1>
+        </div>
+      </div>
 
-        <Tabs defaultValue="upcoming">
-          <TabsList className="mb-6 lg:mb-8">
-            <TabsTrigger value="upcoming">Upcoming {upcoming.length > 0 && `(${upcoming.length})`}</TabsTrigger>
-            <TabsTrigger value="pending">Pending {pending.length > 0 && `(${pending.length})`}</TabsTrigger>
-            <TabsTrigger value="past">Past {allPast.length > 0 && `(${allPast.length})`}</TabsTrigger>
-            <TabsTrigger value="cancelled">Cancelled {cancelled.length > 0 && `(${cancelled.length})`}</TabsTrigger>
-          </TabsList>
+      <div className="px-4 md:px-6 lg:px-[72px]">
+        <div className="py-8 max-w-4xl mx-auto">
+          <Tabs defaultValue="upcoming">
+            <TabsList className="mb-8 w-full sm:w-auto">
+              <TabsTrigger value="upcoming">
+                Upcoming {upcoming.length > 0 && <span className="ml-1.5 bg-primary/15 text-primary text-[10px] font-bold px-1.5 py-0.5 rounded-full chewy-regular">{upcoming.length}</span>}
+              </TabsTrigger>
+              <TabsTrigger value="pending">
+                Pending {pending.length > 0 && <span className="ml-1.5 bg-amber/15 text-amber-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full chewy-regular">{pending.length}</span>}
+              </TabsTrigger>
+              <TabsTrigger value="past">Past {allPast.length > 0 && `(${allPast.length})`}</TabsTrigger>
+              <TabsTrigger value="cancelled">Cancelled {cancelled.length > 0 && `(${cancelled.length})`}</TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="upcoming" className="space-y-4">
-            {upcoming.length === 0 ? (
-              <EmptyState
-                icon={<Calendar size={40} />}
-                title="No upcoming bookings"
-                description="Browse services to book your next appointment."
-                action={<Link to="/customer/search"><Button className="bg-primary text-primary-foreground">Browse services</Button></Link>}
-              />
-            ) : (
-              upcoming.map(b => (
-                <BookingCard
-                  key={b.id}
-                  booking={b}
-                  variant="upcoming"
-                  onCancel={handleCancel}
-                  onViewDetails={setDetailsBooking}
+            <TabsContent value="upcoming" className="space-y-4 animate-fade-up">
+              {upcoming.length === 0 ? (
+                <EmptyState
+                  icon={<Calendar size={40} />}
+                  title="No upcoming bookings"
+                  description="Browse services to book your next appointment."
+                  action={<Link to="/customer/search"><Button>Browse services</Button></Link>}
                 />
-              ))
-            )}
-          </TabsContent>
+              ) : upcoming.map(b => (
+                <BookingCard key={b.id} booking={b} variant="upcoming" onCancel={handleCancel} onViewDetails={setDetailsBooking} />
+              ))}
+            </TabsContent>
 
-          <TabsContent value="pending" className="space-y-4">
-            {pending.length === 0 ? (
-              <EmptyState icon={<Clock size={40} />} title="No pending bookings" description="Bookings awaiting provider confirmation will appear here." />
-            ) : (
-              pending.map(b => (
+            <TabsContent value="pending" className="space-y-4 animate-fade-up">
+              {pending.length === 0 ? (
+                <EmptyState icon={<Clock size={40} />} title="No pending bookings" description="Bookings awaiting provider confirmation will appear here." />
+              ) : pending.map(b => (
                 <BookingCard key={b.id} booking={b} variant="pending" onViewDetails={setDetailsBooking} />
-              ))
-            )}
-          </TabsContent>
+              ))}
+            </TabsContent>
 
-          <TabsContent value="past" className="space-y-4">
-            {allPast.length === 0 ? (
-              <EmptyState icon={<Clock size={40} />} title="No past bookings" description="Your completed bookings will appear here." />
-            ) : (
-              allPast.map(b => (
-                <BookingCard
-                  key={b.id}
-                  booking={b}
-                  variant="past"
-                  onViewDetails={setDetailsBooking}
-                  onLeaveReview={() => setReviewBooking(b)}
-                  hasReviewed={hasReviewedListing(b.listing_id)}
-                />
-              ))
-            )}
-          </TabsContent>
+            <TabsContent value="past" className="space-y-4 animate-fade-up">
+              {allPast.length === 0 ? (
+                <EmptyState icon={<Clock size={40} />} title="No past bookings" description="Your completed bookings will appear here." />
+              ) : allPast.map(b => (
+                <BookingCard key={b.id} booking={b} variant="past" onViewDetails={setDetailsBooking} onLeaveReview={() => setReviewBooking(b)} hasReviewed={hasReviewedListing(b.listing_id)} />
+              ))}
+            </TabsContent>
 
-          <TabsContent value="cancelled" className="space-y-4">
-            {cancelled.length === 0 ? (
-              <EmptyState title="No cancelled bookings" description="You're all good — no cancelled bookings." />
-            ) : (
-              cancelled.map(b => <BookingCard key={b.id} booking={b} variant="cancelled" onViewDetails={setDetailsBooking} />)
-            )}
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="cancelled" className="space-y-4 animate-fade-up">
+              {cancelled.length === 0 ? (
+                <EmptyState title="No cancelled bookings" description="You're all good — no cancelled bookings." />
+              ) : cancelled.map(b => (
+                <BookingCard key={b.id} booking={b} variant="cancelled" onViewDetails={setDetailsBooking} />
+              ))}
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
 
       {/* Details dialog */}
       <Dialog open={!!detailsBooking} onOpenChange={() => setDetailsBooking(null)}>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Booking Details</DialogTitle>
-          </DialogHeader>
+          <DialogHeader><DialogTitle>Booking Details</DialogTitle></DialogHeader>
           {detailsBooking && (
             <div className="space-y-4">
-              <div><span className="text-xs text-muted">Service</span><p className="font-medium">{detailsBooking.title}</p></div>
-              <div><span className="text-xs text-muted">Date & Time</span><p className="font-medium">{new Date(detailsBooking.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} at {detailsBooking.time} ({detailsBooking.duration}m)</p></div>
-              <div><span className="text-xs text-muted">Total</span><p className="font-medium text-lg">${detailsBooking.price}</p></div>
-              {detailsBooking.address && (
-                <div><span className="text-xs text-muted">Address</span><p className="font-medium">{detailsBooking.address}</p></div>
-              )}
+              <div className="bg-background rounded-xl p-4 space-y-3">
+                <div><p className="text-xs text-muted mb-0.5">Service</p><p className="font-semibold">{detailsBooking.title}</p></div>
+                <div><p className="text-xs text-muted mb-0.5">Date & Time</p><p className="font-medium">{new Date(detailsBooking.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} at {detailsBooking.time} ({detailsBooking.duration}m)</p></div>
+                <div><p className="text-xs text-muted mb-0.5">Total</p><p className="text-xl font-bold text-foreground chewy-regular">${detailsBooking.price}</p></div>
+                {detailsBooking.address && <div><p className="text-xs text-muted mb-0.5">Address</p><p className="font-medium">{detailsBooking.address}</p></div>}
+              </div>
               {messages.length > 0 && (
-                <div className="border-t border-border pt-3">
-                  <p className="text-xs font-medium text-muted mb-2">Messages</p>
-                  <div className="space-y-2 max-h-32 overflow-y-auto text-sm">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-2">Messages</p>
+                  <div className="space-y-2 max-h-36 overflow-y-auto">
                     {messages.map(m => (
-                      <div key={m.id} className={`p-2 rounded ${m.sender_role === 'customer' ? 'bg-primary/10 ml-4' : 'bg-secondary mr-4'}`}>
-                        <p className="text-xs text-muted mb-0.5">{m.sender_role === 'customer' ? 'You' : 'Provider'}</p>
-                        <p className="text-foreground">{m.body}</p>
+                      <div key={m.id} className={`p-3 rounded-xl text-sm ${m.sender_role === 'customer' ? 'bg-surface-teal text-primary ml-6' : 'bg-secondary mr-6'}`}>
+                        <p className="text-[10px] font-semibold uppercase tracking-wide mb-1 opacity-60">{m.sender_role === 'customer' ? 'You' : 'Provider'}</p>
+                        <p>{m.body}</p>
                       </div>
                     ))}
                   </div>
@@ -321,7 +266,7 @@ export default function MyBookings() {
               <Button variant="outline" size="sm" onClick={() => setShowMsg(true)}>
                 <MessageSquare size={14} className="mr-1.5" /> Message provider
               </Button>
-              <Button variant="outline" size="sm" className="border-destructive text-destructive" onClick={() => setShowDispute(true)}>
+              <Button variant="ghost" size="sm" className="text-coral hover:bg-surface-coral" onClick={() => setShowDispute(true)}>
                 <AlertCircle size={14} className="mr-1.5" /> Report issue
               </Button>
             </DialogFooter>
@@ -339,12 +284,11 @@ export default function MyBookings() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowMsg(false)}>Cancel</Button>
-            <Button className="bg-primary text-primary-foreground" disabled={!msgText.trim()} onClick={async () => {
+            <Button disabled={!msgText.trim()} onClick={async () => {
               if (!detailsBooking || !msgText.trim()) return;
               try {
                 await sendMessage(user.id, 'customer', msgText.trim());
-                setMsgText('');
-                setShowMsg(false);
+                setMsgText(''); setShowMsg(false);
                 toast.success('Message sent');
               } catch { toast.error('Failed to send'); }
             }}>Send</Button>
@@ -352,14 +296,14 @@ export default function MyBookings() {
         </DialogContent>
       </Dialog>
 
-      {/* Open dispute dialog */}
+      {/* Dispute dialog */}
       <Dialog open={showDispute} onOpenChange={(open) => { if (!open) { setShowDispute(false); setDisputeDesc(''); } setShowDispute(open); }}>
         <DialogContent>
           <DialogHeader><DialogTitle>Report an Issue</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div>
               <Label className="mb-2 block">Issue type</Label>
-              <select value={disputeIssue} onChange={e => setDisputeIssue(e.target.value)} className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm">
+              <select value={disputeIssue} onChange={e => setDisputeIssue(e.target.value)} className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
                 <option value="Service quality">Service quality</option>
                 <option value="No-show">Provider no-show</option>
                 <option value="Payment">Payment / refund</option>
@@ -373,7 +317,7 @@ export default function MyBookings() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setShowDispute(false); setDisputeDesc(''); }}>Cancel</Button>
-            <Button className="bg-primary text-primary-foreground" disabled={!disputeDesc.trim()} onClick={async () => {
+            <Button variant="coral" disabled={!disputeDesc.trim()} onClick={async () => {
               if (!detailsBooking || !disputeDesc.trim()) return;
               const { error } = await supabase.from('disputes').insert({
                 booking_id: detailsBooking.id,
@@ -386,51 +330,45 @@ export default function MyBookings() {
               });
               if (error) { toast.error('Failed to submit'); return; }
               toast.success('Issue reported. We will review it shortly.');
-              setShowDispute(false);
-              setDisputeDesc('');
-              setDetailsBooking(null);
-            }}>Submit</Button>
+              setShowDispute(false); setDisputeDesc(''); setDetailsBooking(null);
+            }}>Submit Report</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Leave review dialog */}
+      {/* Review dialog */}
       <Dialog open={!!reviewBooking} onOpenChange={() => { setReviewBooking(null); setReviewText(''); setReviewRating(5); }}>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Leave a Review</DialogTitle>
-          </DialogHeader>
+          <DialogHeader><DialogTitle>Leave a Review</DialogTitle></DialogHeader>
           {reviewBooking && (
-            <div className="space-y-4">
-              <p className="text-sm text-muted">How was your experience with {reviewBooking.title}?</p>
+            <div className="space-y-5">
+              <p className="text-sm text-muted">How was your experience with <span className="font-semibold text-foreground">{reviewBooking.title}</span>?</p>
               <div>
-                <Label className="mb-2 block">Rating</Label>
+                <Label className="mb-3 block">Your rating</Label>
                 <div className="flex gap-1">
                   {[1, 2, 3, 4, 5].map(star => (
                     <button
                       key={star}
                       type="button"
                       onClick={() => setReviewRating(star)}
-                      className="p-1 rounded hover:bg-secondary transition-colors"
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${star <= reviewRating ? 'bg-surface-amber' : 'bg-secondary hover:bg-surface-amber/50'}`}
                       aria-label={`${star} stars`}
                     >
-                      <RatingStars rating={star} size={24} showCount={false} />
+                      <Star size={18} className={star <= reviewRating ? 'fill-amber text-amber' : 'text-muted'} />
                     </button>
                   ))}
                 </div>
               </div>
               <div>
                 <Label htmlFor="review-text" className="mb-2 block">Your review</Label>
-                <Textarea id="review-text" value={reviewText} onChange={e => setReviewText(e.target.value)} placeholder="Share your experience..." rows={5} className="resize-none" />
+                <Textarea id="review-text" value={reviewText} onChange={e => setReviewText(e.target.value)} placeholder="Share your experience..." rows={4} className="resize-none" />
               </div>
-              <div className="flex gap-2 justify-end">
-                <Button variant="outline" onClick={() => { setReviewBooking(null); setReviewText(''); }}>
-                  Cancel
-                </Button>
-                <Button onClick={handleSubmitReview} disabled={!reviewText.trim() || submittingReview} className="bg-primary text-primary-foreground">
+              <DialogFooter>
+                <Button variant="outline" onClick={() => { setReviewBooking(null); setReviewText(''); }}>Cancel</Button>
+                <Button onClick={handleSubmitReview} disabled={!reviewText.trim() || submittingReview}>
                   {submittingReview ? 'Submitting…' : 'Submit review'}
                 </Button>
-              </div>
+              </DialogFooter>
             </div>
           )}
         </DialogContent>

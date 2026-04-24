@@ -6,7 +6,7 @@ export default function NotFound() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-secondary flex items-center justify-center px-4">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="text-center max-w-md">
         <div className="mb-6">
           <img src="/atn_logo_no_bg.png" alt="ATN" className="w-16 h-16 object-contain mx-auto mb-6 opacity-40" />

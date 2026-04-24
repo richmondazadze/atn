@@ -55,7 +55,7 @@ export default function SignUp() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-secondary">
+    <div className="min-h-screen flex flex-col bg-background">
       {/* Top Navigation */}
       <header className="w-full flex items-center justify-between px-6 md:px-12 lg:px-20 py-5 border-b border-border bg-background">
         <Link to="/" className="flex items-center gap-2">
@@ -93,7 +93,7 @@ export default function SignUp() {
                   role === 'customer' ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary'
                 }`}
               >
-                <div className="w-full h-44 bg-secondary rounded-lg mb-6 overflow-hidden border border-border">
+                <div className="w-full h-44 bg-background rounded-lg mb-6 overflow-hidden border border-border">
                   <div
                     className="w-full h-full bg-center bg-no-repeat bg-cover group-hover:scale-105 transition-transform"
                     style={{
@@ -127,7 +127,7 @@ export default function SignUp() {
                   role === 'provider' ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary'
                 }`}
               >
-                <div className="w-full h-44 bg-secondary rounded-lg mb-6 overflow-hidden border border-border">
+                <div className="w-full h-44 bg-background rounded-lg mb-6 overflow-hidden border border-border">
                   <div
                     className="w-full h-full bg-center bg-no-repeat bg-cover group-hover:scale-105 transition-transform"
                     style={{

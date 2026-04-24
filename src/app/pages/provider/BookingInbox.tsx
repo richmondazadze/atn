@@ -13,6 +13,7 @@ import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../../lib/supabase';
 import { EmptyState } from '../../components/EmptyState';
 import { toast } from 'sonner';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
 
 function statusBadge(status: string) {
   if (status === 'confirmed') return <Badge className="bg-primary text-primary-foreground border-0">Confirmed</Badge>;
@@ -30,7 +31,7 @@ export default function BookingInbox() {
 
   if (loading) return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <LoadingSpinner />
     </div>
   );
 
@@ -55,7 +56,7 @@ export default function BookingInbox() {
             </div>
             <h3 className="font-medium truncate">{booking.title}</h3>
           </div>
-          <div className="text-lg font-semibold ml-4 shrink-0">${booking.price}</div>
+          <div className="text-lg font-semibold ml-4 shrink-0 chewy-regular">${booking.price}</div>
         </div>
 
         <div className="flex items-center gap-1.5 text-sm text-muted mb-2">
@@ -70,7 +71,7 @@ export default function BookingInbox() {
           </div>
           <div className="flex items-center gap-1.5">
             <Clock size={13} />
-            <span>{booking.time} ({booking.duration}m)</span>
+            <span>{booking.time} (<span className="chewy-regular">{booking.duration}</span>m)</span>
           </div>
         </div>
       </Card>
@@ -78,7 +79,7 @@ export default function BookingInbox() {
   }
 
   return (
-    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
+    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-4xl mx-auto">
         <div className="mb-6 lg:mb-8">
           <h1 className="text-2xl lg:text-[32px] font-semibold mb-1">Bookings</h1>
@@ -87,9 +88,9 @@ export default function BookingInbox() {
 
         <Tabs defaultValue="upcoming" className="space-y-5">
           <TabsList>
-            <TabsTrigger value="upcoming">Upcoming ({upcoming.length})</TabsTrigger>
-            <TabsTrigger value="completed">Completed ({completed.length})</TabsTrigger>
-            <TabsTrigger value="all">All ({bookings.length})</TabsTrigger>
+            <TabsTrigger value="upcoming">Upcoming (<span className="chewy-regular">{upcoming.length}</span>)</TabsTrigger>
+            <TabsTrigger value="completed">Completed (<span className="chewy-regular">{completed.length}</span>)</TabsTrigger>
+            <TabsTrigger value="all">All (<span className="chewy-regular">{bookings.length}</span>)</TabsTrigger>
           </TabsList>
 
           <TabsContent value="upcoming" className="space-y-4">
@@ -130,8 +131,8 @@ export default function BookingInbox() {
               <h3 className="font-medium text-lg">{selectedBooking.title}</h3>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div><div className="text-xs text-muted mb-0.5">Service</div><div className="font-medium">{selectedBooking.title}</div></div>
-                <div><div className="text-xs text-muted mb-0.5">Total</div><div className="font-medium text-lg">${selectedBooking.price}</div></div>
-                <div><div className="text-xs text-muted mb-0.5">Date & Time</div><div className="font-medium">{new Date(selectedBooking.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}<br />{selectedBooking.time} ({selectedBooking.duration}m)</div></div>
+                <div><div className="text-xs text-muted mb-0.5">Total</div><div className="font-medium text-lg chewy-regular">${selectedBooking.price}</div></div>
+                <div><div className="text-xs text-muted mb-0.5">Date & Time</div><div className="font-medium">{new Date(selectedBooking.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}<br />{selectedBooking.time} (<span className="chewy-regular">{selectedBooking.duration}</span>m)</div></div>
                 <div><div className="text-xs text-muted mb-0.5">Location</div><div className="font-medium">{selectedBooking.address}</div></div>
               </div>
             </div>

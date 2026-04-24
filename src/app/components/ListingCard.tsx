@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { Clock, DollarSign, Calendar, Heart } from 'lucide-react';
+import { Clock, Calendar, Heart } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { RatingStars } from './RatingStars';
 
@@ -20,6 +20,22 @@ interface ListingCardProps {
   onToggleFavorite?: (id: string) => void;
 }
 
+const categoryColors: Record<string, string> = {
+  cleaning: 'teal',
+  braiding: 'violet',
+  tutoring: 'gold',
+  repair: 'coral',
+  default: 'secondary',
+};
+
+function getCategoryVariant(cat: string): string {
+  const key = cat?.toLowerCase() ?? '';
+  for (const k of Object.keys(categoryColors)) {
+    if (key.includes(k)) return categoryColors[k];
+  }
+  return categoryColors.default;
+}
+
 export function ListingCard({
   id,
   title,
@@ -30,6 +46,7 @@ export function ListingCard({
   reviewCount,
   nextAvailable,
   featured,
+  category,
   image,
   linkPrefix = '',
   isFavorite,
@@ -41,65 +58,86 @@ export function ListingCard({
     ? new Date(nextAvailable).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     : null;
   const numDuration = Number(duration) || 0;
-  const durationLabel = numDuration >= 60 ? `${Math.floor(numDuration / 60)}h` : `${numDuration}m`;
+  const durationLabel = numDuration >= 60 ? `${Math.floor(numDuration / 60)}h ${numDuration % 60 > 0 ? `${numDuration % 60}m` : ''}`.trim() : `${numDuration}m`;
 
   return (
     <div className="relative group/card h-full flex flex-col">
       <Link
         to={`${linkPrefix}/listing/${id}`}
-        className="flex flex-col flex-1 min-h-0 bg-background border border-border rounded-lg hover:border-primary transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-        aria-label={`${title} by ${providerName}, $${price}`}
+        className="flex flex-col flex-1 min-h-0 bg-background border border-border rounded-2xl overflow-hidden card-lift hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        aria-label={`${title} by ${providerName}, $${numPrice}`}
       >
-        <div className="aspect-[16/10] rounded-t-lg overflow-hidden bg-gradient-to-br from-primary/20 to-primary/10 relative shrink-0">
-          {image && (
+        {/* Image */}
+        <div className="aspect-[16/10] overflow-hidden bg-gradient-to-br from-surface-teal to-surface-violet relative shrink-0 img-zoom">
+          {image ? (
             <img src={image} alt={title} className="w-full h-full object-cover" loading="lazy" />
-          )}
-          {onToggleFavorite && (
-            <button
-              type="button"
-              onClick={e => { e.preventDefault(); e.stopPropagation(); onToggleFavorite(id); }}
-              aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-              className="absolute top-2 right-2 p-2 rounded-full bg-white/90 shadow hover:bg-white transition-colors z-10"
-            >
-              <Heart size={16} className={isFavorite ? 'fill-primary text-primary' : 'text-muted'} />
-            </button>
-          )}
-        </div>
-
-      <div className="p-4 flex flex-col flex-1 min-h-0">
-        <div className="flex items-start justify-between mb-2 gap-2">
-          <div className="min-w-0 flex-1">
-            <h3 className="font-medium group-hover:text-primary transition-colors line-clamp-2" title={title}>{title}</h3>
-            <p className="text-sm text-muted mt-0.5 truncate">{providerName}</p>
-          </div>
-          {featured && (
-            <Badge className="bg-primary/10 text-primary border-0 shrink-0">Featured</Badge>
-          )}
-        </div>
-
-        <div className="mb-3 shrink-0">
-          <RatingStars rating={rating} reviewCount={reviewCount} size={13} />
-        </div>
-
-        <div className="space-y-1.5 text-sm text-muted min-h-[3rem] shrink-0 mt-auto">
-          <div className="flex items-center gap-2">
-            <span className="text-muted">$</span>
-            <span>{numPrice}</span>
-            <span aria-hidden="true">·</span>
-            <Clock size={14} />
-            <span>{durationLabel}</span>
-          </div>
-          {hasValidNext && formattedDate ? (
-            <div className="flex items-center gap-2">
-              <Calendar size={14} />
-              <span className="text-xs">Next: {formattedDate}</span>
-            </div>
           ) : (
-            <div className="flex items-center gap-2 h-5" aria-hidden="true" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-4xl opacity-20">✦</span>
+            </div>
+          )}
+          {/* Category badge overlay */}
+          <div className="absolute bottom-2 left-2">
+            <Badge variant={getCategoryVariant(category) as any} className="text-[10px] capitalize shadow-sm">
+              {category}
+            </Badge>
+          </div>
+          {/* Featured badge */}
+          {featured && (
+            <div className="absolute top-2 left-2">
+              <Badge variant="gold" className="text-[10px] shadow-sm">Featured</Badge>
+            </div>
           )}
         </div>
-      </div>
-    </Link>
+
+        <div className="p-4 flex flex-col flex-1 min-h-0">
+          {/* Title + provider */}
+          <div className="mb-2 min-w-0">
+            <h3 className="font-semibold text-foreground group-hover/card:text-primary transition-colors line-clamp-2 leading-snug" title={title}>
+              {title}
+            </h3>
+            <p className="text-xs text-muted mt-1 truncate">{providerName}</p>
+          </div>
+
+          {/* Rating */}
+          <div className="mb-3 shrink-0">
+            <RatingStars rating={rating} reviewCount={reviewCount} size={13} />
+          </div>
+
+          {/* Price + duration + availability */}
+          <div className="mt-auto flex items-center justify-between gap-2">
+            <div className="flex items-baseline gap-1">
+              <span className="text-lg font-bold text-foreground chewy-regular">${numPrice}</span>
+              <span className="text-xs text-muted flex items-center gap-1 chewy-regular">
+                <Clock size={11} />
+                {durationLabel}
+              </span>
+            </div>
+            {hasValidNext && formattedDate && (
+              <div className="flex items-center gap-1 text-xs text-muted bg-secondary px-2 py-1 rounded-lg shrink-0">
+                <Calendar size={11} />
+                <span>{formattedDate}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </Link>
+
+      {/* Favorite button — outside the Link to avoid nested interactives */}
+      {onToggleFavorite && (
+        <button
+          type="button"
+          onClick={() => onToggleFavorite(id)}
+          aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          className={`absolute top-2 right-2 p-2 rounded-full shadow-sm transition-all duration-150 z-10 ${
+            isFavorite
+              ? 'bg-coral text-white hover:bg-coral/90'
+              : 'bg-white/90 text-muted hover:bg-white hover:text-coral'
+          }`}
+        >
+          <Heart size={15} className={isFavorite ? 'fill-current' : ''} />
+        </button>
+      )}
     </div>
   );
 }

@@ -12,7 +12,7 @@ export type AnalyticsData = {
   topProviders: { name: string; category: string; bookings: number; revenue: string; rating: number }[];
 };
 
-const CHART_COLORS = ['#7BC950', '#A0CCDA', '#9CFFD9', '#B6EFD4', '#7CE577', '#ccc'];
+const CHART_COLORS = ['#1A6B6B', '#D4A853', '#E8694A', '#7C5CBF', '#2A9090', '#94A3B8'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 export function useAnalytics(periodDays: number = 30) {

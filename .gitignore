@@ -1,4 +1,74 @@
-node_modules
-dist
+# ── Dependencies ──────────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+
+# ── Build Output ───────────────────────────────────────────────
+dist/
+dist-ssr/
+build/
+
+# ── Environment Variables ──────────────────────────────────────
+.env
 .env.local
-.env*.local
+.env.*.local
+# .env.example is intentionally kept tracked
+
+# ── Logs ──────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ── macOS ──────────────────────────────────────────────────────
+.DS_Store
+**/.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# ── IDE & Editor ───────────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.cursor/
+
+# ── AI Agent Config (personal/local) ───────────────────────────
+.claude/
+.kiro/
+.windsurf/
+
+# ── TypeScript ─────────────────────────────────────────────────
+*.tsbuildinfo
+
+# ── Vite ───────────────────────────────────────────────────────
+vite.config.*.timestamp-*
+vite.config.*.timestamp
+
+# ── Testing & Coverage ─────────────────────────────────────────
+coverage/
+.nyc_output/
+*.lcov
+
+# ── Supabase ───────────────────────────────────────────────────
+supabase/.temp/
+supabase/.branches/
+
+# ── Font Source Files (large binaries, re-downloadable) ────────
+fonts/
+
+# ── Misc ───────────────────────────────────────────────────────
+*.pem
+.vercel
+.netlify
+*.local
+boolean_product.py
+
+design.md

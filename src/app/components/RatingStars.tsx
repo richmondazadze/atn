@@ -21,14 +21,14 @@ export function RatingStars({ rating, reviewCount, size = 14, showCount = true }
             <Star
               key={i}
               size={size}
-              className={filled ? 'fill-primary text-primary' : 'fill-none text-border'}
+              className={filled ? 'fill-amber text-amber' : 'fill-none text-border'}
             />
           );
         })}
       </div>
-      <span className="text-sm font-medium text-foreground ml-0.5">{rating}</span>
+      <span className="text-sm font-semibold text-foreground ml-0.5">{rating.toFixed(1)}</span>
       {showCount && reviewCount !== undefined && (
-        <span className="text-sm text-muted">({reviewCount})</span>
+        <span className="text-xs text-muted">({reviewCount})</span>
       )}
     </div>
   );

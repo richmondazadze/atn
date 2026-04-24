@@ -3,17 +3,14 @@ import { Outlet, Navigate } from 'react-router';
 import { AppNavbar } from '../components/AppNavbar';
 import { Sidebar } from '../components/Navigation';
 import { useAuth } from '../context/AuthContext';
+import { FullPageLoader } from '../components/LoadingSpinner';
 
 export default function AdminLayout() {
   const { isAuthenticated, isLoading, user } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-secondary">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    );
+    return <FullPageLoader label="Accessing Admin Dashboard..." />;
   }
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;

@@ -11,6 +11,7 @@ import { Plus, MapPin, Trash2, Edit } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '../../../lib/supabase';
 import { useWifiHubs, type WifiHub } from '../../../hooks/useWifiHubs';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
 
 type HubDraft = {
   name: string;
@@ -57,12 +58,12 @@ export default function WifiHubsAdmin() {
 
   if (loading) return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <LoadingSpinner />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
+    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-6xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 lg:mb-8">
           <div>
@@ -109,7 +110,7 @@ export default function WifiHubsAdmin() {
                     <div className="flex items-center gap-2 mb-1.5">
                       <MapPin size={16} className="text-primary shrink-0" />
                       <h3 className="font-medium truncate">{hub.name}</h3>
-                      {!hub.active && <span className="text-xs px-2 py-0.5 rounded bg-secondary text-muted">Inactive</span>}
+                      {!hub.active && <span className="text-xs px-2 py-0.5 rounded bg-background text-muted">Inactive</span>}
                     </div>
                     <div className="text-sm text-muted">{hub.address}</div>
                     <div className="text-xs text-muted mt-2">

@@ -15,6 +15,7 @@ import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../../lib/supabase';
 import { uploadAvatar } from '../../../lib/storage';
 import { toast } from 'sonner';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
 
 const schema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -134,12 +135,12 @@ export default function ProfileEditor() {
 
   if (loading) return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <LoadingSpinner />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
+    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-4xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6 lg:mb-8">
           <div>
@@ -182,7 +183,7 @@ export default function ProfileEditor() {
               </div>
               {uploadingAvatar && (
                 <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40">
-                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  <LoadingSpinner />
                 </div>
               )}
             </button>

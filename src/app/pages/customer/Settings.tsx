@@ -11,6 +11,7 @@ import { Separator } from '../../components/ui/separator';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
 import { supabase } from '../../../lib/supabase';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -115,7 +116,7 @@ export default function CustomerSettings() {
   }
 
   return (
-    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
+    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-3xl mx-auto">
         <h1 className="text-2xl lg:text-[32px] font-semibold mb-6 lg:mb-8">Settings</h1>
 
@@ -131,7 +132,7 @@ export default function CustomerSettings() {
               </div>
               <div>
                 <Label htmlFor="cs-email">Email</Label>
-                <Input id="cs-email" type="email" value={user.email} className="mt-1 bg-secondary cursor-not-allowed" disabled />
+                <Input id="cs-email" type="email" value={user.email} className="mt-1 bg-background cursor-not-allowed" disabled />
                 <p className="text-xs text-muted mt-1">Contact support to change your email.</p>
               </div>
               <div>
@@ -148,7 +149,7 @@ export default function CustomerSettings() {
             <h2 className="text-lg font-medium mb-5">Notifications</h2>
             {notificationsLoading ? (
               <div className="h-24 flex items-center justify-center">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                <LoadingSpinner />
               </div>
             ) : (
               <div className="space-y-4">

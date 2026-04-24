@@ -7,6 +7,7 @@ import { getListingImageUrl } from '../../../lib/storage';
 import { RatingStars } from '../../components/RatingStars';
 import { useListing } from '../../../hooks/useListings';
 import { useReviews } from '../../../hooks/useReviews';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
 
 export default function ListingDetailPublic() {
   const { id } = useParams<{ id: string }>();
@@ -17,7 +18,7 @@ export default function ListingDetailPublic() {
 
   if (loading) return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <LoadingSpinner size="lg" label="Loading service details..." />
     </div>
   );
 
@@ -30,7 +31,7 @@ export default function ListingDetailPublic() {
   const listingReviews = reviews.slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
+    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
           {/* Main Content */}

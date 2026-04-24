@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../../lib/supabase';
 import { EmptyState } from '../../components/EmptyState';
 import { toast } from 'sonner';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
 
 type PaymentInfo = {
   bankName: string;
@@ -96,12 +97,12 @@ export default function Payouts() {
 
   if (loading) return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <LoadingSpinner />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
+    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-7xl mx-auto">
         <h1 className="text-2xl lg:text-[32px] font-semibold mb-6 lg:mb-8">Payouts</h1>
 
@@ -109,7 +110,7 @@ export default function Payouts() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">
           <Card className="border-border p-5 lg:p-6">
             <div className="flex items-center gap-2 mb-2 text-sm text-muted"><DollarSign size={16} /> Available Balance</div>
-            <div className="text-2xl lg:text-[32px] font-semibold">${stats.processing}</div>
+            <div className="text-2xl lg:text-[32px] font-semibold chewy-regular">${stats.processing}</div>
             <Button
               className="mt-3 bg-primary text-primary-foreground text-sm"
               size="sm"
@@ -122,7 +123,7 @@ export default function Payouts() {
 
           <Card className="border-border p-5 lg:p-6">
             <div className="flex items-center gap-2 mb-2 text-sm text-muted"><TrendingUp size={16} /> This Month</div>
-            <div className="text-2xl lg:text-[32px] font-semibold">${stats.monthTotal}</div>
+            <div className="text-2xl lg:text-[32px] font-semibold chewy-regular">${stats.monthTotal}</div>
           </Card>
 
           <Card className="border-border p-5 lg:p-6">
@@ -162,7 +163,7 @@ export default function Payouts() {
                       <TableCell className="text-sm">{new Date(t.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</TableCell>
                       <TableCell className="text-sm">{t.service}</TableCell>
                       <TableCell className="hidden sm:table-cell text-sm">{t.customer}</TableCell>
-                      <TableCell className="font-medium">${t.amount}</TableCell>
+                      <TableCell className="font-medium chewy-regular">${t.amount}</TableCell>
                       <TableCell>
                         {t.status === 'paid'
                           ? <Badge className="bg-primary/10 text-primary border-0">Paid</Badge>
@@ -181,7 +182,7 @@ export default function Payouts() {
         <Card className="border-border p-5 lg:p-6">
           <h2 className="text-lg font-medium mb-2">Payout Method</h2>
           {paymentInfo?.bankName ? (
-            <div className="flex items-center justify-between p-4 bg-secondary rounded mt-3">
+            <div className="flex items-center justify-between p-4 bg-background rounded mt-3">
               <div className="flex items-center gap-3">
                 <CreditCard size={20} className="text-muted" />
                 <div>

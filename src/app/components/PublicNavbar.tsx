@@ -7,7 +7,7 @@ const NAV_LINKS = [
   { label: 'Home', path: '/', exact: true },
   { label: 'Browse', path: '/browse' },
   { label: 'How It Works', path: '/how-it-works' },
-  { label: 'Women Rise Initiative', path: '/women-rise-initiative' },
+  { label: 'Women Rise', path: '/women-rise-initiative', accent: true },
   { label: 'WiFi Hubs', path: '/wifi-hubs' },
 ];
 
@@ -17,17 +17,13 @@ export function PublicNavbar() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    function onScroll() {
-      setScrolled(window.scrollY > 16);
-    }
+    function onScroll() { setScrolled(window.scrollY > 20); }
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [location.pathname]);
+  useEffect(() => { setMobileOpen(false); }, [location.pathname]);
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? 'hidden' : '';
@@ -43,7 +39,7 @@ export function PublicNavbar() {
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
-            ? 'bg-background/80 backdrop-blur-xl shadow-sm border-b border-border/50'
+            ? 'bg-background/90 backdrop-blur-2xl shadow-sm border-b border-border/60'
             : 'bg-transparent'
         }`}
       >
@@ -52,48 +48,57 @@ export function PublicNavbar() {
             {/* Logo */}
             <Link
               to="/"
-              className="flex items-center gap-3 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-lg py-1"
+              className="flex items-center gap-2.5 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl py-1 group"
             >
-              <img
-                src="/atn_logo_no_bg.png"
-                alt=""
-                className="w-9 h-9 lg:w-10 lg:h-10 object-contain flex-shrink-0"
-                aria-hidden
-              />
+              <div className="relative">
+                <img
+                  src="/atn_logo_no_bg.png"
+                  alt=""
+                  className="w-9 h-9 lg:w-10 lg:h-10 object-contain shrink-0 transition-transform duration-300 group-hover:scale-105"
+                  aria-hidden
+                />
+              </div>
               <div className="flex flex-col justify-center min-w-0">
-                <span className="text-base lg:text-lg font-semibold tracking-tight text-foreground leading-tight block">
+                <span className="text-base lg:text-lg font-bold tracking-tight text-foreground leading-tight block">
                   ATN
                 </span>
-                <span className="text-[10px] lg:text-xs text-muted leading-tight hidden sm:block mt-0.5">
+                <span className="text-[10px] text-muted leading-tight hidden sm:block mt-0.5 tracking-wide">
                   Access Terrain Network
                 </span>
               </div>
             </Link>
 
             {/* Desktop links */}
-            <div className="hidden md:flex items-center gap-1">
-              {NAV_LINKS.map(link => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                    isActive(link.path, link.exact)
-                      ? 'text-primary'
-                      : 'text-foreground/70 hover:text-foreground hover:bg-foreground/5'
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ))}
+            <div className="hidden md:flex items-center gap-0.5">
+              {NAV_LINKS.map(link => {
+                const active = isActive(link.path, link.exact);
+                return (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    className={`relative px-4 py-2 text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                      link.accent
+                        ? active
+                          ? 'text-rose'
+                          : 'text-rose/80 hover:text-rose'
+                        : active
+                          ? 'text-primary'
+                          : 'text-foreground/70 hover:text-foreground'
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
             </div>
 
             {/* Desktop auth buttons */}
-            <div className="hidden md:flex items-center gap-3">
-              <Button asChild variant="ghost" className="text-sm font-medium h-10 px-5">
+            <div className="hidden md:flex items-center gap-2">
+              <Button asChild variant="ghost" className="text-sm font-medium h-9 px-4">
                 <Link to="/login">Log In</Link>
               </Button>
-              <Button asChild className="text-sm font-medium h-10 px-5">
-                <Link to="/signup">Sign Up</Link>
+              <Button asChild variant="accent" className="text-sm font-semibold h-9 px-5 shadow-sm">
+                <Link to="/signup">Sign Up Free</Link>
               </Button>
             </div>
 
@@ -101,8 +106,11 @@ export function PublicNavbar() {
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
-              className="md:hidden p-2.5 -mr-1 rounded-lg hover:bg-foreground/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="md:hidden p-2.5 -mr-1 rounded-xl hover:bg-foreground/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
+              <span className={`block transition-all duration-200 ${mobileOpen ? 'opacity-0 scale-75' : 'opacity-100 scale-100'} absolute`}>
+                <Menu size={22} />
+              </span>
               {mobileOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
           </nav>
@@ -110,32 +118,39 @@ export function PublicNavbar() {
 
         {/* Mobile menu */}
         <div
-          className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-            mobileOpen ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'
+          className={`md:hidden overflow-hidden transition-all duration-300 ease-out ${
+            mobileOpen ? 'max-h-[480px] opacity-100' : 'max-h-0 opacity-0'
           }`}
         >
-          <div className="bg-background/95 backdrop-blur-xl border-t border-border/50 px-4 pb-6 pt-2">
-            <div className="flex flex-col gap-1">
-              {NAV_LINKS.map(link => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                    isActive(link.path, link.exact)
-                      ? 'text-primary bg-primary/5'
-                      : 'text-foreground hover:bg-secondary'
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ))}
+          <div className="bg-background/98 backdrop-blur-2xl border-t border-border/50 px-4 pb-6 pt-2">
+            <div className="flex flex-col gap-0.5 mb-4">
+              {NAV_LINKS.map(link => {
+                const active = isActive(link.path, link.exact);
+                return (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    className={`px-4 py-3 rounded-xl text-sm font-medium transition-all duration-150 flex items-center gap-2 ${
+                      link.accent
+                        ? active
+                          ? 'text-rose bg-surface-rose'
+                          : 'text-rose/80 hover:bg-surface-rose hover:text-rose'
+                        : active
+                          ? 'text-primary bg-surface-teal'
+                          : 'text-foreground hover:bg-secondary'
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
             </div>
-            <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-border">
+            <div className="flex flex-col gap-2 pt-4 border-t border-border/60">
               <Button asChild variant="outline" className="w-full h-11 text-sm font-medium">
                 <Link to="/login">Log In</Link>
               </Button>
-              <Button asChild className="w-full h-11 text-sm font-medium">
-                <Link to="/signup">Sign Up</Link>
+              <Button asChild variant="accent" className="w-full h-11 text-sm font-semibold">
+                <Link to="/signup">Sign Up Free</Link>
               </Button>
             </div>
           </div>

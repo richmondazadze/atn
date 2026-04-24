@@ -15,6 +15,7 @@ import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../../lib/supabase';
 import { uploadListingImage } from '../../../lib/storage';
 import { toast } from 'sonner';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
 
 const DRAFT_KEY = 'atn_create_listing_draft';
 
@@ -104,12 +105,12 @@ export default function CreateListing() {
 
   if (loading) return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <LoadingSpinner />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-secondary px-4 md:px-6 lg:px-[72px]">
+    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-4xl mx-auto">
         <Link to="/provider/listings" className="inline-flex items-center gap-2 text-muted mb-5 hover:text-foreground text-sm">
           <ArrowLeft size={16} /> Back to listings
@@ -228,7 +229,7 @@ export default function CreateListing() {
             >
               {uploadingImages ? (
                 <div className="flex flex-col items-center gap-2">
-                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                  <LoadingSpinner />
                   <p className="text-sm text-muted">Uploading…</p>
                 </div>
               ) : (

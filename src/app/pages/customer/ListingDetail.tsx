@@ -16,6 +16,7 @@ import { RatingStars } from '../../components/RatingStars';
 import { toast } from 'sonner';
 import { supabase } from '../../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
 
 const TIME_SLOTS = ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00'];
 
@@ -71,15 +72,15 @@ export default function ListingDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-secondary flex items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <LoadingSpinner />
       </div>
     );
   }
 
   if (!listing) {
     return (
-      <div className="min-h-screen bg-secondary flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <p className="text-muted">Listing not found.</p>
       </div>
     );
@@ -88,7 +89,7 @@ export default function ListingDetail() {
   const listingReviews = reviews.slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-secondary px-4 lg:px-[72px]">
+    <div className="min-h-screen bg-background px-4 lg:px-[72px]">
       <div className="py-6 lg:py-8 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
           {/* Main Content */}
@@ -186,7 +187,7 @@ export default function ListingDetail() {
           <div className="lg:col-span-1 order-first lg:order-last">
             <Card className="border-border p-5 lg:p-6 lg:sticky lg:top-8">
               <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-3xl font-semibold">${listing.price}</span>
+                <span className="text-3xl font-semibold chewy-regular">${listing.price}</span>
                 <span className="text-muted text-sm">/session</span>
               </div>
 
@@ -283,7 +284,7 @@ export default function ListingDetail() {
 
           {/* Selected slot summary */}
           {(selectedDate || selectedTime) && (
-            <div className="rounded-lg bg-secondary px-4 py-3 mb-5">
+            <div className="rounded-lg bg-background px-4 py-3 mb-5">
               <span className="block text-xs uppercase tracking-wide text-muted mb-1">Selected slot</span>
               {selectedDate && selectedTime ? (
                 <span className="font-medium text-sm text-foreground">

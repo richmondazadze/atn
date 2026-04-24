@@ -32,7 +32,7 @@ export default function ResetPassword() {
   }
 
   return (
-    <div className="min-h-screen bg-secondary flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-background border border-border rounded-lg p-6 sm:p-8">
         <Link to="/login" className="inline-flex items-center gap-2 text-muted hover:text-foreground text-xs font-medium mb-6">
           <ArrowLeft size={16} />
