@@ -86,8 +86,9 @@ export default function ProviderDashboard() {
           {/* Card 1 – Bookings Today */}
           <Card className="p-5 lg:p-6 animate-fade-up delay-100">
             <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center justify-center shrink-0">
-                <Calendar size={20} className="text-muted-foreground" />
+              <div className="flex items-center gap-1.5">
+                <Clock size={13} />
+                <span>Bookings</span>
               </div>
               <Badge variant="outline" className="text-[10px] uppercase tracking-tighter border-primary/20 text-primary font-bold">Today</Badge>
             </div>
@@ -191,7 +192,7 @@ export default function ProviderDashboard() {
                         </div>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Clock size={14} className="text-muted-foreground" />
-                          <span className="font-medium text-foreground">{booking.time} ({booking.duration}m)</span>
+                          <span className="font-medium text-foreground">{booking.time}</span>
                         </div>
                         {booking.address && (
                           <div className="flex items-center gap-2 text-sm text-muted-foreground lg:col-span-1">
@@ -201,8 +202,11 @@ export default function ProviderDashboard() {
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center justify-between md:flex-col md:items-end gap-4 shrink-0 pt-4 md:pt-0 border-t md:border-t-0 border-border/50">
-                      <div className="text-2xl font-bold text-foreground chewy-regular">${booking.price}</div>
+                    <div className="flex flex-col gap-4 shrink-0 pt-4 md:pt-0 border-t md:border-t-0 border-border/50 w-full md:w-auto">
+                      <div className="flex items-center justify-between w-full chewy-regular">
+                        <div className="text-xl font-bold text-foreground">${booking.price}</div>
+                        <div className="text-xs text-muted">{booking.duration}m</div>
+                      </div>
                       <Button variant="outline" className="h-9 px-4 font-bold text-xs" asChild>
                         <Link to="/provider/bookings">View Details</Link>
                       </Button>

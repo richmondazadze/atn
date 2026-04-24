@@ -105,20 +105,20 @@ export function ListingCard({
           </div>
 
           {/* Price + duration + availability */}
-          <div className="mt-auto flex items-center justify-between gap-2">
-            <div className="flex items-baseline gap-1">
-              <span className="text-lg font-bold text-foreground chewy-regular">${numPrice}</span>
+          <div className="mt-auto flex items-center justify-between gap-3 w-full">
+            <span className="text-lg font-bold text-foreground chewy-regular">${numPrice}</span>
+            <div className="flex items-center gap-3">
               <span className="text-xs text-muted flex items-center gap-1 chewy-regular">
                 <Clock size={11} />
                 {durationLabel}
               </span>
+              {hasValidNext && formattedDate && (
+                <div className="flex items-center gap-1 text-xs text-muted bg-secondary px-2 py-1 rounded-lg shrink-0">
+                  <Calendar size={11} />
+                  <span>{formattedDate}</span>
+                </div>
+              )}
             </div>
-            {hasValidNext && formattedDate && (
-              <div className="flex items-center gap-1 text-xs text-muted bg-secondary px-2 py-1 rounded-lg shrink-0">
-                <Calendar size={11} />
-                <span>{formattedDate}</span>
-              </div>
-            )}
           </div>
         </div>
       </Link>

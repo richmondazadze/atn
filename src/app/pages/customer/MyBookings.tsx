@@ -100,11 +100,10 @@ function BookingCard({
             )}
           </div>
         </div>
-
-        <div className="text-right shrink-0 chewy-regular">
-          <div className="text-xl font-bold text-foreground">${booking.price}</div>
-          <div className="text-xs text-muted">{booking.duration}m</div>
-        </div>
+      </div>
+      <div className="flex items-center justify-between mt-auto pt-4 border-t border-border/40 chewy-regular">
+        <div className="text-xl font-bold text-foreground">${booking.price}</div>
+        <div className="text-xs text-muted">{booking.duration}m</div>
       </div>
     </div>
   );

@@ -56,7 +56,6 @@ export default function BookingInbox() {
             </div>
             <h3 className="font-medium truncate">{booking.title}</h3>
           </div>
-          <div className="text-lg font-semibold ml-4 shrink-0 chewy-regular">${booking.price}</div>
         </div>
 
         <div className="flex items-center gap-1.5 text-sm text-muted mb-2">
@@ -71,8 +70,13 @@ export default function BookingInbox() {
           </div>
           <div className="flex items-center gap-1.5">
             <Clock size={13} />
-            <span>{booking.time} (<span className="chewy-regular">{booking.duration}</span>m)</span>
+            <span>{booking.time}</span>
           </div>
+        </div>
+
+        <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/40 chewy-regular">
+           <div className="text-lg font-bold text-foreground">${booking.price}</div>
+           <div className="text-xs text-muted">{booking.duration}m</div>
         </div>
       </Card>
     );

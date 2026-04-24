@@ -132,11 +132,8 @@ export default function CustomerHome() {
                         </div>
                         <h3 className="text-lg font-bold text-foreground truncate">{booking.title}</h3>
                       </div>
-                      <div className="text-right shrink-0">
-                        <div className="text-2xl font-bold text-foreground chewy-regular">${booking.price}</div>
-                        <div className="text-xs font-medium text-muted-foreground uppercase tracking-tighter">{booking.duration} min</div>
-                      </div>
                     </div>
+                    
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                       <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
                         <Clock size={14} className="text-muted-foreground" />
@@ -148,6 +145,10 @@ export default function CustomerHome() {
                           <span className="truncate font-medium text-foreground">{booking.address}</span>
                         </div>
                       )}
+                    </div>
+                    <div className="flex items-center justify-between mt-auto mb-5 pt-4 border-t border-border/40">
+                      <div className="text-xl font-bold text-foreground chewy-regular">${booking.price}</div>
+                      <div className="text-xs font-medium text-muted-foreground uppercase tracking-tighter chewy-regular">{booking.duration} min</div>
                     </div>
                     <div className="flex gap-2 pt-5 border-t border-border/50">
                       <Button variant="outline" className="flex-1 font-bold text-xs h-9" asChild>

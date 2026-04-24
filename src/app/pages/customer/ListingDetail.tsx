@@ -186,16 +186,22 @@ export default function ListingDetail() {
           {/* Booking Card */}
           <div className="lg:col-span-1 order-first lg:order-last">
             <Card className="border-border p-5 lg:p-6 lg:sticky lg:top-8">
-              <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-3xl font-semibold chewy-regular">${listing.price}</span>
-                <span className="text-muted text-sm">/session</span>
-              </div>
+               <div className="flex items-center justify-between mb-4">
+                 <div className="flex items-baseline gap-1">
+                   <span className="text-3xl font-semibold chewy-regular">${listing.price}</span>
+                   <span className="text-muted text-sm">/session</span>
+                 </div>
+                 <div className="flex items-center gap-1.5 text-sm text-muted chewy-regular">
+                   <Clock size={14} />
+                   <span>{listing.duration}m</span>
+                 </div>
+               </div>
 
               <div className="space-y-2 text-sm text-muted mb-5">
-                <div className="flex items-center gap-2">
-                  <Clock size={14} />
-                  <span>{listing.duration >= 60 ? `${Math.floor(listing.duration / 60)} hours` : `${listing.duration} minutes`}</span>
-                </div>
+                 <div className="flex items-center gap-2">
+                   <Clock size={14} />
+                   <span>Session duration</span>
+                 </div>
                 {listing.next_available && !isNaN(new Date(listing.next_available).getTime()) && (
                   <div className="flex items-center gap-2">
                     <CalendarIcon size={14} />
