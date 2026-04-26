@@ -60,7 +60,7 @@ export default function Login() {
     <div className="flex h-screen w-screen overflow-hidden">
 
       {/* ── Left panel ───────────────────────────────────────── */}
-      <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-center p-12 bg-gradient-teal-violet overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-center p-12 bg-gradient-teal-gold overflow-hidden">
         {/* Subtle noise / texture overlay */}
         <div className="absolute inset-0 z-0 opacity-[0.07] bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZmlsdGVyIGlkPSJuIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNuKSIgb3BhY2l0eT0iMSIvPjwvc3ZnPg==')]" aria-hidden="true" />
 

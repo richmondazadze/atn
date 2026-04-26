@@ -112,10 +112,19 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+  .text-gradient-teal-gold {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 
   /* Gradient backgrounds */
   .bg-gradient-hero {
-    background: linear-gradient(135deg, #CCFBF1 0%, #FAFAF8 45%, #FEF3C7 100%);
+    background: linear-gradient(135deg, #0D9488 0%, #0a7a6f 30%, #8d7b2a 70%, #efb43d 100%);
+  }
+  .bg-gradient-teal-gold {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--gold) 100%);
   }
   .bg-gradient-teal-violet {
     background: linear-gradient(135deg, var(--primary) 0%, var(--violet) 100%);
@@ -125,6 +134,9 @@
   }
   .bg-gradient-rose-violet {
     background: linear-gradient(135deg, var(--rose) 0%, var(--violet) 100%);
+  }
+  .bg-gradient-gold-warm {
+    background: linear-gradient(135deg, var(--gold) 0%, #e8903e 100%);
   }
 
   /* Shadow helpers */

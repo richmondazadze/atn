@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import { Button } from '../../components/ui/button';
-import { ArrowRight, Search, Calendar, UserCheck, Star } from 'lucide-react';
+import { ArrowRight, Search, Calendar, UserCheck, Star, Heart, Shield, Accessibility } from 'lucide-react';
 import { getListingImageUrl } from '../../../lib/storage';
 import { ListingCard } from '../../components/ListingCard';
 import { RatingStars } from '../../components/RatingStars';
@@ -23,8 +23,8 @@ const howItWorksSteps = [
     title: 'Book instantly',
     description: 'Choose your date and time, then confirm your booking in seconds.',
     icon: Calendar,
-    color: 'bg-surface-violet text-violet',
-    accent: 'from-surface-violet to-background',
+    color: 'bg-surface-gold text-gold',
+    accent: 'from-surface-gold to-background',
   },
   {
     number: 3,
@@ -42,6 +42,21 @@ const trustStats = [
   { value: '4.9', label: 'Average Rating' },
 ];
 
+const inclusionHighlights = [
+  {
+    title: 'Women-Owned Businesses',
+    description: 'Dedicated pathways, ASU-backed training, and mentorship programs to help women-owned service businesses thrive.',
+  },
+  {
+    title: 'Disability-Inclusive Opportunities',
+    description: 'Accessible service listings, adaptive scheduling, and specialized support for providers and customers with disabilities.',
+  },
+  {
+    title: 'Veteran & Minority Support',
+    description: 'Priority onboarding, reduced fees, and community resources tailored for veterans and underrepresented entrepreneurs.',
+  },
+];
+
 function StatCounter({ value }: { value: string }) {
   const [displayValue, setDisplayValue] = useState(0);
   const numericPart = parseFloat(value.replace(/[^0-9.]/g, ''));
@@ -49,18 +64,14 @@ function StatCounter({ value }: { value: string }) {
   const isFloat = value.includes('.');
 
   useEffect(() => {
-    let start = 0;
     const end = numericPart;
-    const duration = 1000; // fast animation
+    const duration = 1000;
     const startTime = performance.now();
 
     const animate = (currentTime: number) => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      
-      // Easing function: easeOutExpo for a "fast" start and smooth finish
       const easedProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-      
       const currentCount = easedProgress * end;
       setDisplayValue(currentCount);
 
@@ -82,7 +93,7 @@ function StatCounter({ value }: { value: string }) {
 
 const avatarColors = [
   'bg-primary text-white',
-  'bg-violet text-white',
+  'bg-gold text-gold-foreground',
   'bg-coral text-white',
   'bg-amber text-white',
   'bg-rose text-white',
@@ -106,33 +117,38 @@ export default function PublicHome() {
 
       {/* ── Hero ───────────────────────────────────────────── */}
       <section className="relative overflow-hidden px-4 md:px-6 lg:px-[72px] pt-20 pb-16 lg:pt-32 lg:pb-28">
-        {/* Background Image & Overlay */}
+        {/* Background Image */}
         <div 
           className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat scale-105" 
           style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1763048208932-cbe149724374?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxCbGFjayUyMHdvbWFuJTIwYnJhaWRpbmclMjBoYWlyJTIwc2Fsb258ZW58MXx8fHwxNzczNDQ1NjIxfDA&ixlib=rb-4.1.0&q=80&w=1080)' }} 
           aria-hidden="true"
         />
-        <div className="absolute inset-0 z-10 bg-background/65 backdrop-blur-[0.5px]" aria-hidden="true" />
-        <div className="absolute inset-0 z-10 bg-gradient-to-b from-transparent via-background/20 to-background" aria-hidden="true" />
+        {/* Rich teal-gold gradient overlay — immersive, not washed out */}
+        <div 
+          className="absolute inset-0 z-10" 
+          style={{ background: 'linear-gradient(135deg, rgba(13,148,136,0.88) 0%, rgba(10,122,111,0.82) 35%, rgba(141,123,42,0.78) 65%, rgba(239,180,61,0.85) 100%)' }}
+          aria-hidden="true" 
+        />
+        <div className="absolute inset-0 z-10 bg-gradient-to-b from-transparent via-transparent to-background/90" aria-hidden="true" />
 
         <div className="relative z-20 max-w-5xl mx-auto text-center">
           <div className="flex flex-col items-center space-y-6">
             <div className="space-y-4 animate-fade-up max-w-4xl">
-              <h1 className="text-4xl lg:text-7xl font-bold tracking-tight text-foreground leading-[1.1]">
+              <h1 className="text-4xl lg:text-7xl font-bold tracking-tight text-white leading-[1.1] drop-shadow-lg">
                 Book trusted<br />
-                <span className="text-gradient-teal">local services</span><br />
+                <span style={{ WebkitTextFillColor: 'transparent', background: 'linear-gradient(90deg, #FEF5DC 0%, #efb43d 100%)', WebkitBackgroundClip: 'text', backgroundClip: 'text' }}>local services</span><br />
                 you can count on
               </h1>
-              <p className="text-base lg:text-lg text-foreground/90 font-medium leading-relaxed mx-auto max-w-2xl animate-fade-up delay-100">
-                Connect with vetted women service providers for cleaning, braiding, tutoring, home repair, and more. Instant booking, transparent pricing, and local expertise.
+              <p className="text-base lg:text-lg text-white/90 font-medium leading-relaxed mx-auto max-w-2xl animate-fade-up delay-100">
+                Connecting underserved communities — women entrepreneurs, people with disabilities, veterans, and minorities — with trusted local service providers. Instant booking, transparent pricing, and real opportunities.
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 animate-fade-up delay-200">
-              <Button asChild className="h-12 px-10 text-base font-semibold shadow-lg">
+              <Button asChild className="h-12 px-10 text-base font-semibold shadow-lg bg-white text-primary hover:bg-white/90">
                 <Link to="/signup">Get Started Free</Link>
               </Button>
-              <Button asChild variant="outline" className="h-12 px-10 text-base bg-background/50">
+              <Button asChild variant="outline" className="h-12 px-10 text-base border-white/40 text-white hover:bg-white/10 bg-transparent">
                 <Link to="/browse">
                   Browse Services
                   <ArrowRight size={18} className="ml-2" />
@@ -159,8 +175,36 @@ export default function PublicHome() {
         </div>
       </section>
 
-      {/* ── Featured services ─────────────────────────────── */}
+      {/* ── Inclusion & Accessibility ─────────────────────── */}
       <section className="px-4 md:px-6 lg:px-[72px] py-16 lg:py-20">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12 animate-fade-up">
+            <p className="text-gold text-sm font-semibold tracking-widest uppercase mb-3">Everyone Belongs</p>
+            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">Built for Underserved Communities</h2>
+            <p className="text-muted text-base max-w-2xl mx-auto leading-relaxed">
+              ATN creates economic opportunities for those who've been overlooked — women, people with disabilities, veterans, and minority entrepreneurs.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {inclusionHighlights.map((item, i) => {
+              return (
+                <div
+                  key={item.title}
+                  className="border border-border border-l-4 border-l-primary bg-background p-6 lg:p-8 shadow-sm hover:shadow-md transition-all animate-fade-up"
+                  style={{ animationDelay: `${i * 120}ms` }}
+                >
+                  <h3 className="text-lg font-bold text-foreground mb-2">{item.title}</h3>
+                  <p className="text-sm text-muted leading-relaxed">{item.description}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Featured services ─────────────────────────────── */}
+      <section className="px-4 md:px-6 lg:px-[72px] py-16 lg:py-20 bg-background/40">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-end justify-between mb-10">
             <div className="space-y-2">
@@ -195,7 +239,7 @@ export default function PublicHome() {
             ) : (
               /* Placeholder cards while no listings */
               [0, 1, 2].map(i => (
-                <div key={i} className={`h-80 bg-gradient-to-br from-surface-teal to-surface-violet rounded-2xl animate-shimmer delay-${(i + 1) * 100}`} />
+                <div key={i} className={`h-80 bg-gradient-to-br from-surface-teal to-surface-gold rounded-2xl animate-shimmer delay-${(i + 1) * 100}`} />
               ))
             )}
           </div>
@@ -209,14 +253,14 @@ export default function PublicHome() {
       </section>
 
       {/* ── How it works ──────────────────────────────────── */}
-      <section className="px-4 md:px-6 lg:px-[72px] py-16 lg:py-20 bg-background/40">
+      <section className="px-4 md:px-6 lg:px-[72px] py-16 lg:py-20">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12 animate-fade-up">
             <h2 className="text-3xl lg:text-4xl font-bold text-foreground">How it Works</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 lg:gap-10 relative">
             {/* Connector line — desktop */}
-            <div className="hidden sm:block absolute top-8 left-1/6 right-1/6 h-px bg-gradient-to-r from-transparent via-border to-transparent" aria-hidden="true" />
+            <div className="hidden sm:block absolute top-8 left-1/6 right-1/6 h-px bg-gradient-to-r from-primary via-gold to-primary" aria-hidden="true" />
             {howItWorksSteps.map((step, i) => {
               const Icon = step.icon;
               return (
@@ -238,7 +282,7 @@ export default function PublicHome() {
 
       {/* ── Testimonials ──────────────────────────────────── */}
       {testimonials.length > 0 && (
-        <section className="px-4 md:px-6 lg:px-[72px] py-16 lg:py-20">
+        <section className="px-4 md:px-6 lg:px-[72px] py-16 lg:py-20 bg-background/40">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-12 animate-fade-up">
               <h2 className="text-3xl lg:text-4xl font-bold text-foreground">What the Community Says</h2>
@@ -270,7 +314,7 @@ export default function PublicHome() {
       {/* ── CTA ───────────────────────────────────────────── */}
       <section className="px-4 md:px-6 lg:px-[72px] py-16 lg:py-24">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center">
+          <div className="text-center animate-fade-up">
             <p className="text-primary text-sm font-semibold tracking-widest uppercase mb-4">Join the community</p>
             <h2 className="text-3xl lg:text-5xl font-bold text-foreground mb-6 leading-tight">
               Ready to get started?
@@ -279,7 +323,7 @@ export default function PublicHome() {
               Join Access Terrain Network as a customer or service provider today.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button asChild className="h-12 px-8 text-base shadow-sm">
+              <Button asChild className="h-12 px-8 text-base shadow-sm font-semibold">
                 <Link to="/signup">Sign Up Free</Link>
               </Button>
               <Button asChild variant="outline" className="h-12 px-8 text-base">

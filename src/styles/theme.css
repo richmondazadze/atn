@@ -8,6 +8,12 @@
   --primary-light: #14B8A6;
   --primary-glow: rgba(13, 148, 136, 0.18);
 
+  --gold: #efb43d;
+  --gold-foreground: #1a1207;
+  --gold-hover: #d9a02e;
+  --gold-light: #f5c95c;
+  --gold-glow: rgba(239, 180, 61, 0.20);
+
   --amber: #F59E0B;
   --amber-foreground: #FFFFFF;
   --amber-hover: #D97706;
@@ -37,6 +43,7 @@
   --surface-violet: #EDE9FE;
   --surface-rose:   #FCE7F3;
   --surface-green:  #DCFCE7;
+  --surface-gold:   #FEF5DC;
 
   /* ── Neutrals ────────────────────────────────────── */
   --background: #FAFAF8;
@@ -58,9 +65,9 @@
   --input-background: #FFFFFF;
   --ring: #0D9488;
 
-  /* ── Accent (amber as primary accent) ───────────── */
-  --accent: #F59E0B;
-  --accent-foreground: #FFFFFF;
+  /* ── Accent (gold as primary accent) ────────────── */
+  --accent: #efb43d;
+  --accent-foreground: #1a1207;
 
   /* ── Sidebar ─────────────────────────────────────── */
   --sidebar: #FFFFFF;
@@ -137,6 +144,8 @@
   --color-rose-foreground: var(--rose-foreground);
   --color-status-green:   var(--status-green);
   --color-status-green-foreground: var(--status-green-foreground);
+  --color-gold:           var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
 
   --color-surface-teal:   var(--surface-teal);
   --color-surface-amber:  var(--surface-amber);
@@ -144,6 +153,7 @@
   --color-surface-violet: var(--surface-violet);
   --color-surface-rose:   var(--surface-rose);
   --color-surface-green:  var(--surface-green);
+  --color-surface-gold:   var(--surface-gold);
 
   --color-sidebar:                    var(--sidebar);
   --color-sidebar-foreground:         var(--sidebar-foreground);

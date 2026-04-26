@@ -30,8 +30,12 @@ export default function WomenRiseInitiative() {
           style={{ backgroundImage: 'url(/women_emp.jpg)' }} 
           aria-hidden="true"
         />
-        <div className="absolute inset-0 z-10 bg-background/85 backdrop-blur-[1px]" aria-hidden="true" />
-        <div className="absolute inset-0 z-10 bg-gradient-to-b from-transparent via-background/20 to-background" aria-hidden="true" />
+        <div 
+          className="absolute inset-0 z-10" 
+          style={{ background: 'linear-gradient(135deg, rgba(13,148,136,0.88) 0%, rgba(10,122,111,0.82) 35%, rgba(141,123,42,0.78) 65%, rgba(239,180,61,0.85) 100%)' }}
+          aria-hidden="true" 
+        />
+        <div className="absolute inset-0 z-10 bg-gradient-to-b from-transparent via-transparent to-background/90" aria-hidden="true" />
 
         <div className="relative z-20 max-w-5xl mx-auto text-center">
           <div className="flex flex-col items-center space-y-8">
@@ -53,21 +57,21 @@ export default function WomenRiseInitiative() {
             </div>
 
             <div className="space-y-4 animate-fade-up">
-              <h1 className="text-4xl lg:text-7xl leading-[1.1] font-bold text-foreground">
+              <h1 className="text-4xl lg:text-7xl leading-[1.1] font-bold text-white drop-shadow-lg">
                 Empowering women<br />
-                <span className="text-gradient-vibrant">to rise & thrive</span>
+                <span style={{ WebkitTextFillColor: 'transparent', background: 'linear-gradient(90deg, #FEF5DC 0%, #efb43d 100%)', WebkitBackgroundClip: 'text', backgroundClip: 'text' }}>to rise & thrive</span>
               </h1>
-              <p className="text-sm lg:text-base text-muted leading-relaxed mx-auto max-w-2xl">
+              <p className="text-sm lg:text-base text-white/85 leading-relaxed mx-auto max-w-2xl">
                 A strategic partnership between Access Terrain Network (ATN) and Arkansas State University focused on
                 equipping women with high-value credentials and community-connected career pathways.
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4 animate-fade-up delay-200">
-              <Button asChild className="h-12 px-10 text-base font-semibold shadow-lg">
+              <Button asChild className="h-12 px-10 text-base font-semibold shadow-lg bg-white text-primary hover:bg-white/90">
                 <a href="/signup">Join the initiative</a>
               </Button>
-              <Button asChild variant="outline" className="h-12 px-10 text-base bg-background/50">
+              <Button asChild variant="outline" className="h-12 px-10 text-base border-white/40 text-white hover:bg-white/10 bg-transparent">
                 <a href="/how-it-works">
                   See how it works <ArrowRight size={16} className="ml-2" />
                 </a>
@@ -252,7 +256,7 @@ export default function WomenRiseInitiative() {
               economic opportunities for women-led services in Jonesboro.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button asChild className="h-12 px-8 text-base shadow-sm">
+              <Button asChild className="h-12 px-8 text-base shadow-sm font-semibold">
                 <a href="/signup">Get started now</a>
               </Button>
               <Button asChild variant="outline" className="h-12 px-8 text-base">

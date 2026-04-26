@@ -180,10 +180,10 @@ export default function Browse() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-gradient-hero border-b border-border/60 px-4 lg:px-[72px]">
+      <div className="bg-background border-b border-border/60 px-4 lg:px-[72px]">
         <div className="py-8 lg:py-10 max-w-7xl mx-auto">
           <h1 className="text-2xl lg:text-[32px] font-bold text-foreground mb-1">Browse Services</h1>
-          <p className="text-sm text-muted">Explore local services from vetted women providers</p>
+          <p className="text-sm text-muted">Explore local services from vetted professionals</p>
         </div>
       </div>
 
