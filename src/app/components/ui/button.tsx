@@ -27,10 +27,10 @@ const buttonVariants = cva(
           "bg-coral text-coral-foreground shadow-sm hover:bg-[#D45A3B]",
       },
       size: {
-        default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
-        lg: "h-11 rounded-md px-6 has-[>svg]:px-4 text-base",
-        icon: "size-9 rounded-md",
+        default: "h-11 md:h-10 px-5 md:px-4 py-2 has-[>svg]:px-4 md:has-[>svg]:px-3",
+        sm: "h-10 md:h-8 rounded-md gap-1.5 px-4 md:px-3 has-[>svg]:px-3 md:has-[>svg]:px-2.5",
+        lg: "h-12 md:h-11 rounded-md px-8 md:px-6 has-[>svg]:px-5 md:has-[>svg]:px-4 text-base",
+        icon: "size-11 md:size-9 rounded-md",
       },
     },
     defaultVariants: {

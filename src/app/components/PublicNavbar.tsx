@@ -94,10 +94,10 @@ export function PublicNavbar() {
 
             {/* Desktop auth buttons */}
             <div className="hidden md:flex items-center gap-2">
-              <Button asChild variant="ghost" className="text-sm font-medium h-9 px-4">
+              <Button asChild variant="ghost" className="text-sm font-medium h-10 px-5">
                 <Link to="/login">Log In</Link>
               </Button>
-              <Button asChild variant="accent" className="text-sm font-semibold h-9 px-5 shadow-sm">
+              <Button asChild variant="accent" className="text-sm font-semibold h-10 px-6 shadow-sm">
                 <Link to="/signup">Sign Up Free</Link>
               </Button>
             </div>
@@ -106,7 +106,7 @@ export function PublicNavbar() {
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
-              className="md:hidden p-2.5 -mr-1 rounded-xl hover:bg-foreground/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="md:hidden w-11 h-11 flex items-center justify-center -mr-2 rounded-xl hover:bg-foreground/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <span className={`block transition-all duration-200 ${mobileOpen ? 'opacity-0 scale-75' : 'opacity-100 scale-100'} absolute`}>
                 <Menu size={22} />

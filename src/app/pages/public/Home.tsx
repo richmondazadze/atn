@@ -144,11 +144,11 @@ export default function PublicHome() {
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 animate-fade-up delay-200">
-              <Button asChild className="h-12 px-10 text-base font-semibold shadow-lg bg-white text-primary hover:bg-white/90">
+            <div className="flex flex-col sm:flex-row gap-4 animate-fade-up delay-200 w-full sm:w-auto">
+              <Button asChild className="h-12 w-full sm:w-auto px-10 text-base font-semibold shadow-lg bg-white text-primary hover:bg-white/90">
                 <Link to="/signup">Get Started Free</Link>
               </Button>
-              <Button asChild variant="outline" className="h-12 px-10 text-base border-white/40 text-white hover:bg-white/10 bg-transparent">
+              <Button asChild variant="outline" className="h-12 w-full sm:w-auto px-10 text-base border-white/40 text-white hover:bg-white/10 bg-transparent">
                 <Link to="/browse">
                   Browse Services
                   <ArrowRight size={18} className="ml-2" />
@@ -162,13 +162,13 @@ export default function PublicHome() {
       {/* ── Trust strip ───────────────────────────────────── */}
       <section className="border-y border-border/60 bg-background px-4 md:px-6 lg:px-[72px]">
         <div className="py-10 max-w-7xl mx-auto">
-          <div className="grid grid-cols-3 gap-6 divide-x divide-border/60">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 sm:divide-x divide-border/60">
             {trustStats.map((stat, i) => (
-              <div key={stat.label} className={`text-center ${i > 0 ? 'pl-6' : ''} animate-fade-up`} style={{ animationDelay: `${i * 100}ms` }}>
-                <div className="text-3xl lg:text-4xl font-bold mb-1 text-primary chewy-regular">
+              <div key={stat.label} className={`text-center ${i > 0 ? 'sm:pl-6' : ''} animate-fade-up`} style={{ animationDelay: `${i * 100}ms` }}>
+                <div className="text-4xl lg:text-5xl font-bold mb-2 text-primary chewy-regular">
                   <StatCounter value={stat.value} />
                 </div>
-                <div className="text-xs lg:text-sm text-muted font-medium">{stat.label}</div>
+                <div className="text-sm lg:text-base text-muted font-medium">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -322,11 +322,11 @@ export default function PublicHome() {
             <p className="text-muted text-lg mb-10 max-w-md mx-auto leading-relaxed">
               Join Access Terrain Network as a customer or service provider today.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button asChild className="h-12 px-8 text-base shadow-sm font-semibold">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center w-full">
+              <Button asChild className="h-12 w-full sm:w-auto px-8 text-base shadow-sm font-semibold">
                 <Link to="/signup">Sign Up Free</Link>
               </Button>
-              <Button asChild variant="outline" className="h-12 px-8 text-base">
+              <Button asChild variant="outline" className="h-12 w-full sm:w-auto px-8 text-base">
                 <Link to="/how-it-works">Learn More</Link>
               </Button>
             </div>

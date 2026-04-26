@@ -81,7 +81,7 @@ export default function ProviderDashboard() {
         </div>
 
         {/* ── Stat Cards ────────────────────────────────────── */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-10 lg:mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-10 lg:mb-16">
 
           {/* Card 1 – Bookings Today */}
           <Card className="p-5 lg:p-6 animate-fade-up delay-100">
@@ -207,7 +207,7 @@ export default function ProviderDashboard() {
                         <div className="text-xl font-bold text-foreground">${booking.price}</div>
                         <div className="text-xs text-muted">{booking.duration}m</div>
                       </div>
-                      <Button variant="outline" className="h-9 px-4 font-bold text-xs" asChild>
+                      <Button variant="outline" className="h-11 sm:h-9 px-4 font-bold text-sm sm:text-xs w-full sm:w-auto" asChild>
                         <Link to="/provider/bookings">View Details</Link>
                       </Button>
                     </div>

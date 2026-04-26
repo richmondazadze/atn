@@ -72,9 +72,9 @@ export function AppNavbar({ onMenuClick, showMenuButton }: AppNavbarProps) {
           <button
             onClick={onMenuClick}
             aria-label="Open navigation menu"
-            className="lg:hidden p-2 -ml-1 rounded-xl hover:bg-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="lg:hidden w-11 h-11 flex items-center justify-center -ml-2 rounded-xl hover:bg-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <Menu size={20} />
+            <Menu size={22} />
           </button>
         )}
         <Link
@@ -103,7 +103,7 @@ export function AppNavbar({ onMenuClick, showMenuButton }: AppNavbarProps) {
         {/* User dropdown trigger */}
         <button
           onClick={() => setDropOpen(!dropOpen)}
-          className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex items-center gap-2 h-11 px-2 rounded-xl hover:bg-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-expanded={dropOpen}
           aria-haspopup="true"
         >
@@ -124,28 +124,27 @@ export function AppNavbar({ onMenuClick, showMenuButton }: AppNavbarProps) {
           />
         </button>
 
-        {/* Dropdown */}
         {dropOpen && (
-          <div className="absolute top-[calc(100%+8px)] right-0 w-52 bg-background border border-border rounded-2xl shadow-lg py-1.5 z-50 animate-scale-in">
+          <div className="absolute top-[calc(100%+8px)] right-0 w-[calc(100vw-32px)] sm:w-56 max-w-sm bg-background border border-border rounded-2xl shadow-lg py-1.5 z-50 animate-scale-in">
             {/* User info header */}
             <div className="px-4 py-3 border-b border-border/60">
-              <p className="text-sm font-semibold text-foreground truncate">{user.name}</p>
-              <p className="text-xs text-muted truncate mt-0.5">{user.email}</p>
+              <p className="text-base sm:text-sm font-semibold text-foreground truncate">{user.name}</p>
+              <p className="text-sm sm:text-xs text-muted truncate mt-0.5">{user.email}</p>
             </div>
             {/* Actions */}
             <div className="py-1">
               <Link
                 to={`/${user.role}/settings`}
                 onClick={() => setDropOpen(false)}
-                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-foreground/80 hover:bg-secondary hover:text-foreground transition-colors"
+                className="flex items-center gap-2.5 px-4 h-11 sm:h-10 text-base sm:text-sm text-foreground/80 hover:bg-secondary hover:text-foreground transition-colors"
               >
                 Settings
               </Link>
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-coral hover:bg-surface-coral transition-colors"
+                className="flex items-center gap-2.5 w-full px-4 h-11 sm:h-10 text-base sm:text-sm text-coral hover:bg-surface-coral transition-colors"
               >
-                <LogOut size={15} />
+                <LogOut size={18} className="sm:w-[15px] sm:h-[15px]" />
                 Log out
               </button>
             </div>

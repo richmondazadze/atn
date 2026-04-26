@@ -129,13 +129,13 @@ export function ListingCard({
           type="button"
           onClick={() => onToggleFavorite(id)}
           aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-          className={`absolute top-2 right-2 p-2 rounded-full shadow-sm transition-all duration-150 z-10 ${
+          className={`absolute top-2 right-2 w-11 h-11 flex items-center justify-center rounded-full shadow-sm transition-all duration-150 z-10 ${
             isFavorite
               ? 'bg-coral text-white hover:bg-coral/90'
               : 'bg-white/90 text-muted hover:bg-white hover:text-coral'
           }`}
         >
-          <Heart size={15} className={isFavorite ? 'fill-current' : ''} />
+          <Heart size={18} className={isFavorite ? 'fill-current' : ''} />
         </button>
       )}
     </div>
