@@ -157,26 +157,23 @@ export default function WomenRiseInitiative() {
             <div className="md:col-span-4 md:row-span-2 border border-border bg-background p-6 min-h-[260px] md:min-h-0 animate-fade-up delay-150">
               <div className="inline-flex items-center gap-2 bg-surface-teal text-primary px-3 py-1.5">
                 <Accessibility size={15} />
-                <span className="text-xs font-semibold tracking-widest uppercase">Disability Inclusion</span>
+                <span className="text-xs font-semibold tracking-widest uppercase">Opportunity Highlight Initiative</span>
               </div>
               <div className="mt-4 grid grid-cols-1 lg:grid-cols-5 gap-4 h-[calc(100%-42px)]">
                 <div className="lg:col-span-3">
                   <h2 className="text-2xl lg:text-3xl font-bold text-foreground">
-                    Women with disabilities are centered in this pathway.
+                    Turning overlooked talent into visible opportunity.
                   </h2>
                   <p className="text-sm lg:text-base text-muted mt-3 leading-relaxed">
-                    Women Rise includes accessible training spaces, adaptive learning support, and mentorship models designed
-                    for full participation. The program intentionally removes barriers so disability is never a blocker to
-                    credentials, business ownership, or long-term opportunity.
+                    This initiative highlights talented entrepreneurs from underserved communities, including individuals
+                    with disabilities, giving them greater visibility and access to local customers.
                   </p>
-                  <ul className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                    <li className="flex items-start gap-2"><span className="mt-1 w-1.5 h-1.5 bg-primary rounded-full shrink-0" /> Mobility-aware facilities and layouts</li>
-                    <li className="flex items-start gap-2"><span className="mt-1 w-1.5 h-1.5 bg-primary rounded-full shrink-0" /> Adaptive learning accommodations</li>
-                    <li className="flex items-start gap-2"><span className="mt-1 w-1.5 h-1.5 bg-primary rounded-full shrink-0" /> Flexible scheduling options</li>
-                    <li className="flex items-start gap-2"><span className="mt-1 w-1.5 h-1.5 bg-primary rounded-full shrink-0" /> Inclusive mentorship pathways</li>
-                  </ul>
+                  <p className="text-sm lg:text-base text-muted mt-3 leading-relaxed">
+                    By showcasing their products, crafts, and services on the platform, ATN helps turn overlooked
+                    skills into real economic opportunities.
+                  </p>
                 </div>
-                <div className="lg:col-span-2 relative overflow-hidden border border-border min-h-[160px] lg:min-h-0">
+                <div className="lg:col-span-2 relative overflow-hidden border border-border rounded-2xl min-h-[160px] lg:min-h-0">
                   <img
                     src="/mobility.jpg"
                     alt="Inclusive training setting showing mobility support"
