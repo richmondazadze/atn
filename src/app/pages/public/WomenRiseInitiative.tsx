@@ -157,7 +157,7 @@ export default function WomenRiseInitiative() {
             <div className="md:col-span-4 md:row-span-2 border border-border bg-background p-6 min-h-[260px] md:min-h-0 animate-fade-up delay-150">
               <div className="inline-flex items-center gap-2 bg-surface-teal text-primary px-3 py-1.5">
                 <Accessibility size={15} />
-                <span className="text-xs font-semibold tracking-widest uppercase">Opportunity Highlight Initiative</span>
+                <span className="text-xs font-semibold tracking-widest uppercase">Opportunity Spotlight Initiative</span>
               </div>
               <div className="mt-4 grid grid-cols-1 lg:grid-cols-5 gap-4 h-[calc(100%-42px)]">
                 <div className="lg:col-span-3">
