@@ -1,15 +1,14 @@
 import * as React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
-import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Separator } from '../../components/ui/separator';
-import { ArrowRight, CalendarDays, GraduationCap, Users } from 'lucide-react';
+import { ArrowRight, CalendarDays, GraduationCap, Users, Accessibility } from 'lucide-react';
 
 const pathwaySteps = [
-  { n: '01', title: 'Apply & Intake', desc: 'Get matched to the right pathway based on your goals and experience.' },
-  { n: '02', title: 'Train & Practice', desc: 'Hands-on modules built around real service delivery scenarios.' },
-  { n: '03', title: 'Earn Credential(s)', desc: 'Complete assessments and verify your readiness for community impact.' },
-  { n: '04', title: 'Launch with ATN', desc: 'Translate training into listings, bookings, and mentorship support.' },
+  { n: '01', title: 'Apply & Intake', desc: 'Get matched to the right pathway based on your goals and experience.', image: '/apply.webp' },
+  { n: '02', title: 'Train & Practice', desc: 'Hands-on modules built around real service delivery scenarios.', image: '/train.jpg' },
+  { n: '03', title: 'Earn Credential(s)', desc: 'Complete assessments and verify your readiness for community impact.', image: '/earn.png' },
+  { n: '04', title: 'Launch with ATN', desc: 'Translate training into listings, bookings, and mentorship support.', image: '/launch.png' },
 ];
 
 const pillars = [
@@ -23,21 +22,9 @@ export default function WomenRiseInitiative() {
     <div className="min-h-screen bg-background">
 
       {/* ── Hero ──────────────────────────────────────────── */}
-      <section className="relative overflow-hidden px-4 lg:px-[72px] pt-16 pb-12 lg:pt-24 lg:pb-20">
-        {/* Background Image & Overlay */}
-        <div 
-          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat" 
-          style={{ backgroundImage: 'url(/women_emp.jpg)' }} 
-          aria-hidden="true"
-        />
-        <div 
-          className="absolute inset-0 z-10" 
-          style={{ background: 'linear-gradient(135deg, rgba(13,148,136,0.88) 0%, rgba(10,122,111,0.82) 35%, rgba(141,123,42,0.78) 65%, rgba(239,180,61,0.85) 100%)' }}
-          aria-hidden="true" 
-        />
-        <div className="absolute inset-0 z-10 bg-gradient-to-b from-transparent via-transparent to-background/90" aria-hidden="true" />
-
-        <div className="relative z-20 max-w-5xl mx-auto text-center">
+      <section className="page-shell relative overflow-hidden pt-28 pb-16 lg:pt-36 lg:pb-24 bg-gradient-hero border-b border-border/50">
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full translate-x-1/3 -translate-y-1/2 blur-3xl pointer-events-none" aria-hidden="true" />
+        <div className="content-shell relative z-20 max-w-5xl text-center">
           <div className="flex flex-col items-center space-y-8">
             {/* Partnership badge */}
             <div className="inline-flex items-center gap-12 px-0 py-6 border-b border-border/20 animate-fade-down">
@@ -57,21 +44,21 @@ export default function WomenRiseInitiative() {
             </div>
 
             <div className="space-y-4 animate-fade-up">
-              <h1 className="text-4xl lg:text-7xl leading-[1.1] font-bold text-white drop-shadow-lg">
+              <h1 className="text-4xl lg:text-7xl leading-[1.1] font-bold text-foreground">
                 Empowering women<br />
-                <span style={{ WebkitTextFillColor: 'transparent', background: 'linear-gradient(90deg, #FEF5DC 0%, #efb43d 100%)', WebkitBackgroundClip: 'text', backgroundClip: 'text' }}>to rise & thrive</span>
+                <span className="text-primary">to rise & thrive</span>
               </h1>
-              <p className="text-sm lg:text-base text-white/85 leading-relaxed mx-auto max-w-2xl">
+              <p className="text-sm lg:text-base text-muted-foreground leading-relaxed mx-auto max-w-2xl">
                 A strategic partnership between Access Terrain Network (ATN) and Arkansas State University focused on
                 equipping women with high-value credentials and community-connected career pathways.
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4 animate-fade-up delay-200">
-              <Button asChild className="h-12 px-10 text-base font-semibold shadow-lg bg-white text-primary hover:bg-white/90">
+              <Button asChild className="h-12 px-10 text-base font-semibold shadow-sm">
                 <a href="/signup">Join the initiative</a>
               </Button>
-              <Button asChild variant="outline" className="h-12 px-10 text-base border-white/40 text-white hover:bg-white/10 bg-transparent">
+              <Button asChild variant="outline" className="h-12 px-10 text-base">
                 <a href="/how-it-works">
                   See how it works <ArrowRight size={16} className="ml-2" />
                 </a>
@@ -81,38 +68,130 @@ export default function WomenRiseInitiative() {
         </div>
       </section>
 
-      {/* ── Pillars ────────────────────────────────────────── */}
-      <section className="px-4 lg:px-[72px] py-16 lg:py-20 bg-background border-b border-border/40">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {pillars.map((p, i) => {
-              return (
-                <div 
-                  key={p.label} 
-                  className="border border-border p-8 bg-background shadow-sm hover:shadow-md transition-shadow animate-fade-up"
-                  style={{ animationDelay: `${i * 100}ms` }}
-                >
-                  {p.icon ? (
-                    <div className="w-12 h-12 flex items-center justify-center mb-6 text-primary bg-background/50">
-                      <p.icon size={22} />
-                    </div>
-                  ) : (
-                    <div className="w-12 h-12 flex items-center justify-center mb-6 text-primary bg-background/50">
-                      <GraduationCap size={22} />
-                    </div>
-                  )}
-                  <h3 className="text-xl font-bold text-foreground mb-3">{p.label}</h3>
-                  <p className="text-sm text-muted leading-relaxed">{p.desc}</p>
+      {/* ── Bento Experience Grid ─────────────────────────── */}
+      <section className="page-shell py-12 lg:py-16 bg-background border-b border-border/40">
+        <div className="content-shell">
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-4 md:auto-rows-[160px] lg:auto-rows-[180px]">
+            <div className="md:col-span-4 md:row-span-2 relative overflow-hidden border border-border min-h-[240px] md:min-h-0 animate-fade-up">
+              <img
+                src="/women_emp.jpg"
+                alt="Women collaborating in a learning environment"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
+              <div className="absolute left-4 bottom-4 right-4">
+                <p className="text-[11px] uppercase tracking-widest text-white/90 font-semibold">Women Rise Story</p>
+                <p className="text-base lg:text-lg font-semibold text-white mt-1">Women collaborating in classroom and skills training</p>
+              </div>
+            </div>
+
+            <div className="md:col-span-2 md:row-span-1 border border-border bg-background p-5 min-h-[180px] md:min-h-0 animate-fade-up delay-75">
+              <div className="w-10 h-10 flex items-center justify-center text-primary bg-secondary">
+                <GraduationCap size={20} />
+              </div>
+              <h3 className="text-base font-bold mt-3">Credentials</h3>
+              <p className="text-sm text-muted mt-1 leading-relaxed">{pillars[0].desc}</p>
+            </div>
+
+            <div className="md:col-span-2 md:row-span-1 relative overflow-hidden border border-border min-h-[180px] md:min-h-0 animate-fade-up delay-100">
+              <img
+                src="/mentor.webp"
+                alt="Mentor guiding participant one-on-one"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
+              <p className="absolute left-4 bottom-3 text-sm text-white font-medium">Mentor guidance in real time</p>
+            </div>
+
+            <div className="md:col-span-3 md:row-span-1 border border-border bg-background p-5 min-h-[180px] md:min-h-0 animate-fade-up delay-150">
+              <div className="w-10 h-10 flex items-center justify-center text-primary bg-secondary">
+                <Users size={20} />
+              </div>
+              <h3 className="text-base font-bold mt-3">Mentorship</h3>
+              <p className="text-sm text-muted mt-1 leading-relaxed">{pillars[1].desc}</p>
+            </div>
+
+            <div className="md:col-span-3 md:row-span-1 border border-border bg-background p-5 min-h-[180px] md:min-h-0 animate-fade-up delay-200">
+              <div className="w-10 h-10 flex items-center justify-center text-primary bg-secondary">
+                <CalendarDays size={20} />
+              </div>
+              <h3 className="text-base font-bold mt-3">Pathways</h3>
+              <p className="text-sm text-muted mt-1 leading-relaxed">{pillars[2].desc}</p>
+            </div>
+
+            <div className="md:col-span-2 md:row-span-2 relative overflow-hidden border border-border min-h-[260px] md:min-h-0 animate-fade-up delay-100">
+              <img
+                src="/graduation.avif"
+                alt="Graduation and certification milestone"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
+              <p className="absolute left-4 bottom-3 text-sm text-white font-medium">Credential milestones</p>
+            </div>
+
+            <div className="md:col-span-4 md:row-span-2 border border-border bg-background p-6 min-h-[260px] md:min-h-0 animate-fade-up delay-150">
+              <div className="inline-flex items-center gap-2 bg-surface-teal text-primary px-3 py-1.5">
+                <Accessibility size={15} />
+                <span className="text-xs font-semibold tracking-widest uppercase">Disability Inclusion</span>
+              </div>
+              <div className="mt-4 grid grid-cols-1 lg:grid-cols-5 gap-4 h-[calc(100%-42px)]">
+                <div className="lg:col-span-3">
+                  <h2 className="text-2xl lg:text-3xl font-bold text-foreground">
+                    Women with disabilities are centered in this pathway.
+                  </h2>
+                  <p className="text-sm lg:text-base text-muted mt-3 leading-relaxed">
+                    Women Rise includes accessible training spaces, adaptive learning support, and mentorship models designed
+                    for full participation. The program intentionally removes barriers so disability is never a blocker to
+                    credentials, business ownership, or long-term opportunity.
+                  </p>
+                  <ul className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                    <li className="flex items-start gap-2"><span className="mt-1 w-1.5 h-1.5 bg-primary rounded-full shrink-0" /> Mobility-aware facilities and layouts</li>
+                    <li className="flex items-start gap-2"><span className="mt-1 w-1.5 h-1.5 bg-primary rounded-full shrink-0" /> Adaptive learning accommodations</li>
+                    <li className="flex items-start gap-2"><span className="mt-1 w-1.5 h-1.5 bg-primary rounded-full shrink-0" /> Flexible scheduling options</li>
+                    <li className="flex items-start gap-2"><span className="mt-1 w-1.5 h-1.5 bg-primary rounded-full shrink-0" /> Inclusive mentorship pathways</li>
+                  </ul>
                 </div>
-              );
-            })}
+                <div className="lg:col-span-2 relative overflow-hidden border border-border min-h-[160px] lg:min-h-0">
+                  <img
+                    src="/mobility.jpg"
+                    alt="Inclusive training setting showing mobility support"
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="md:col-span-3 md:row-span-2 relative overflow-hidden border border-border min-h-[220px] md:min-h-0 animate-fade-up delay-250">
+              <img
+                src="/client.webp"
+                alt="Women-owned local service in action with a client"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
+              <p className="absolute left-4 bottom-3 text-sm text-white font-medium">Real client outcomes</p>
+            </div>
+            <div className="md:col-span-3 md:row-span-2 relative overflow-hidden border border-border min-h-[220px] md:min-h-0 animate-fade-up delay-300">
+              <img
+                src="/celebration.jpg"
+                alt="Community celebration and cohort success"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
+              <p className="absolute left-4 bottom-3 text-sm text-white font-medium">Community celebration</p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ── How it helps ──────────────────────────────────── */}
-      <section className="px-4 lg:px-[72px] py-16 lg:py-20 bg-background/40">
-        <div className="max-w-7xl mx-auto space-y-10">
+      <section className="page-shell py-16 lg:py-20 bg-background/40">
+        <div className="content-shell space-y-10">
           <div className="text-center space-y-4 max-w-2xl mx-auto mb-10">
             <h2 className="text-3xl lg:text-4xl font-bold text-foreground tracking-tight">ATN × ASU: How It Helps Participants</h2>
             <p className="text-sm lg:text-base text-muted-foreground leading-relaxed font-medium">
@@ -125,12 +204,17 @@ export default function WomenRiseInitiative() {
             {pathwaySteps.map((step, i) => (
               <div
                 key={step.n}
-                className="border border-border p-6 animate-fade-up bg-background shadow-sm hover:shadow-md transition-shadow"
+                className="border border-border animate-fade-up bg-background shadow-sm hover:shadow-md transition-shadow overflow-hidden"
                 style={{ animationDelay: `${i * 100}ms` }}
               >
-                <div className="text-3xl font-black text-foreground/10 mb-4 chewy-regular">{step.n}</div>
-                <div className="font-bold text-foreground mb-2">{step.title}</div>
-                <p className="text-sm text-muted leading-relaxed">{step.desc}</p>
+                <div className="h-36 w-full overflow-hidden border-b border-border">
+                  <img src={step.image} alt={step.title} className="w-full h-full object-cover" loading="lazy" />
+                </div>
+                <div className="p-5">
+                  <div className="text-3xl font-black text-foreground/10 mb-3 chewy-regular">{step.n}</div>
+                  <div className="font-bold text-foreground mb-2">{step.title}</div>
+                  <p className="text-sm text-muted leading-relaxed">{step.desc}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -138,8 +222,8 @@ export default function WomenRiseInitiative() {
       </section>
 
       {/* ── Programs (tabs) ───────────────────────────────── */}
-      <section id="programs" className="px-4 lg:px-[72px] py-16 lg:py-20">
-        <div className="max-w-7xl mx-auto space-y-10">
+      <section id="programs" className="page-shell py-16 lg:py-20">
+        <div className="content-shell space-y-10">
           <div className="text-center space-y-4 max-w-2xl mx-auto mb-10">
             <h2 className="text-3xl lg:text-4xl font-bold text-foreground tracking-tight">Certifications & Training</h2>
             <p className="text-sm lg:text-base text-muted-foreground leading-relaxed font-medium">
@@ -244,8 +328,8 @@ export default function WomenRiseInitiative() {
       </section>
 
       {/* ── CTA ───────────────────────────────────────────── */}
-      <section className="px-4 lg:px-[72px] py-16 lg:py-20">
-        <div className="max-w-7xl mx-auto">
+      <section className="page-shell py-16 lg:py-20">
+        <div className="content-shell">
           <div className="text-center animate-fade-up">
             <p className="text-primary text-sm font-semibold tracking-widest uppercase mb-4">Empowerment in Action</p>
             <h2 className="text-3xl lg:text-5xl font-bold text-foreground mb-6 leading-tight">

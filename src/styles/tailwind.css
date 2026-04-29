@@ -39,6 +39,21 @@
 
 /* ── Animation Utilities ──────────────────────────────────── */
 @layer utilities {
+  .page-shell {
+    width: 100%;
+    padding-inline: 1rem;
+  }
+  @media (min-width: 768px) {
+    .page-shell { padding-inline: 1.5rem; }
+  }
+  @media (min-width: 1024px) {
+    .page-shell { padding-inline: 4.5rem; }
+  }
+  .content-shell {
+    width: min(100%, 80rem);
+    margin-inline: auto;
+  }
+
   .animate-fade-in     { animation: atn-fade-in    0.30s ease-out both; }
   .animate-fade-up     { animation: atn-fade-up    0.40s ease-out both; }
   .animate-fade-down   { animation: atn-fade-down  0.30s ease-out both; }
@@ -69,6 +84,14 @@
   .delay-500 { animation-delay: 500ms; }
   .delay-600 { animation-delay: 600ms; }
   .delay-700 { animation-delay: 700ms; }
+  .stagger-1 { animation-delay: 100ms; }
+  .stagger-2 { animation-delay: 200ms; }
+  .stagger-3 { animation-delay: 300ms; }
+  .stagger-4 { animation-delay: 400ms; }
+  .stagger-5 { animation-delay: 500ms; }
+  .stagger-6 { animation-delay: 600ms; }
+  .stagger-7 { animation-delay: 700ms; }
+  .stagger-8 { animation-delay: 800ms; }
 
   /* Card interactions */
   .card-lift {
@@ -121,7 +144,7 @@
 
   /* Gradient backgrounds */
   .bg-gradient-hero {
-    background: linear-gradient(135deg, #0D9488 0%, #0a7a6f 30%, #8d7b2a 70%, #efb43d 100%);
+    background: linear-gradient(135deg, var(--background) 0%, var(--secondary) 100%);
   }
   .bg-gradient-teal-gold {
     background: linear-gradient(135deg, var(--primary) 0%, var(--gold) 100%);

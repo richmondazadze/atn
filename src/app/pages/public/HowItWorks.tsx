@@ -46,15 +46,13 @@ export default function HowItWorks() {
     <div className="min-h-screen bg-background">
 
       {/* Hero */}
-      <section className="relative overflow-hidden px-4 md:px-6 lg:px-[72px] pt-28 pb-16 lg:pt-36 lg:pb-24">
-        <div className="absolute inset-0 bg-gradient-hero pointer-events-none" aria-hidden="true" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/80 pointer-events-none" aria-hidden="true" />
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gold/10 rounded-full translate-x-1/3 -translate-y-1/2 blur-3xl pointer-events-none" aria-hidden="true" />
+      <section className="relative overflow-hidden px-4 md:px-6 lg:px-[72px] pt-28 pb-16 lg:pt-36 lg:pb-24 bg-gradient-hero border-b border-border/50">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full translate-x-1/3 -translate-y-1/2 blur-3xl pointer-events-none" aria-hidden="true" />
         <div className="relative max-w-7xl mx-auto text-center">
-          <h1 className="text-4xl lg:text-[56px] leading-tight font-bold mb-5 animate-fade-up text-white drop-shadow-lg">
-            How <span style={{ WebkitTextFillColor: 'transparent', background: 'linear-gradient(90deg, #FEF5DC 0%, #efb43d 100%)', WebkitBackgroundClip: 'text', backgroundClip: 'text' }}>ATN</span> Works
+          <h1 className="text-4xl lg:text-[56px] leading-tight font-bold mb-5 animate-fade-up text-foreground">
+            How <span className="text-primary">ATN</span> Works
           </h1>
-          <p className="text-lg text-white/85 max-w-2xl mx-auto animate-fade-up delay-100">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto animate-fade-up delay-100">
             Connect with trusted local service providers in three simple steps.
             Book in seconds, get it done with confidence.
           </p>

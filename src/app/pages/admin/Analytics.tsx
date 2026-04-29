@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { Card } from '../../components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
-import { TrendingUp, Users, DollarSign, Calendar, Star } from 'lucide-react';
+import { Users, DollarSign, Calendar, Star, BarChart2 } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useAnalytics } from '../../../hooks/useAnalytics';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
 
-const TOOLTIP_STYLE = { borderRadius: '4px', border: '1px solid var(--border)', fontSize: '12px' };
+const TOOLTIP_STYLE = { borderRadius: '8px', border: '1px solid var(--border)', fontSize: '12px', background: 'var(--background)' };
 const PERIOD_DAYS: Record<string, number> = { '7': 7, '30': 30, '90': 90, '365': 365 };
+
 
 export default function Analytics() {
   const [periodKey, setPeriodKey] = useState('30');
@@ -23,8 +24,8 @@ export default function Analytics() {
 
   const d = data!;
   const metrics = [
-    { icon: DollarSign, label: 'Total Revenue', value: `$${d.totalRevenue.toLocaleString()}`, trend: 'Period' },
-    { icon: Calendar, label: 'Total Bookings', value: d.totalBookings.toLocaleString(), trend: 'Completed' },
+    { icon: DollarSign, label: 'Total Revenue', value: `$${d.totalRevenue.toLocaleString()}`, trend: 'Period revenue' },
+    { icon: Calendar, label: 'Total Bookings', value: d.totalBookings.toLocaleString(), trend: 'Completed bookings' },
     { icon: Users, label: 'Active Users', value: d.activeUsers.toLocaleString(), trend: 'In period' },
     { icon: Star, label: 'Avg Rating', value: d.avgRating, trend: 'All reviews' },
   ];
@@ -34,15 +35,21 @@ export default function Analytics() {
   const topProviders = d.topProviders;
 
   return (
-    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-[72px]">
-      <div className="py-6 lg:py-8 max-w-7xl mx-auto animate-fade-up">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 lg:mb-8">
+    <div className="min-h-screen bg-background">
+
+      {/* Header */}
+      <div className="bg-gradient-hero border-b border-border/50 px-4 md:px-6 lg:px-[72px] py-8 lg:py-10 animate-fade-up">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl lg:text-[32px] font-semibold mb-1">Analytics</h1>
-            <p className="text-sm text-muted">Platform performance and insights</p>
+            <div className="inline-flex items-center gap-2 label-pill bg-surface-teal text-primary mb-4">
+              <BarChart2 size={11} />
+              Admin
+            </div>
+            <h1 className="text-2xl lg:text-4xl font-bold text-foreground mb-1">Analytics</h1>
+            <p className="text-sm text-muted-foreground">Platform performance and insights</p>
           </div>
           <Select value={periodKey} onValueChange={setPeriodKey}>
-            <SelectTrigger className="w-full sm:w-44">
+            <SelectTrigger className="w-full sm:w-44 focus-glow">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -53,6 +60,10 @@ export default function Analytics() {
             </SelectContent>
           </Select>
         </div>
+      </div>
+
+      <div className="px-4 md:px-6 lg:px-[72px] py-8 lg:py-10">
+        <div className="max-w-7xl mx-auto">
 
         {/* Key Metrics */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6 lg:mb-8">
@@ -63,9 +74,9 @@ export default function Analytics() {
                   <Icon size={16} className="text-primary" />
                   <span className="text-xs text-muted">{label}</span>
                 </div>
-                <TrendingUp size={14} className="text-primary" />
+                <Icon size={14} className="text-primary opacity-40" />
               </div>
-              <div className="text-2xl lg:text-[32px] font-semibold mb-0.5 chewy-regular">{value}</div>
+              <div className="text-2xl lg:text-[32px] font-bold mb-0.5">{value}</div>
               <p className="text-xs text-primary">{trend} vs last period</p>
             </Card>
           ))}
@@ -131,33 +142,33 @@ export default function Analytics() {
 
         {/* Top Performers */}
         <Card className="border-border p-5 lg:p-6 animate-fade-up delay-500">
-          <h2 className="text-lg font-medium mb-5">Top Performing Providers</h2>
+          <h2 className="text-lg font-bold mb-5">Top Performing Providers</h2>
           <div className="space-y-3">
             {topProviders.map((provider, i) => (
-              <div key={i} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 bg-background rounded transition-colors hover:">
+              <div key={i} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 rounded-xl bg-secondary/20 hover:bg-secondary/40 transition-colors">
                 <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-semibold shrink-0 chewy-regular">
+                  <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold shrink-0">
                     {i + 1}
                   </div>
                   <div>
-                    <p className="font-medium text-sm">{provider.name}</p>
+                    <p className="font-semibold text-sm text-foreground">{provider.name}</p>
                     <p className="text-xs text-muted">{provider.category}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 sm:gap-8 text-sm pl-10 sm:pl-0">
                   <div>
                     <p className="text-xs text-muted">Bookings</p>
-                    <p className="font-medium chewy-regular">{provider.bookings}</p>
+                    <p className="font-bold text-foreground">{provider.bookings}</p>
                   </div>
                   <div>
                     <p className="text-xs text-muted">Revenue</p>
-                    <p className="font-medium chewy-regular">{provider.revenue}</p>
+                    <p className="font-bold text-primary">{provider.revenue}</p>
                   </div>
                   <div>
                     <p className="text-xs text-muted">Rating</p>
-                    <p className="font-medium flex items-center gap-1">
+                    <p className="font-bold flex items-center gap-1">
                       <Star size={12} className="text-amber-400 fill-amber-400" />
-                      <span className="chewy-regular">{provider.rating}</span>
+                      <span>{provider.rating}</span>
                     </p>
                   </div>
                 </div>
@@ -165,6 +176,7 @@ export default function Analytics() {
             ))}
           </div>
         </Card>
+        </div>
       </div>
     </div>
   );

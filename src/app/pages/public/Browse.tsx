@@ -82,10 +82,9 @@ export default function Browse() {
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" aria-hidden="true" />
           <Input
             id="browse-search"
-            placeholder="Search services…"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="pl-9"
+            className="pl-11"
           />
         </div>
       </div>
@@ -180,14 +179,14 @@ export default function Browse() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-background border-b border-border/60 px-4 lg:px-[72px]">
-        <div className="py-8 lg:py-10 max-w-7xl mx-auto">
+      <div className="page-shell bg-background border-b border-border/60">
+        <div className="content-shell py-8 lg:py-10">
           <h1 className="text-2xl lg:text-[32px] font-bold text-foreground mb-1">Browse Services</h1>
           <p className="text-sm text-muted">Explore local services from vetted professionals</p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto flex">
+      <div className="content-shell flex">
         {/* Desktop filter sidebar */}
         <aside className="hidden lg:block w-72 border-r border-border/60 p-6 min-h-screen sticky top-0 overflow-y-auto">
           {filterPanel}
@@ -262,7 +261,7 @@ export default function Browse() {
             />
           ) : (
             <div className={viewMode === 'grid'
-              ? 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6'
+              ? 'grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6'
               : 'flex flex-col gap-4'
             }>
               {filtered.map((listing, i) => (

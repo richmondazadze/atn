@@ -104,7 +104,8 @@ export default function Login() {
               {trustBullets.map(({ icon: Icon, text }, i) => (
                 <li
                   key={text}
-                  className={`flex items-center gap-3 animate-fade-up delay-${(i + 2) * 100}`}
+                  className="flex items-center gap-3 animate-fade-up"
+                  style={{ animationDelay: `${(i + 2) * 100}ms` }}
                 >
                   {Icon ? (
                     <span className="flex-shrink-0 w-8 h-8 rounded-full /15 backdrop-blur-sm flex items-center justify-center ring-1 ring-white/25">

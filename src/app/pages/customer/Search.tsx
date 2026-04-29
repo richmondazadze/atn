@@ -73,10 +73,9 @@ export default function Search() {
           <SearchIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" aria-hidden="true" />
           <Input
             id="search-input"
-            placeholder="Search services…"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="pl-9"
+            className="pl-11"
           />
         </div>
       </div>
@@ -191,7 +190,7 @@ export default function Search() {
               action={<Button variant="outline" onClick={clearFilters}>Clear filters</Button>}
             />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 lg:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6">
               {filtered.map((listing, i) => (
                 <div key={listing.id} className="animate-fade-up" style={{ animationDelay: `${Math.min(i, 5) * 60}ms` }}>
                   <ListingCard

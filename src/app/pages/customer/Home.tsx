@@ -1,3 +1,4 @@
+import React from 'react';
 import { Link, useNavigate } from 'react-router';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
@@ -76,8 +77,8 @@ export default function CustomerHome() {
     <div className="min-h-screen bg-background">
 
       {/* ── Welcome header ──────────────────────────────── */}
-      <div className="bg-background border-b border-border/60 px-4 md:px-6 lg:px-[72px]">
-        <div className="py-8 lg:py-12 max-w-7xl mx-auto">
+      <div className="page-shell bg-background border-b border-border/60">
+        <div className="content-shell py-8 lg:py-12">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
             <div>
               <h1 className="text-3xl lg:text-4xl font-bold text-foreground tracking-tight animate-fade-up">
@@ -102,8 +103,8 @@ export default function CustomerHome() {
         </div>
       </div>
 
-      <div className="px-4 md:px-6 lg:px-[72px]">
-        <div className="py-8 lg:py-10 max-w-7xl mx-auto space-y-12">
+      <div className="page-shell">
+        <div className="content-shell py-8 lg:py-10 space-y-12">
 
           {/* ── Upcoming Bookings ───────────────────────── */}
           {upcoming.length > 0 && (
@@ -180,9 +181,9 @@ export default function CustomerHome() {
                 </Link>
               </Button>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
               {featuredForYou.map((listing, i) => (
-                <div key={listing.id} className={`animate-fade-up delay-${(i + 1) * 100}`}>
+                <div key={listing.id} className="animate-fade-up" style={{ animationDelay: `${(i + 1) * 100}ms` }}>
                   <ListingCard
                     id={listing.id}
                     title={listing.title}
@@ -209,7 +210,7 @@ export default function CustomerHome() {
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-xl lg:text-2xl font-bold tracking-tight text-foreground">Recently Booked</h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
               {(bookAgain.length > 0 ? bookAgain : listings.slice(0, 3)).map((listing, i) => (
                 <Card
                   key={listing.id}

@@ -1,16 +1,18 @@
 import { Star } from 'lucide-react';
+import { cn } from './ui/utils';
 
 interface RatingStarsProps {
   rating: number;
   reviewCount?: number;
   size?: number;
   showCount?: boolean;
+  className?: string;
 }
 
-export function RatingStars({ rating, reviewCount, size = 14, showCount = true }: RatingStarsProps) {
+export function RatingStars({ rating, reviewCount, size = 14, showCount = true, className }: RatingStarsProps) {
   return (
     <div
-      className="flex items-center gap-1"
+      className={cn("flex items-center gap-1", className)}
       role="img"
       aria-label={`${rating} out of 5 stars${reviewCount !== undefined ? `, ${reviewCount} reviews` : ''}`}
     >

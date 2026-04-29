@@ -7,7 +7,7 @@ import { Label } from '../../components/ui/label';
 import { Textarea } from '../../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Switch } from '../../components/ui/switch';
-import { Plus, MapPin, Trash2, Edit } from 'lucide-react';
+import { Plus, MapPin, Trash2, Edit, Wifi } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '../../../lib/supabase';
 import { useWifiHubs, type WifiHub } from '../../../hooks/useWifiHubs';
@@ -63,22 +63,30 @@ export default function WifiHubsAdmin() {
   );
 
   return (
-    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-[72px]">
-      <div className="py-6 lg:py-8 max-w-6xl mx-auto">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 lg:mb-8">
-          <div>
-            <h1 className="text-2xl lg:text-[32px] font-semibold mb-1">Community WiFi Hubs</h1>
-            <p className="text-sm text-muted">Create and manage free WiFi hub locations shown on the public map.</p>
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="page-shell bg-gradient-hero border-b border-border py-6 lg:py-8">
+        <div className="content-shell flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-surface-teal flex items-center justify-center shrink-0">
+              <Wifi size={20} className="text-primary" />
+            </div>
+            <div>
+              <h1 className="text-2xl lg:text-[32px] font-bold leading-tight">WiFi Hubs</h1>
+              <p className="text-sm text-muted-foreground">
+                Create and manage free WiFi hub locations shown on the public map.
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 text-sm">
-              <span className="text-muted">Show inactive</span>
+              <span className="text-muted-foreground">Show inactive</span>
               <Switch checked={includeInactive} onCheckedChange={setIncludeInactive} />
             </div>
             <Dialog open={createOpen} onOpenChange={setCreateOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-primary text-primary-foreground w-full sm:w-auto">
-                  <Plus size={16} className="mr-2" /> Add hub
+                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto shadow-teal-sm gap-2">
+                  <Plus size={16} /> + Add Hub
                 </Button>
               </DialogTrigger>
               <HubDialogContent
@@ -93,66 +101,89 @@ export default function WifiHubsAdmin() {
             </Dialog>
           </div>
         </div>
+      </div>
 
-        <div className="space-y-3">
-          {filtered.length === 0 ? (
-            <Card className="border-border p-10 text-center">
-              <MapPin size={40} className="mx-auto text-muted mb-3" />
-              <div className="font-medium">No WiFi hubs yet</div>
-              <div className="text-sm text-muted mt-1">Add your first hub to show it on the map.</div>
-              <Button className="bg-primary text-primary-foreground mt-5" onClick={() => setCreateOpen(true)}>Add hub</Button>
-            </Card>
-          ) : (
-            filtered.map(hub => (
-              <Card key={hub.id} className="border-border p-5">
-                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <MapPin size={16} className="text-primary shrink-0" />
-                      <h3 className="font-medium truncate">{hub.name}</h3>
-                      {!hub.active && <span className="text-xs px-2 py-0.5 rounded bg-background text-muted">Inactive</span>}
-                    </div>
-                    <div className="text-sm text-muted">{hub.address}</div>
-                    <div className="text-xs text-muted mt-2">
-                      {hub.lat.toFixed(5)}, {hub.lng.toFixed(5)}
-                      {hub.network_name ? <> • Network: <strong className="text-foreground">{hub.network_name}</strong></> : null}
-                      {hub.hours ? <> • Hours: <strong className="text-foreground">{hub.hours}</strong></> : null}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <Button variant="ghost" size="sm" onClick={() => setEditing(hub)}>
-                      <Edit size={14} className="mr-1" /> Edit
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-destructive"
-                      onClick={async () => {
-                        const ok = confirm(`Delete hub “${hub.name}”?`);
-                        if (!ok) return;
-                        const { error } = await supabase.from('wifi_hubs').delete().eq('id', hub.id);
-                        if (error) { toast.error('Failed to delete hub'); return; }
-                        setHubs(prev => prev.filter(h => h.id !== hub.id));
-                        toast.success('Hub deleted');
-                      }}
-                    >
-                      <Trash2 size={14} />
-                    </Button>
-                  </div>
-                </div>
+      <div className="page-shell py-6 lg:py-8">
+        <div className="content-shell">
+          <div className="space-y-3">
+            {filtered.length === 0 ? (
+              <Card className="card-lift rounded-2xl border-border p-10 text-center">
+                <MapPin size={40} className="mx-auto text-muted-foreground mb-3" />
+                <div className="font-semibold">No WiFi hubs yet</div>
+                <div className="text-sm text-muted-foreground mt-1">Add your first hub to show it on the map.</div>
+                <Button
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground mt-5"
+                  onClick={() => setCreateOpen(true)}
+                >
+                  Add Hub
+                </Button>
               </Card>
-            ))
-          )}
-        </div>
+            ) : (
+              filtered.map((hub, i) => (
+                <Card
+                  key={hub.id}
+                  className="card-lift rounded-2xl border-border p-5 animate-fade-up"
+                  style={{ animationDelay: `${Math.min((i + 1) * 100, 700)}ms` }}
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                        <div className="w-7 h-7 rounded-lg bg-surface-teal flex items-center justify-center shrink-0">
+                          <MapPin size={14} className="text-primary" />
+                        </div>
+                        <h3 className="font-semibold truncate">{hub.name}</h3>
+                        {hub.active ? (
+                          <span className="label-pill bg-surface-green text-status-green">
+                            Active
+                          </span>
+                        ) : (
+                          <span className="label-pill bg-surface-coral text-[#F4623A]">
+                            Inactive
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-sm text-muted-foreground ml-9">{hub.address}</div>
+                      <div className="text-xs text-muted-foreground mt-2 ml-9">
+                        {hub.lat.toFixed(5)}, {hub.lng.toFixed(5)}
+                        {hub.network_name ? <> • Network: <strong className="text-foreground">{hub.network_name}</strong></> : null}
+                        {hub.hours ? <> • Hours: <strong className="text-foreground">{hub.hours}</strong></> : null}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button variant="ghost" size="sm" onClick={() => setEditing(hub)}>
+                        <Edit size={14} className="mr-1" /> Edit
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={async () => {
+                          const ok = confirm(`Delete hub "${hub.name}"?`);
+                          if (!ok) return;
+                          const { error } = await supabase.from('wifi_hubs').delete().eq('id', hub.id);
+                          if (error) { toast.error('Failed to delete hub'); return; }
+                          setHubs(prev => prev.filter(h => h.id !== hub.id));
+                          toast.success('Hub deleted');
+                        }}
+                      >
+                        <Trash2 size={14} />
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
 
-        <HubEditDialog
-          hub={editing}
-          onClose={() => setEditing(null)}
-          onUpdated={(next) => {
-            setHubs(prev => prev.map(h => h.id === next.id ? next : h).sort((a, b) => a.name.localeCompare(b.name)));
-            setEditing(null);
-          }}
-        />
+          <HubEditDialog
+            hub={editing}
+            onClose={() => setEditing(null)}
+            onUpdated={(next) => {
+              setHubs(prev => prev.map(h => h.id === next.id ? next : h).sort((a, b) => a.name.localeCompare(b.name)));
+              setEditing(null);
+            }}
+          />
+        </div>
       </div>
     </div>
   );
@@ -183,7 +214,7 @@ function HubDialogContent({
   const [saving, setSaving] = useState(false);
   const addressRef = useRef<HTMLInputElement | null>(null);
 
-  const title = mode === 'create' ? 'Add WiFi hub' : 'Edit WiFi hub';
+  const title = mode === 'create' ? 'Add WiFi Hub' : 'Edit WiFi Hub';
   const desc = mode === 'create'
     ? 'Create a new hub with a map pin location.'
     : 'Update hub details and location.';
@@ -251,7 +282,9 @@ function HubDialogContent({
               placeholder="Street address"
               className="mt-1"
             />
-            <p className="text-xs text-muted mt-1">Paste an address, then set lat/lng below (or use autocomplete in a future iteration).</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Paste an address, then set lat/lng below (or use autocomplete in a future iteration).
+            </p>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
@@ -283,7 +316,7 @@ function HubDialogContent({
           <div className="flex items-center justify-between pt-1">
             <div>
               <Label>Active</Label>
-              <p className="text-xs text-muted">Inactive hubs are hidden from public map views</p>
+              <p className="text-xs text-muted-foreground">Inactive hubs are hidden from public map views</p>
             </div>
             <Switch checked={draft.active} onCheckedChange={(v) => setDraft(d => ({ ...d, active: v }))} />
           </div>
@@ -312,8 +345,8 @@ function HubDialogContent({
 
           <div className="flex items-center justify-end gap-2 pt-2">
             <Button variant="outline" className="border-border" onClick={onClose}>Cancel</Button>
-            <Button className="bg-primary text-primary-foreground" disabled={saving} onClick={handleSave}>
-              {saving ? 'Saving…' : mode === 'create' ? 'Create hub' : 'Save changes'}
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground" disabled={saving} onClick={handleSave}>
+              {saving ? 'Saving…' : mode === 'create' ? 'Create Hub' : 'Save Changes'}
             </Button>
           </div>
         </div>
@@ -321,4 +354,3 @@ function HubDialogContent({
     </DialogContent>
   );
 }
-

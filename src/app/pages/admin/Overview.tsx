@@ -76,27 +76,35 @@ export default function AdminOverview() {
   ];
 
   return (
-    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-[72px]">
-      <div className="py-6 lg:py-8 max-w-7xl mx-auto">
+    <div className="min-h-screen bg-background">
 
-        {/* ── Page Header ── */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 lg:mb-12 animate-fade-up">
+      {/* Header */}
+      <div className="bg-gradient-hero border-b border-border/50 px-4 md:px-6 lg:px-[72px] py-8 lg:py-10 animate-fade-up">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl lg:text-[32px] font-bold mb-1">Admin Dashboard</h1>
+            <div className="inline-flex items-center gap-2 label-pill bg-surface-teal text-primary mb-4">
+              <Activity size={11} />
+              Admin
+            </div>
+            <h1 className="text-2xl lg:text-4xl font-bold text-foreground mb-1">Admin Dashboard</h1>
             <p className="text-sm text-muted-foreground font-medium">Jonesboro, AR • Platform Overview</p>
           </div>
-          <Badge className="bg-primary/10 text-primary border-0 px-4 py-2 self-start sm:self-auto font-bold text-xs uppercase tracking-wider">
-            <Activity size={14} className="mr-2" />
+          <Badge className="bg-surface-green text-status-green border-0 px-4 py-2 self-start sm:self-auto font-bold text-xs uppercase tracking-wider gap-2">
+            <Activity size={12} />
             Operational
           </Badge>
         </div>
+      </div>
+
+      <div className="px-4 md:px-6 lg:px-[72px] py-8 lg:py-10">
+      <div className="max-w-7xl mx-auto">
 
         {/* ── Metric Cards ── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-10 lg:mb-16">
           {metrics.map(({ icon: Icon, label, value, trend, up, iconColor, delay }) => (
             <Card
               key={label}
-              className={`p-5 lg:p-6 animate-fade-up ${delay} relative group hover:border-primary/40 transition-colors`}
+              className={`p-3 sm:p-5 lg:p-6 animate-fade-up ${delay} relative group hover:border-primary/40 transition-colors`}
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center justify-center">
@@ -228,6 +236,7 @@ export default function AdminOverview() {
           </Link>
         </div>
 
+      </div>
       </div>
     </div>
   );

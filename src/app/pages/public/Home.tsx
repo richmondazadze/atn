@@ -100,10 +100,20 @@ const avatarColors = [
 ];
 
 export default function PublicHome() {
-  const { listings, loading: listingsLoading } = useListings({ featured: true });
+  const { listings, loading: listingsLoading } = useListings();
   const { testimonials, loading: testimonialsLoading } = useTestimonials();
 
-  const featuredListings = listings.slice(0, 3);
+  const featuredListings = listings.filter((listing) => listing.featured).slice(0, 3);
+  const nonFeaturedCraftHighlights = listings
+    .filter((listing) => listing.images[0] && listing.provider_id && !listing.featured)
+    .sort((a, b) => b.rating - a.rating);
+  const featuredFallbackCraftHighlights = listings
+    .filter((listing) => listing.images[0] && listing.provider_id && listing.featured)
+    .sort((a, b) => b.rating - a.rating);
+  const craftHighlights = [
+    ...nonFeaturedCraftHighlights,
+    ...featuredFallbackCraftHighlights,
+  ].slice(0, 2);
   const loading = listingsLoading || testimonialsLoading;
 
   if (loading) return (
@@ -116,7 +126,7 @@ export default function PublicHome() {
     <div className="min-h-screen bg-background">
 
       {/* ── Hero ───────────────────────────────────────────── */}
-      <section className="relative overflow-hidden px-4 md:px-6 lg:px-[72px] pt-20 pb-16 lg:pt-32 lg:pb-28">
+      <section className="page-shell relative overflow-hidden pt-20 pb-16 lg:pt-32 lg:pb-28">
         {/* Background Image */}
         <div 
           className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat scale-105" 
@@ -131,7 +141,7 @@ export default function PublicHome() {
         />
         <div className="absolute inset-0 z-10 bg-gradient-to-b from-transparent via-transparent to-background/90" aria-hidden="true" />
 
-        <div className="relative z-20 max-w-5xl mx-auto text-center">
+        <div className="content-shell relative z-20 max-w-5xl text-center">
           <div className="flex flex-col items-center space-y-6">
             <div className="space-y-4 animate-fade-up max-w-4xl">
               <h1 className="text-4xl lg:text-7xl font-bold tracking-tight text-white leading-[1.1] drop-shadow-lg">
@@ -160,8 +170,8 @@ export default function PublicHome() {
       </section>
 
       {/* ── Trust strip ───────────────────────────────────── */}
-      <section className="border-y border-border/60 bg-background px-4 md:px-6 lg:px-[72px]">
-        <div className="py-10 max-w-7xl mx-auto">
+      <section className="page-shell border-y border-border/60 bg-background">
+        <div className="content-shell py-10">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 sm:divide-x divide-border/60">
             {trustStats.map((stat, i) => (
               <div key={stat.label} className={`text-center ${i > 0 ? 'sm:pl-6' : ''} animate-fade-up`} style={{ animationDelay: `${i * 100}ms` }}>
@@ -176,8 +186,8 @@ export default function PublicHome() {
       </section>
 
       {/* ── Inclusion & Accessibility ─────────────────────── */}
-      <section className="px-4 md:px-6 lg:px-[72px] py-16 lg:py-20">
-        <div className="max-w-7xl mx-auto">
+      <section className="page-shell py-16 lg:py-20">
+        <div className="content-shell">
           <div className="text-center mb-12 animate-fade-up">
             <p className="text-gold text-sm font-semibold tracking-widest uppercase mb-3">Everyone Belongs</p>
             <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">Built for Underserved Communities</h2>
@@ -204,8 +214,8 @@ export default function PublicHome() {
       </section>
 
       {/* ── Featured services ─────────────────────────────── */}
-      <section className="px-4 md:px-6 lg:px-[72px] py-16 lg:py-20 bg-background/40">
-        <div className="max-w-7xl mx-auto">
+      <section className="page-shell py-16 lg:py-20 bg-background/40">
+        <div className="content-shell">
           <div className="flex items-end justify-between mb-10">
             <div className="space-y-2">
               <h2 className="text-3xl lg:text-4xl font-bold text-foreground">Featured Services</h2>
@@ -217,10 +227,10 @@ export default function PublicHome() {
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
             {featuredListings.length > 0 ? (
               featuredListings.map((listing, i) => (
-                <div key={listing.id} className={`animate-fade-up delay-${(i + 1) * 100}`}>
+                <div key={listing.id} className="animate-fade-up" style={{ animationDelay: `${(i + 1) * 100}ms` }}>
                   <ListingCard
                     id={listing.id}
                     title={listing.title}
@@ -239,7 +249,7 @@ export default function PublicHome() {
             ) : (
               /* Placeholder cards while no listings */
               [0, 1, 2].map(i => (
-                <div key={i} className={`h-80 bg-gradient-to-br from-surface-teal to-surface-gold rounded-2xl animate-shimmer delay-${(i + 1) * 100}`} />
+                <div key={i} className="h-80 bg-gradient-to-br from-surface-teal to-surface-gold rounded-2xl animate-shimmer" style={{ animationDelay: `${(i + 1) * 100}ms` }} />
               ))
             )}
           </div>
@@ -253,8 +263,8 @@ export default function PublicHome() {
       </section>
 
       {/* ── How it works ──────────────────────────────────── */}
-      <section className="px-4 md:px-6 lg:px-[72px] py-16 lg:py-20">
-        <div className="max-w-7xl mx-auto">
+      <section className="page-shell py-16 lg:py-20">
+        <div className="content-shell">
           <div className="text-center mb-12 animate-fade-up">
             <h2 className="text-3xl lg:text-4xl font-bold text-foreground">How it Works</h2>
           </div>
@@ -264,7 +274,7 @@ export default function PublicHome() {
             {howItWorksSteps.map((step, i) => {
               const Icon = step.icon;
               return (
-                <div key={step.number} className={`relative text-center animate-fade-up delay-${(i + 1) * 150}`}>
+                <div key={step.number} className="relative text-center animate-fade-up" style={{ animationDelay: `${(i + 1) * 150}ms` }}>
                   <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl ${step.color} mb-5 shadow-sm`}>
                     <Icon size={26} />
                   </div>
@@ -280,10 +290,51 @@ export default function PublicHome() {
         </div>
       </section>
 
+      {/* ── Craft Highlights ─────────────────────────────── */}
+      {craftHighlights.length > 0 && (
+        <section className="page-shell py-16 lg:py-20 bg-background/40">
+          <div className="content-shell space-y-4">
+            {craftHighlights.map((craft, i) => {
+              const imageOnLeft = i % 2 === 1;
+              return (
+                <div
+                  key={craft.id}
+                  className="grid grid-cols-1 md:grid-cols-2 border border-border bg-background overflow-hidden animate-fade-up min-h-[26rem] md:min-h-[24rem]"
+                  style={{ animationDelay: `${(i + 1) * 120}ms` }}
+                >
+                  <div className={`${imageOnLeft ? 'md:order-2' : 'md:order-1'} p-6 lg:p-8 flex flex-col justify-center h-full`}>
+                    <p className="text-[11px] uppercase tracking-widest text-primary font-semibold mb-2">Craft Highlight</p>
+                    <h3 className="text-2xl lg:text-3xl font-bold text-foreground mb-3">{craft.title}</h3>
+                    <p className="text-sm lg:text-base text-muted leading-relaxed mb-4 line-clamp-4">{craft.description}</p>
+                    <div className="text-sm text-foreground mb-6">
+                      <span className="font-semibold">{craft.provider_name}</span>
+                      <span className="text-muted"> • {craft.category_slug.replace('-', ' ')}</span>
+                    </div>
+                    <Button asChild className="w-fit">
+                      <Link to={`/provider/${craft.provider_id}`}>
+                        View provider profile <ArrowRight size={14} className="ml-1" />
+                      </Link>
+                    </Button>
+                  </div>
+                  <div className={`${imageOnLeft ? 'md:order-1' : 'md:order-2'} h-56 sm:h-72 md:h-full bg-secondary overflow-hidden`}>
+                    <img
+                      src={getListingImageUrl(craft.images[0])}
+                      alt={`${craft.title} by ${craft.provider_name}`}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       {/* ── Testimonials ──────────────────────────────────── */}
       {testimonials.length > 0 && (
-        <section className="px-4 md:px-6 lg:px-[72px] py-16 lg:py-20 bg-background/40">
-          <div className="max-w-7xl mx-auto">
+        <section className="page-shell py-16 lg:py-20 bg-background/40">
+          <div className="content-shell">
             <div className="text-center mb-12 animate-fade-up">
               <h2 className="text-3xl lg:text-4xl font-bold text-foreground">What the Community Says</h2>
             </div>
@@ -291,7 +342,8 @@ export default function PublicHome() {
               {testimonials.map((t, i) => (
                 <div
                   key={t.id}
-                  className={`bg-background border border-border rounded-2xl p-6 card-lift animate-fade-up delay-${(i + 1) * 100}`}
+                  className="bg-background border border-border rounded-2xl p-6 card-lift animate-fade-up"
+                  style={{ animationDelay: `${(i + 1) * 100}ms` }}
                 >
                   <RatingStars rating={t.rating} showCount={false} size={15} />
                   <p className="text-sm text-foreground/80 mt-4 mb-5 leading-relaxed italic">"{t.text}"</p>
@@ -312,8 +364,8 @@ export default function PublicHome() {
       )}
 
       {/* ── CTA ───────────────────────────────────────────── */}
-      <section className="px-4 md:px-6 lg:px-[72px] py-16 lg:py-24">
-        <div className="max-w-7xl mx-auto">
+      <section className="page-shell py-16 lg:py-24">
+        <div className="content-shell">
           <div className="text-center animate-fade-up">
             <p className="text-primary text-sm font-semibold tracking-widest uppercase mb-4">Join the community</p>
             <h2 className="text-3xl lg:text-5xl font-bold text-foreground mb-6 leading-tight">

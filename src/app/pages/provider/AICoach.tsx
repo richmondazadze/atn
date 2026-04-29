@@ -177,11 +177,17 @@ export default function AICoach() {
             }
 
             try {
-              const parsed = JSON.parse(dataStr) as unknown;
+              const parsed = JSON.parse(dataStr) as {
+                choices?: Array<{
+                  delta?: { content?: string };
+                  message?: { content?: string };
+                  text?: string;
+                }>;
+              };
               const delta =
-                (parsed as any)?.choices?.[0]?.delta?.content ??
-                (parsed as any)?.choices?.[0]?.message?.content ??
-                (parsed as any)?.choices?.[0]?.text;
+                parsed.choices?.[0]?.delta?.content ??
+                parsed.choices?.[0]?.message?.content ??
+                parsed.choices?.[0]?.text;
 
               if (typeof delta === 'string' && delta.length > 0) {
                 full += delta;
@@ -368,7 +374,7 @@ export default function AICoach() {
             <Card className="border-border flex flex-col flex-1 overflow-hidden">
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-4" style={{ minHeight: '320px', maxHeight: 'calc(100vh - 420px)' }}>
-                {messages.map((msg, i) => (
+                {messages.filter(msg => !(msg.role === 'assistant' && msg.content === '')).map((msg, i) => (
                   <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     {msg.role === 'assistant' && (
                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shrink-0 mt-1">

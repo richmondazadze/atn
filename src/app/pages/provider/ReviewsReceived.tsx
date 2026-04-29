@@ -25,6 +25,20 @@ function StarRow({ rating }: { rating: number }) {
   );
 }
 
+function avatarColor(name: string): string {
+  const colors = [
+    'bg-surface-teal text-primary',
+    'bg-surface-amber text-amber-700',
+    'bg-surface-violet text-violet',
+    'bg-surface-coral text-coral',
+    'bg-surface-rose text-rose-600',
+    'bg-surface-green text-status-green',
+  ];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return colors[Math.abs(hash) % colors.length];
+}
+
 export default function ReviewsReceived() {
   const { user } = useAuth();
   const { reviews, loading: reviewsLoading } = useReviews({ providerId: user.id });
@@ -58,115 +72,190 @@ export default function ReviewsReceived() {
   );
 
   return (
-    <div className="min-h-screen bg-background px-4 md:px-6 lg:px-[72px]">
-      <div className="py-6 lg:py-8 max-w-7xl mx-auto">
-        <div className="mb-6 lg:mb-8">
-          <h1 className="text-2xl lg:text-[32px] font-semibold mb-1">Reviews</h1>
-          <p className="text-sm text-muted">Customer feedback and ratings for your services</p>
+    <div className="min-h-screen bg-background">
+      {/* Page header */}
+      <div className="bg-gradient-hero border-b border-border px-4 md:px-6 lg:px-[72px] py-6 lg:py-8">
+        <div className="max-w-7xl mx-auto flex items-center gap-3 animate-fade-up">
+          <div className="w-10 h-10 rounded-xl bg-surface-amber flex items-center justify-center shrink-0">
+            <Star size={20} className="text-amber-500" />
+          </div>
+          <div>
+            <h1 className="text-2xl lg:text-[32px] font-semibold leading-tight">Reviews</h1>
+            <p className="text-sm text-muted mt-0.5">Customer feedback and ratings for your services</p>
+          </div>
         </div>
+      </div>
 
-        {/* Summary stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">
-          <Card className="border-border p-5 lg:p-6">
-            <div className="flex items-center gap-2 mb-2 text-sm text-muted"><Star size={16} className="text-amber-400" /> Average Rating</div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl lg:text-[32px] font-semibold chewy-regular">{stats.avg}</span>
-              <span className="text-muted text-sm">/ 5.0</span>
-            </div>
-          </Card>
-          <Card className="border-border p-5 lg:p-6">
-            <div className="flex items-center gap-2 mb-2 text-sm text-muted"><MessageCircle size={16} /> Total Reviews</div>
-            <div className="text-2xl lg:text-[32px] font-semibold chewy-regular">{stats.total}</div>
-          </Card>
-          <Card className="border-primary bg-primary/5 p-5 lg:p-6">
-            <div className="flex items-center gap-2 mb-2 text-sm text-muted"><Award size={16} className="text-primary" /> 5-Star Reviews</div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl lg:text-[32px] font-semibold chewy-regular">{stats.fiveStarCount}</span>
-              <span className="text-muted text-sm">({stats.total > 0 ? Math.round((stats.fiveStarCount / stats.total) * 100) : 0}%)</span>
-            </div>
-          </Card>
-        </div>
-
-        {reviews.length === 0 ? (
-          <EmptyState icon={<Star size={40} />} title="No reviews yet" description="Customer reviews will appear here after completed bookings." />
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-            {/* Distribution */}
-            <Card className="border-border p-5 lg:p-6 self-start">
-              <h2 className="font-medium mb-5">Rating Distribution</h2>
-              <div className="space-y-3">
-                {stats.dist.map(({ n, count }) => (
-                  <div key={n} className="flex items-center gap-3">
-                    <div className="flex items-center gap-1 w-10 shrink-0 text-sm">{n} <Star size={11} className="fill-amber-400 text-amber-400" /></div>
-                    <div className="flex-1 h-2 bg-border rounded-full overflow-hidden">
-                      <div className="h-full bg-primary rounded-full" style={{ width: `${stats.total > 0 ? (count / stats.total) * 100 : 0}%` }} />
-                    </div>
-                    <span className="text-sm text-muted w-4 text-right chewy-regular">{count}</span>
-                  </div>
-                ))}
+      <div className="px-4 md:px-6 lg:px-[72px] py-6 lg:py-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Summary stats */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">
+            <Card className="card-lift rounded-2xl border-border p-5 lg:p-6 animate-fade-up delay-100">
+              <div className="flex items-center gap-2 mb-3 text-sm text-muted">
+                <Star size={16} className="text-amber-400" />
+                Average Rating
               </div>
-              <div className="mt-5 pt-5 border-t border-border flex items-center gap-2 text-sm text-primary">
-                <TrendingUp size={14} /> +<span className="chewy-regular">12%</span> from last month
+              <div className="flex items-baseline gap-2 mb-2">
+                <span className="text-3xl lg:text-4xl font-bold text-foreground">{stats.avg}</span>
+                <span className="text-muted text-sm">/ 5.0</span>
               </div>
+              <RatingStars rating={parseFloat(stats.avg)} size={16} />
             </Card>
 
-            {/* Reviews list */}
-            <div className="lg:col-span-2 space-y-4">
-              {reviews.map(review => {
-                const listing = listings.find(l => l.id === review.listing_id);
-                return (
-                  <Card key={review.id} className="border-border p-5 lg:p-6">
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <div className="flex items-center gap-3 mb-1.5 flex-wrap">
-                          <StarRow rating={review.rating} />
-                          {listing && <Badge variant="secondary" className="text-xs">{listing.title}</Badge>}
-                        </div>
-                        <div className="flex items-center gap-2 text-sm">
-                          <span className="font-medium">{review.customer_name}</span>
-                          <span className="text-muted">•</span>
-                          <span className="text-muted">{new Date(review.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+            <Card className="card-lift rounded-2xl border-border p-5 lg:p-6 animate-fade-up delay-200">
+              <div className="flex items-center gap-2 mb-3 text-sm text-muted">
+                <MessageCircle size={16} />
+                Total Reviews
+              </div>
+              <div className="text-3xl lg:text-4xl font-bold text-foreground">{stats.total}</div>
+              <p className="text-xs text-muted mt-1">All-time reviews received</p>
+            </Card>
+
+            <Card className="card-lift rounded-2xl border-primary/20 bg-surface-teal p-5 lg:p-6 animate-fade-up delay-300">
+              <div className="flex items-center gap-2 mb-3 text-sm text-muted">
+                <Award size={16} className="text-primary" />
+                5-Star Reviews
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl lg:text-4xl font-bold text-primary">{stats.fiveStarCount}</span>
+                <span className="text-muted text-sm">
+                  ({stats.total > 0 ? Math.round((stats.fiveStarCount / stats.total) * 100) : 0}%)
+                </span>
+              </div>
+            </Card>
+          </div>
+
+          {reviews.length === 0 ? (
+            <EmptyState icon={<Star size={40} />} title="No reviews yet" description="Customer reviews will appear here after completed bookings." />
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+              {/* Distribution */}
+              <Card className="card-lift rounded-2xl border-border p-5 lg:p-6 self-start animate-fade-up delay-200">
+                <h2 className="font-semibold text-base mb-5">Rating Distribution</h2>
+                <div className="space-y-3">
+                  {stats.dist.map(({ n, count }) => (
+                    <div key={n} className="flex items-center gap-3">
+                      <div className="flex items-center gap-1 w-10 shrink-0 text-sm font-medium">
+                        {n}
+                        <Star size={11} className="fill-amber-400 text-amber-400" />
+                      </div>
+                      <div className="flex-1 h-2 bg-border rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-amber-400 rounded-full transition-all duration-500"
+                          style={{ width: `${stats.total > 0 ? (count / stats.total) * 100 : 0}%` }}
+                        />
+                      </div>
+                      <span className="text-sm text-muted w-4 text-right font-medium">{count}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-5 pt-5 border-t border-border flex items-center gap-2 text-sm text-primary font-medium">
+                  <TrendingUp size={14} />
+                  +12% from last month
+                </div>
+              </Card>
+
+              {/* Reviews list */}
+              <div className="lg:col-span-2 space-y-4">
+                {reviews.map((review, idx) => {
+                  const listing = listings.find(l => l.id === review.listing_id);
+                  const name = review.customer_name || 'Customer';
+                  const initials = name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
+                  return (
+                    <Card
+                      key={review.id}
+                      className={`card-lift rounded-2xl border-border p-5 lg:p-6 animate-fade-up`}
+                      style={{ animationDelay: `${(idx + 1) * 100}ms` }}
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-start gap-3">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${avatarColor(name)}`}>
+                            {initials}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <span className="font-semibold text-sm">{name}</span>
+                              <span className="text-muted text-xs">
+                                {new Date(review.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <RatingStars rating={review.rating} size={13} />
+                              {listing && (
+                                <Badge variant="secondary" className="text-xs rounded-full">{listing.title}</Badge>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <p className="text-sm text-muted mb-4">{review.text}</p>
 
-                    <div className="pt-4 border-t border-border">
-                      <Button variant="outline" size="sm" onClick={() => { setSelectedReview(review); setReply(''); }}>
-                        <MessageCircle size={13} className="mr-1.5" /> Reply
-                      </Button>
-                    </div>
-                  </Card>
-                );
-              })}
+                      <p className="text-sm text-muted leading-relaxed mb-4 pl-[52px]">{review.text}</p>
+
+                      {review.reply && (
+                        <div className="ml-[52px] bg-surface-teal rounded-xl p-3 mb-3 border-l-2 border-primary">
+                          <p className="text-xs font-medium text-primary mb-1">Your reply</p>
+                          <p className="text-sm text-foreground">{review.reply}</p>
+                        </div>
+                      )}
+
+                      <div className="pt-3 border-t border-border pl-[52px]">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="rounded-xl text-xs hover:bg-surface-teal hover:border-primary hover:text-primary transition-all"
+                          onClick={() => { setSelectedReview(review); setReply(''); }}
+                        >
+                          <MessageCircle size={13} className="mr-1.5" />
+                          {review.reply ? 'Edit Reply' : 'Reply'}
+                        </Button>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Reply dialog */}
       <Dialog open={!!selectedReview} onOpenChange={() => setSelectedReview(null)}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Reply to Review</DialogTitle></DialogHeader>
+        <DialogContent className="max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold">Reply to Review</DialogTitle>
+          </DialogHeader>
           {selectedReview && (
             <div className="space-y-4">
-              <Card className="border-border bg-background p-4">
-                <div className="flex items-center gap-3 mb-2">
+              <Card className="rounded-xl border-border bg-secondary/30 p-4">
+                <div className="flex items-center gap-2 mb-2">
                   <StarRow rating={selectedReview.rating} />
                   <span className="text-sm font-medium">{selectedReview.customer_name}</span>
                 </div>
                 <p className="text-sm text-muted">{selectedReview.text}</p>
               </Card>
               <div>
-                <Label htmlFor="reply-text" className="mb-1 block">Your Reply</Label>
-                <Textarea id="reply-text" placeholder="Thank the customer and address any specific points…" value={reply} onChange={e => setReply(e.target.value)} rows={5} className="resize-none" />
-                <p className="text-xs text-muted mt-1">Keep replies professional, grateful, and constructive.</p>
+                <Label htmlFor="reply-text" className="mb-1.5 block font-medium">Your Reply</Label>
+                <Textarea
+                  id="reply-text"
+                  placeholder="Thank the customer and address any specific points…"
+                  value={reply}
+                  onChange={e => setReply(e.target.value)}
+                  rows={5}
+                  className="resize-none rounded-xl border-border focus:border-primary focus:ring-primary/20"
+                />
+                <p className="text-xs text-muted mt-1.5">Keep replies professional, grateful, and constructive.</p>
               </div>
             </div>
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedReview(null)}>Cancel</Button>
-            <Button className="bg-primary text-primary-foreground" onClick={postReply} disabled={!reply.trim()}>Post Reply</Button>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setSelectedReview(null)} className="rounded-xl">Cancel</Button>
+            <Button
+              className="bg-primary text-primary-foreground rounded-xl hover:bg-primary/90"
+              onClick={postReply}
+              disabled={!reply.trim()}
+            >
+              Post Reply
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

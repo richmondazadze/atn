@@ -81,10 +81,10 @@ export default function ProviderDashboard() {
         </div>
 
         {/* ── Stat Cards ────────────────────────────────────── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-10 lg:mb-16">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6 mb-10 lg:mb-16">
 
           {/* Card 1 – Bookings Today */}
-          <Card className="p-5 lg:p-6 animate-fade-up delay-100">
+          <Card className="p-3 sm:p-5 lg:p-6 animate-fade-up delay-100">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-1.5">
                 <Clock size={13} />
@@ -100,7 +100,7 @@ export default function ProviderDashboard() {
           </Card>
 
           {/* Card 2 – Revenue */}
-          <Card className="p-5 lg:p-6 animate-fade-up delay-150">
+          <Card className="p-3 sm:p-5 lg:p-6 animate-fade-up delay-400">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center justify-center shrink-0">
                 <DollarSign size={20} className="text-muted-foreground" />
@@ -115,7 +115,7 @@ export default function ProviderDashboard() {
           </Card>
 
           {/* Card 3 – Reviews/Rating */}
-          <Card className="p-5 lg:p-6 animate-fade-up delay-200">
+          <Card className="p-3 sm:p-5 lg:p-6 animate-fade-up delay-200">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center justify-center shrink-0">
                 <Star size={20} className="text-muted-foreground" />
@@ -130,7 +130,7 @@ export default function ProviderDashboard() {
           </Card>
 
           {/* Card 4 – AI Coaching */}
-          <Card className="p-5 lg:p-6 animate-fade-up delay-300">
+          <Card className="p-3 sm:p-5 lg:p-6 animate-fade-up delay-300">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center justify-center shrink-0">
                 <Zap size={20} className="text-muted-foreground" />

@@ -50,7 +50,7 @@ export default function Favorites() {
               action={<Link to="/customer/search"><Button>Browse services</Button></Link>}
             />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 lg:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
               {favoriteListings.map((listing, i) => (
                 <div key={listing.id} className={`animate-fade-up`} style={{ animationDelay: `${Math.min(i, 7) * 60}ms` }}>
                   <ListingCard

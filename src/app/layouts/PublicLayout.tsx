@@ -9,7 +9,8 @@ export default function PublicLayout() {
         <Outlet />
       </main>
       <footer className="border-t border-border bg-secondary/50">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-[72px] py-10 lg:py-14">
+        <div className="page-shell py-10 lg:py-14">
+          <div className="content-shell">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 lg:gap-12">
             <div className="col-span-2 sm:col-span-1">
               <Link to="/" className="flex items-center gap-2 mb-3">
@@ -49,6 +50,7 @@ export default function PublicLayout() {
               <Link to="/privacy" className="text-xs text-muted hover:text-foreground transition-colors">Privacy</Link>
               <Link to="/terms" className="text-xs text-muted hover:text-foreground transition-colors">Terms</Link>
             </div>
+          </div>
           </div>
         </div>
       </footer>

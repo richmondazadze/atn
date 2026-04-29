@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
 import { MapPin, CheckCircle2 } from 'lucide-react';
+import type { ComponentProps } from 'react';
 import { Badge } from './ui/badge';
 import { RatingStars } from './RatingStars';
 
@@ -28,7 +29,7 @@ function pickColor(name: string): string {
   return avatarPalette[code % avatarPalette.length];
 }
 
-const categoryVariants: string[] = ['teal', 'violet', 'gold', 'coral', 'success'];
+const categoryVariants: NonNullable<ComponentProps<typeof Badge>['variant']>[] = ['teal', 'violet', 'gold', 'coral', 'success'];
 
 export function ProviderCard({
   id,
@@ -90,7 +91,7 @@ export function ProviderCard({
           {/* Category badges */}
           <div className="flex flex-wrap gap-1">
             {categories.slice(0, 2).map((cat, i) => (
-              <Badge key={cat} variant={categoryVariants[i % categoryVariants.length] as any} className="text-[10px] capitalize">
+              <Badge key={cat} variant={categoryVariants[i % categoryVariants.length]} className="text-[10px] capitalize">
                 {cat}
               </Badge>
             ))}

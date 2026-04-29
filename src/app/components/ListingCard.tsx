@@ -1,7 +1,9 @@
 import { Link } from 'react-router';
 import { Clock, Calendar, Heart } from 'lucide-react';
+import type { ComponentProps } from 'react';
 import { Badge } from './ui/badge';
 import { RatingStars } from './RatingStars';
+import { formatDuration, formatPrice, formatShortDate } from '../../lib/formatters';
 
 interface ListingCardProps {
   id: string;
@@ -20,7 +22,7 @@ interface ListingCardProps {
   onToggleFavorite?: (id: string) => void;
 }
 
-const categoryColors: Record<string, string> = {
+const categoryColors: Record<string, NonNullable<ComponentProps<typeof Badge>['variant']>> = {
   cleaning: 'teal',
   braiding: 'violet',
   tutoring: 'gold',
@@ -28,7 +30,7 @@ const categoryColors: Record<string, string> = {
   default: 'secondary',
 };
 
-function getCategoryVariant(cat: string): string {
+function getCategoryVariant(cat: string): NonNullable<ComponentProps<typeof Badge>['variant']> {
   const key = cat?.toLowerCase() ?? '';
   for (const k of Object.keys(categoryColors)) {
     if (key.includes(k)) return categoryColors[k];
@@ -53,19 +55,15 @@ export function ListingCard({
   onToggleFavorite,
 }: ListingCardProps) {
   const numPrice = typeof price === 'number' ? price : parseFloat(String(price).replace(/[^0-9.]/g, '')) || 0;
-  const hasValidNext = nextAvailable && !isNaN(new Date(nextAvailable).getTime());
-  const formattedDate = hasValidNext
-    ? new Date(nextAvailable).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-    : null;
-  const numDuration = Number(duration) || 0;
-  const durationLabel = numDuration >= 60 ? `${Math.floor(numDuration / 60)}h ${numDuration % 60 > 0 ? `${numDuration % 60}m` : ''}`.trim() : `${numDuration}m`;
+  const formattedDate = formatShortDate(nextAvailable);
+  const durationLabel = formatDuration(duration);
 
   return (
     <div className="relative group/card h-full flex flex-col">
       <Link
         to={`${linkPrefix}/listing/${id}`}
         className="flex flex-col flex-1 min-h-0 bg-background border border-border rounded-2xl overflow-hidden card-lift hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-        aria-label={`${title} by ${providerName}, $${numPrice}`}
+        aria-label={`${title} by ${providerName}, ${formatPrice(numPrice)}`}
       >
         {/* Image */}
         <div className="aspect-[16/10] overflow-hidden bg-gradient-to-br from-surface-teal to-surface-violet relative shrink-0 img-zoom">
@@ -78,7 +76,7 @@ export function ListingCard({
           )}
           {/* Category badge overlay */}
           <div className="absolute bottom-2 left-2">
-            <Badge variant={getCategoryVariant(category) as any} className="text-[10px] capitalize shadow-sm">
+            <Badge variant={getCategoryVariant(category)} className="text-[10px] capitalize shadow-sm">
               {category}
             </Badge>
           </div>
@@ -90,13 +88,13 @@ export function ListingCard({
           )}
         </div>
 
-        <div className="p-4 flex flex-col flex-1 min-h-0">
+        <div className="p-3 sm:p-4 flex flex-col flex-1 min-h-0">
           {/* Title + provider */}
           <div className="mb-2 min-w-0">
-            <h3 className="font-semibold text-foreground group-hover/card:text-primary transition-colors line-clamp-2 leading-snug" title={title}>
+            <h3 className="font-semibold text-sm sm:text-base text-foreground group-hover/card:text-primary transition-colors line-clamp-2 leading-snug" title={title}>
               {title}
             </h3>
-            <p className="text-xs text-muted mt-1 truncate">{providerName}</p>
+            <p className="text-[10px] sm:text-xs text-muted mt-1 truncate">{providerName}</p>
           </div>
 
           {/* Rating */}
@@ -105,16 +103,16 @@ export function ListingCard({
           </div>
 
           {/* Price + duration + availability */}
-          <div className="mt-auto flex items-center justify-between gap-3 w-full">
-            <span className="text-lg font-bold text-foreground chewy-regular">${numPrice}</span>
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-muted flex items-center gap-1 chewy-regular">
-                <Clock size={11} />
+          <div className="mt-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 w-full">
+            <span className="text-base sm:text-lg font-bold text-foreground chewy-regular">{formatPrice(numPrice)}</span>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <span className="text-[10px] sm:text-xs text-muted flex items-center gap-1 chewy-regular">
+                <Clock size={10} className="sm:size-3" />
                 {durationLabel}
               </span>
-              {hasValidNext && formattedDate && (
-                <div className="flex items-center gap-1 text-xs text-muted bg-secondary px-2 py-1 rounded-lg shrink-0">
-                  <Calendar size={11} />
+              {formattedDate && (
+                <div className="flex items-center gap-1 text-[10px] sm:text-xs text-muted bg-secondary px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg shrink-0">
+                  <Calendar size={10} className="sm:size-3" />
                   <span>{formattedDate}</span>
                 </div>
               )}

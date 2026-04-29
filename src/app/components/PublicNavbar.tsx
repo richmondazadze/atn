@@ -43,8 +43,8 @@ export function PublicNavbar() {
             : 'bg-transparent'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-[72px]">
-          <nav className="flex items-center justify-between h-16 lg:h-[72px]" aria-label="Main navigation">
+        <div className="page-shell">
+          <nav className="content-shell flex items-center justify-between h-16 lg:h-[72px]" aria-label="Main navigation">
             {/* Logo */}
             <Link
               to="/"
