@@ -5,7 +5,7 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Checkbox } from '../../components/ui/checkbox';
-import { Search, Grid3x3, List, SlidersHorizontal, X } from 'lucide-react';
+import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { getListingImageUrl } from '../../../lib/storage';
 import { EmptyState } from '../../components/EmptyState';
 import { useListings } from '../../../hooks/useListings';
@@ -18,7 +18,6 @@ export default function Browse() {
   const { listings, loading: listingsLoading } = useListings();
   const { categories, loading: categoriesLoading } = useCategories();
 
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [minPrice, setMinPrice] = useState('');
@@ -196,7 +195,7 @@ export default function Browse() {
         <main className="flex-1 p-4 lg:p-8 min-w-0">
           {/* Toolbar */}
           <div className="flex items-center justify-between gap-3 mb-6">
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col items-start gap-1.5">
               {/* Mobile filter toggle */}
               <Button
                 variant="outline"
@@ -213,43 +212,22 @@ export default function Browse() {
                   </span>
                 )}
               </Button>
-              <p className="text-sm text-muted">
+              <p className="text-sm text-muted pl-0.5">
                 <span className="font-semibold text-foreground">{filtered.length}</span> service{filtered.length !== 1 ? 's' : ''} found
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Select value={sortBy} onValueChange={v => setSortBy(v as SortKey)}>
-                <SelectTrigger className="w-40 lg:w-48 text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="featured">Featured</SelectItem>
-                  <SelectItem value="price-low">Price: Low to High</SelectItem>
-                  <SelectItem value="price-high">Price: High to Low</SelectItem>
-                  <SelectItem value="rating">Highest Rated</SelectItem>
-                </SelectContent>
-              </Select>
-              {/* View toggle */}
-              <div className="flex border border-border rounded-xl overflow-hidden">
-                <button
-                  className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-surface-teal text-primary' : 'bg-background hover:bg-secondary'}`}
-                  onClick={() => setViewMode('grid')}
-                  aria-label="Grid view"
-                  aria-pressed={viewMode === 'grid'}
-                >
-                  <Grid3x3 size={15} />
-                </button>
-                <button
-                  className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-surface-teal text-primary' : 'bg-background hover:bg-secondary'}`}
-                  onClick={() => setViewMode('list')}
-                  aria-label="List view"
-                  aria-pressed={viewMode === 'list'}
-                >
-                  <List size={15} />
-                </button>
-              </div>
-            </div>
+            <Select value={sortBy} onValueChange={v => setSortBy(v as SortKey)}>
+              <SelectTrigger className="w-40 lg:w-48 text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="featured">Featured</SelectItem>
+                <SelectItem value="price-low">Price: Low to High</SelectItem>
+                <SelectItem value="price-high">Price: High to Low</SelectItem>
+                <SelectItem value="rating">Highest Rated</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Results */}
@@ -260,10 +238,7 @@ export default function Browse() {
               action={<Button variant="outline" onClick={clearFilters}>Clear filters</Button>}
             />
           ) : (
-            <div className={viewMode === 'grid'
-              ? 'grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6'
-              : 'flex flex-col gap-4'
-            }>
+            <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6">
               {filtered.map((listing, i) => (
                 <div key={listing.id} className={`animate-fade-up`} style={{ animationDelay: `${Math.min(i, 5) * 60}ms` }}>
                   <ListingCard

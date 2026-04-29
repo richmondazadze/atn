@@ -151,7 +151,7 @@ export default function Search() {
         <main className="flex-1 p-4 lg:p-8 min-w-0">
           {/* Toolbar */}
           <div className="flex items-center justify-between gap-3 mb-6">
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col items-start gap-1.5">
               <Button
                 variant="outline"
                 size="sm"
@@ -166,7 +166,7 @@ export default function Search() {
                   </span>
                 )}
               </Button>
-              <p className="text-sm text-muted">
+              <p className="text-sm text-muted pl-0.5">
                 <span className="font-semibold text-foreground chewy-regular">{filtered.length}</span> service{filtered.length !== 1 ? 's' : ''} found
               </p>
             </div>

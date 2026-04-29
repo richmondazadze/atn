@@ -101,6 +101,53 @@ export default function ListingDetail() {
   }
 
   const listingReviews = reviews.slice(0, 3);
+  const reviewsSection = (
+    <Card className="rounded-2xl border border-border card-lift p-5 animate-fade-up delay-400">
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="text-base font-semibold text-foreground">Reviews</h2>
+        {listingReviews.length > 0 && (
+          <div className="flex items-center gap-1.5 bg-surface-amber rounded-full px-3 py-1">
+            <Star size={12} className="text-amber-500 fill-current" />
+            <span className="text-xs font-semibold text-amber-700">{listing.rating} average</span>
+          </div>
+        )}
+      </div>
+      {listingReviews.length === 0 ? (
+        <div className="py-8 text-center">
+          <div className="w-12 h-12 rounded-full bg-surface-teal flex items-center justify-center mx-auto mb-3">
+            <Star size={20} className="text-primary" />
+          </div>
+          <p className="text-sm text-muted">No reviews yet. Be the first to book!</p>
+        </div>
+      ) : (
+        <div className="space-y-5">
+          {listingReviews.map((review, idx) => (
+            <div
+              key={review.id}
+              className="rounded-xl border border-border card-lift p-4 animate-fade-up"
+              style={{ animationDelay: `${Math.min((idx + 1) * 100, 500)}ms` }}
+            >
+              <div className="flex items-start gap-3 mb-2">
+                <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${getAvatarColor(review.customer_name)}`}>
+                  {review.customer_name.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="font-semibold text-sm">{review.customer_name}</p>
+                    <RatingStars rating={review.rating} size={13} />
+                  </div>
+                  <p className="text-xs text-muted">
+                    {new Date(review.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                  </p>
+                </div>
+              </div>
+              <p className="text-sm text-muted leading-relaxed pl-12">{review.text}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </Card>
+  );
 
   return (
     <div className="min-h-screen bg-background page-shell">
@@ -184,56 +231,13 @@ export default function ListingDetail() {
               </Card>
             )}
 
-            {/* Reviews */}
-            <Card className="rounded-2xl border border-border card-lift p-5 animate-fade-up delay-400">
-              <div className="flex items-center justify-between mb-5">
-                <h2 className="text-base font-semibold text-foreground">Reviews</h2>
-                {listingReviews.length > 0 && (
-                  <div className="flex items-center gap-1.5 bg-surface-amber rounded-full px-3 py-1">
-                    <Star size={12} className="text-amber-500 fill-current" />
-                    <span className="text-xs font-semibold text-amber-700">{listing.rating} average</span>
-                  </div>
-                )}
-              </div>
-              {listingReviews.length === 0 ? (
-                <div className="py-8 text-center">
-                  <div className="w-12 h-12 rounded-full bg-surface-teal flex items-center justify-center mx-auto mb-3">
-                    <Star size={20} className="text-primary" />
-                  </div>
-                  <p className="text-sm text-muted">No reviews yet. Be the first to book!</p>
-                </div>
-              ) : (
-                <div className="space-y-5">
-                  {listingReviews.map((review, idx) => (
-                    <div
-                      key={review.id}
-                      className="rounded-xl border border-border card-lift p-4 animate-fade-up"
-                      style={{ animationDelay: `${Math.min((idx + 1) * 100, 500)}ms` }}
-                    >
-                      <div className="flex items-start gap-3 mb-2">
-                        <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${getAvatarColor(review.customer_name)}`}>
-                          {review.customer_name.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between gap-2">
-                            <p className="font-semibold text-sm">{review.customer_name}</p>
-                            <RatingStars rating={review.rating} size={13} />
-                          </div>
-                          <p className="text-xs text-muted">
-                            {new Date(review.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                          </p>
-                        </div>
-                      </div>
-                      <p className="text-sm text-muted leading-relaxed pl-12">{review.text}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </Card>
+            <div className="hidden lg:block">
+              {reviewsSection}
+            </div>
           </div>
 
           {/* Booking Sidebar */}
-          <div className="lg:col-span-1 order-first lg:order-last">
+          <div className="lg:col-span-1">
             <Card className="rounded-2xl border border-border card-lift p-5 lg:p-6 lg:sticky lg:top-8 animate-fade-up delay-150">
               {/* Price */}
               <div className="flex items-center justify-between mb-1">
@@ -295,6 +299,10 @@ export default function ListingDetail() {
                 </div>
               </div>
             </Card>
+          </div>
+
+          <div className="lg:hidden">
+            {reviewsSection}
           </div>
         </div>
       </div>

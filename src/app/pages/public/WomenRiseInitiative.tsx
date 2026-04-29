@@ -18,23 +18,45 @@ const pillars = [
 ];
 
 export default function WomenRiseInitiative() {
+  const heroVideos = ['/hero_vid1.mp4', '/hero_vid2.mp4'] as const;
+  const [activeHeroVideo, setActiveHeroVideo] = React.useState(0);
+
   return (
     <div className="min-h-screen bg-background">
 
       {/* ── Hero ──────────────────────────────────────────── */}
       <section className="page-shell relative overflow-hidden pt-28 pb-16 lg:pt-36 lg:pb-24 bg-gradient-hero border-b border-border/50">
+        <video
+          key={heroVideos[activeHeroVideo]}
+          className="absolute inset-0 w-full h-full object-cover"
+          autoPlay
+          muted
+          playsInline
+          preload="auto"
+          onEnded={() => setActiveHeroVideo((prev) => (prev + 1) % heroVideos.length)}
+          aria-hidden="true"
+        >
+          <source src={heroVideos[activeHeroVideo]} type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-black/62" aria-hidden="true" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/30 to-background/95" aria-hidden="true" />
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full translate-x-1/3 -translate-y-1/2 blur-3xl pointer-events-none" aria-hidden="true" />
         <div className="content-shell relative z-20 max-w-5xl text-center">
           <div className="flex flex-col items-center space-y-8">
             {/* Partnership badge */}
-            <div className="inline-flex items-center gap-12 px-0 py-6 border-b border-border/20 animate-fade-down">
+            <div className="relative inline-flex items-center gap-12 px-6 py-6 border-b border-white/30 animate-fade-down">
+              <div
+                className="absolute inset-0 -z-10"
+                style={{ background: 'radial-gradient(circle at center, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.12) 40%, rgba(255,255,255,0.00) 78%)' }}
+                aria-hidden="true"
+              />
               <img 
                 src="/atn_logo_no_bg.png" 
                 alt="ATN" 
                 className="h-16 w-auto object-contain" 
                 loading="lazy" 
               />
-              <span className="text-muted/30 font-extralight text-5xl">|</span>
+              <span className="text-white/55 font-extralight text-5xl">|</span>
               <img 
                 src="/asu_logo-removebg-preview.png" 
                 alt="Arkansas State University" 
@@ -44,21 +66,21 @@ export default function WomenRiseInitiative() {
             </div>
 
             <div className="space-y-4 animate-fade-up">
-              <h1 className="text-4xl lg:text-7xl leading-[1.1] font-bold text-foreground">
+              <h1 className="text-4xl lg:text-7xl leading-[1.1] font-bold text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.45)]">
                 Empowering women<br />
-                <span className="text-primary">to rise & thrive</span>
+                <span className="text-gold">to rise & thrive</span>
               </h1>
-              <p className="text-sm lg:text-base text-muted-foreground leading-relaxed mx-auto max-w-2xl">
+              <p className="text-sm lg:text-base text-white/92 leading-relaxed mx-auto max-w-2xl">
                 A strategic partnership between Access Terrain Network (ATN) and Arkansas State University focused on
                 equipping women with high-value credentials and community-connected career pathways.
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4 animate-fade-up delay-200">
-              <Button asChild className="h-12 px-10 text-base font-semibold shadow-sm">
+              <Button asChild className="h-12 px-10 text-base font-semibold shadow-lg bg-white text-primary hover:bg-white/90">
                 <a href="/signup">Join the initiative</a>
               </Button>
-              <Button asChild variant="outline" className="h-12 px-10 text-base">
+              <Button asChild variant="outline" className="h-12 px-10 text-base border-white/60 text-white hover:bg-white/10 bg-transparent">
                 <a href="/how-it-works">
                   See how it works <ArrowRight size={16} className="ml-2" />
                 </a>
